@@ -1,76 +1,99 @@
 (function () {
   'use strict';
 
-  // 1. Inject Styles for the Circular Page Transition
+  /* ─── 1. Inject Styles ─────────────────────────────────────────── */
   const style = document.createElement('style');
   style.textContent = `
-    .page-transition-overlay {
+    .tc-page-mask {
       position: fixed;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100vw;
       height: 100vh;
-      background-color: #f47aab; /* Signature Brand Pink */
+      background: #f47aab;
       z-index: 99999;
       pointer-events: none;
-      clip-path: circle(150% at 50% 50%);
-      transition: clip-path 0.65s cubic-bezier(0.76, 0, 0.24, 1);
+      will-change: clip-path;
     }
-    .page-transition-overlay.reveal-hidden {
+    /* State: full screen, no transition — starting point on page load */
+    .tc-page-mask.state-enter {
+      clip-path: circle(150% at 50% 50%);
+      transition: none;
+    }
+    /* State: shrinking circle — page revealing */
+    .tc-page-mask.state-reveal {
       clip-path: circle(0% at 50% 50%);
+      transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    /* State: growing circle — page closing before navigation */
+    .tc-page-mask.state-close {
+      clip-path: circle(150% at 50% 50%);
+      transition: clip-path 0.55s cubic-bezier(0.77, 0, 0.175, 1);
     }
   `;
   document.head.appendChild(style);
 
-  // 2. Inject Overlay Div into Body
-  const overlay = document.createElement('div');
-  overlay.className = 'page-transition-overlay';
-  document.body.appendChild(overlay);
+  /* ─── 2. Create Mask Element ───────────────────────────────────── */
+  const mask = document.createElement('div');
+  mask.className = 'tc-page-mask state-enter';
 
-  // 3. Trigger Reveal Animation on Page Load
-  // Wait a tiny frame for the browser to register the initial filled circle state
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      overlay.classList.add('reveal-hidden');
-    }, 50);
-  });
+  /* ─── 3. Reveal on Page Load ───────────────────────────────────── */
+  function runReveal() {
+    document.body.appendChild(mask);
+    // Force reflow so the browser registers "state-enter" before we swap classes
+    mask.getBoundingClientRect();
+    requestAnimationFrame(function () {
+      mask.classList.remove('state-enter');
+      mask.classList.add('state-reveal');
+    });
+  }
 
-  // 4. Intercept Internal Link Clicks for Smooth Circle Wipe Transition
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runReveal);
+  } else {
+    runReveal();
+  }
+
+  /* ─── 4. Intercept Internal Link Clicks ───────────────────────── */
   document.addEventListener('click', function (e) {
-    const link = e.target.closest('a');
-    if (!link || !link.href) return;
+    const a = e.target.closest('a');
+    if (!a || !a.href) return;
 
-    // Parse URL
     try {
-      const targetUrl = new URL(link.href, window.location.href);
+      const url = new URL(a.href, window.location.href);
+      const href = a.getAttribute('href') || '';
+      const isSameOrigin = url.origin === window.location.origin;
+      const isHash = href.startsWith('#') || (url.pathname === window.location.pathname && url.hash);
+      const isExternal = a.getAttribute('target') === '_blank';
 
-      // Check if it's an internal link
-      const isInternal = targetUrl.origin === window.location.origin;
-      const isSamePage = targetUrl.pathname === window.location.pathname;
-      const isHash = link.hash || link.getAttribute('href').startsWith('#');
-      const targetAttr = link.getAttribute('target');
-
-      if (isInternal && !isHash && (!targetAttr || targetAttr === '_self')) {
-        // Prevent default navigation
+      if (isSameOrigin && !isHash && !isExternal) {
         e.preventDefault();
+        const dest = a.href;
 
-        // Remove the reveal class to make the circle close back in
-        overlay.classList.remove('reveal-hidden');
-
-        // Navigate to the target page after the transition completes
-        setTimeout(() => {
-          window.location.href = link.href;
-        }, 600);
+        // Reset to revealed state (no transition), then animate close circle
+        mask.className = 'tc-page-mask state-reveal';
+        mask.getBoundingClientRect(); // force reflow
+        requestAnimationFrame(function () {
+          mask.classList.remove('state-reveal');
+          mask.classList.add('state-close');
+          setTimeout(function () {
+            window.location.href = dest;
+          }, 580);
+        });
       }
     } catch (err) {
-      // Ignore invalid URLs
+      // Ignore malformed URLs
     }
   });
 
-  // 5. Handle back-button cache restore (so page is not black on back button press)
+  /* ─── 5. Handle Browser Back/Forward Cache ─────────────────────── */
   window.addEventListener('pageshow', function (e) {
     if (e.persisted) {
-      overlay.classList.add('reveal-hidden');
+      mask.className = 'tc-page-mask state-enter';
+      mask.getBoundingClientRect();
+      requestAnimationFrame(function () {
+        mask.classList.remove('state-enter');
+        mask.classList.add('state-reveal');
+      });
     }
   });
 })();

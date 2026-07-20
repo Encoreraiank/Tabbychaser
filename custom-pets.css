@@ -190,41 +190,47 @@
 }
 
 .how-timeline-col {
+  background-color: #ffffff; /* White card to contrast with pink-cream box background */
+  border-radius: 24px !important;
+  border: 1.5px solid var(--color-border-rgba);
+  padding: 30px 20px 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   position: relative;
+  transition: var(--transition);
 }
 
-/* Circular Illustration Rings */
-.step-illustration-ring {
-  width: 180px;
-  height: 180px;
-  background-color: #ffffff;
-  border: 2.5px solid var(--color-brand-pink);
-  border-radius: 50% !important;
+.how-timeline-col:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 45px rgba(245, 185, 192, 0.45);
+  border-color: var(--color-pink-highlight);
+}
+
+/* Step Illustration Containers (Direct display, NO circles) */
+.step-illustration-container {
+  width: 100%;
+  height: 160px; /* High height to give cat mascot illustrations breathing room */
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 20px;
+  background-color: transparent;
   overflow: hidden;
-  padding: 4px; /* Reduced padding to let the illustration fill the circle */
-  transition: var(--transition);
-  box-shadow: 0 8px 24px rgba(245, 185, 192, 0.35);
-  margin-bottom: 24px;
-}
-
-.how-timeline-col:hover .step-illustration-ring {
-  transform: scale(1.05);
-  border-color: var(--color-pink-highlight);
-  box-shadow: 0 12px 30px rgba(245, 185, 192, 0.55);
 }
 
 .step-illustration-img {
-  width: 95%;
-  height: 95%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
   display: block;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.how-timeline-col:hover .step-illustration-img {
+  transform: scale(1.08); /* Cat mascot expands slightly on hover */
 }
 
 /* Number Badges */
@@ -270,8 +276,8 @@
 /* Step Flow Connectors (SVG arrows between columns) */
 .step-arrow-divider {
   position: absolute;
-  top: 72px; /* Adjusted down from 50px to align with the center of the larger 180px circle */
-  right: -36px; /* Adjusted to fit spacing */
+  top: 96px; /* Aligned vertically with the center of the cards */
+  right: -36px;
   width: 46px;
   height: 16px;
   z-index: 5;

@@ -149,10 +149,18 @@ function initHappyCommissionsWall() {
 
   let half = 0;
   function halfWidth() {
-    if (!half) half = track.scrollWidth / 2;
+    if (!half) {
+      half = track.scrollWidth / 2;
+    }
     return half || 1;
   }
+  
+  // Clear layout cache when window resize or elements finish loading
   window.addEventListener('resize', () => { half = 0; });
+  window.addEventListener('load', () => { half = 0; });
+  track.querySelectorAll('img').forEach(img => {
+    img.addEventListener('load', () => { half = 0; });
+  });
 
   const SPEED = 40; // px per second auto-cruise speed
   let offset = Math.random() * 200;

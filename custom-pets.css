@@ -739,6 +739,31 @@
   mask-composite: intersect;
 }
 
+/* Deep absolute gradient overlays for robust side fades exactly matching example site */
+.tc-pets__wall::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 150px;
+  background: linear-gradient(to right, #1c1a17 15%, rgba(28, 26, 23, 0));
+  z-index: 5;
+  pointer-events: none;
+}
+
+.tc-pets__wall::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 150px;
+  background: linear-gradient(to left, #1c1a17 15%, rgba(28, 26, 23, 0));
+  z-index: 5;
+  pointer-events: none;
+}
+
 .tc-pets__wall:active {
   cursor: grabbing;
 }
@@ -761,7 +786,7 @@
   width: 190px;
   height: 160px;
   object-fit: cover;
-  border-radius: 16px;
+  border-radius: 22px !important; /* Soft, highly-rounded corners matching polymer clay aesthetic */
   display: block;
   user-select: none;
   -webkit-user-drag: none;

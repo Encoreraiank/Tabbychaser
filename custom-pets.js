@@ -88,12 +88,144 @@ function closeModal() {
   
   selectTier('tier1');
 }
+// ---- HAPPY COMMISSIONS SCROLLING MASONRY WALL ----
+function initHappyCommissionsWall() {
+  const wall = document.querySelector('[data-tc-pets-wall]');
+  if (!wall) return;
+  const track = wall.querySelector('[data-tc-pets-wall-track]');
+  const imgs = Array.from(track.children);
+  if (imgs.length < 4) return;
 
+  const small = window.matchMedia('(max-width: 749px)').matches;
+  const H = small ? 320 : 460;   // resting wall height
+  const W = small ? 128 : 190;   // column width
+  const GAP = 12;                // column gap spacing
+  wall.style.height = H + 'px';
 
+  // Shuffle images
+  for (let i = imgs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = imgs[i]; imgs[i] = imgs[j]; imgs[j] = t;
+  }
 
+  const pool = imgs.slice();
+  let recycle = 0;
+  const cols = [];
+  const colCount = Math.ceil(imgs.length / 2.0); // e.g. 5 columns
 
+  for (let c = 0; c < colCount; c++) {
+    const col = document.createElement('div');
+    col.className = 'tc-pets__wall-col';
+    col.style.paddingTop = Math.round(Math.random() * 56) + 'px';
+    let used = -GAP;
+    let first = true;
+    while (used < H + 140) {
+      let img;
+      if (pool.length) {
+        img = pool.shift();
+      } else {
+        img = imgs[recycle++ % imgs.length].cloneNode(true);
+        img.removeAttribute('aria-hidden');
+        img.setAttribute('aria-hidden', 'true');
+      }
+      const frac = first ? (0.22 + Math.random() * 0.5) : (0.3 + Math.random() * 0.28);
+      first = false;
+      img.style.height = Math.round(H * frac) + 'px';
+      img.style.width = W + 'px';
+      col.appendChild(img);
+      used += Math.round(H * frac) + GAP;
+    }
+    cols.push(col);
+  }
 
-// Ensure the page initializes with correct pricing estimation
+  track.innerHTML = '';
+  cols.forEach(c => track.appendChild(c));
+  // Duplicate for seamless infinite loop scroll
+  cols.forEach(c => {
+    const d = c.cloneNode(true);
+    d.setAttribute('aria-hidden', 'true');
+    track.appendChild(d);
+  });
+
+  let half = 0;
+  function halfWidth() {
+    if (!half) half = track.scrollWidth / 2;
+    return half || 1;
+  }
+  window.addEventListener('resize', () => { half = 0; });
+
+  const SPEED = 40; // px per second auto-cruise speed
+  let offset = Math.random() * 200;
+  let vel = SPEED;
+  let dragging = false;
+  let lastT = 0;
+  let startX = 0;
+  let startOffset = 0;
+
+  function apply() {
+    const w = halfWidth();
+    offset = ((offset % w) + w) % w;
+    track.style.transform = 'translateX(' + (-offset) + 'px)';
+  }
+
+  function tick(t) {
+    if (lastT) {
+      const dt = (t - lastT) / 1000;
+      if (!dragging) {
+        vel += (SPEED - vel) * Math.min(1, dt * 1.8);
+        offset += vel * dt;
+        apply();
+      }
+    }
+    lastT = t;
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  apply();
+
+  // ---- Drag to scroll handlers ----
+  wall.addEventListener('mousedown', (e) => {
+    dragging = true;
+    startX = e.clientX;
+    startOffset = offset;
+    wall.style.cursor = 'grabbing';
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    offset = startOffset - dx;
+    apply();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (dragging) {
+      dragging = false;
+      wall.style.cursor = 'grab';
+    }
+  });
+
+  // Touch support for mobile devices
+  wall.addEventListener('touchstart', (e) => {
+    dragging = true;
+    startX = e.touches[0].clientX;
+    startOffset = offset;
+  });
+
+  wall.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    offset = startOffset - dx;
+    apply();
+  });
+
+  wall.addEventListener('touchend', () => {
+    dragging = false;
+  });
+}
+
+// Ensure the page initializes correctly
 document.addEventListener('DOMContentLoaded', () => {
   updateEstimate();
+  initHappyCommissionsWall();
 });

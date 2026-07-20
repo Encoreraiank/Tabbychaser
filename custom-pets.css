@@ -131,20 +131,20 @@
 }
 
 .how-works-box {
-  background-color: #131313; /* Premium solid black background card */
+  background-color: var(--color-card-bg); /* Soft pinkish cream card */
   border-radius: 24px !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.1); /* Subtle dark border */
+  border: 1.5px solid var(--color-border-rgba);
   padding: 35px 40px 40px; /* Reduced paddings to make card compact */
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
 }
 
 /* Floating decorations inside card */
 .how-works-box .floating-deco {
   position: absolute;
   font-size: 1.4rem;
-  opacity: 0.5; /* Slightly muted for dark mode */
+  opacity: 0.7;
   user-select: none;
   animation: floatDeco 4s ease-in-out infinite alternate;
 }
@@ -152,7 +152,6 @@
 .how-works-box .deco-one {
   top: 20px;
   left: 30px;
-  color: #ffffff;
   animation-delay: 0.2s;
 }
 
@@ -160,14 +159,13 @@
   bottom: 25px;
   right: 35px;
   font-size: 1.6rem;
-  color: var(--color-brand-pink);
+  color: var(--color-pink-highlight);
   animation-delay: 0.8s;
 }
 
 .how-works-box .deco-three {
   top: 25px;
   right: 40px;
-  color: #ffffff;
   animation-delay: 1.4s;
 }
 
@@ -180,7 +178,7 @@
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 3vw, 2.2rem);
   font-weight: 700;
-  color: #ffffff; /* White title on black card */
+  color: var(--color-text-main);
   text-align: center;
   margin-bottom: 24px; /* Reduced from 50px */
 }
@@ -221,41 +219,39 @@
   display: block;
   transition: transform 0.4s ease;
   
-  /* IMPROVED Silhouette Glow Drop Shadow for high visibility on black background */
-  filter: drop-shadow(0 4px 15px rgba(255, 255, 255, 0.15)) 
-          drop-shadow(0 0 25px rgba(245, 185, 192, 0.4)) 
-          drop-shadow(0 0 6px rgba(245, 185, 192, 0.5));
+  /* Silhouette Drop Shadow - improved deep black for clear definition */
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.18)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.12));
   
-  /* Continuous looping gentle zoom-in/out animation */
-  animation: mascotPulse 4s ease-in-out infinite;
+  /* Continuous looping sequence zoom-in/out animation (8s total timeline) */
+  animation: mascotPulseSequence 8s ease-in-out infinite;
 }
 
-/* Stagger delays for a natural breathing timeline wave */
+/* Stagger delays sequence-wise (Step 1, then 2, then 3, then 4) */
 .how-step-column:nth-child(1) .step-illustration-large { animation-delay: 0s; }
-.how-step-column:nth-child(2) .step-illustration-large { animation-delay: 1s; }
-.how-step-column:nth-child(3) .step-illustration-large { animation-delay: 2s; }
-.how-step-column:nth-child(4) .step-illustration-large { animation-delay: 3s; }
+.how-step-column:nth-child(2) .step-illustration-large { animation-delay: 2s; }
+.how-step-column:nth-child(3) .step-illustration-large { animation-delay: 4s; }
+.how-step-column:nth-child(4) .step-illustration-large { animation-delay: 6s; }
 
-@keyframes mascotPulse {
-  0%, 100% {
+@keyframes mascotPulseSequence {
+  0%, 25%, 100% {
     transform: scale(1);
   }
-  50% {
-    transform: scale(1.06); /* Soft gentle zoom in */
+  12.5% {
+    transform: scale(1.08); /* Sequential zoom pulse */
   }
 }
 
 .how-step-column:hover .step-illustration-large {
-  animation-play-state: paused; /* Pause looping zoom on hover */
-  transform: scale(1.1); /* Snaps to static zoom feedback on hover */
+  animation-play-state: paused; /* Pause sequence on hover */
+  transform: scale(1.1); /* Hover zoom feedback */
 }
 
 /* Number Badges */
 .how-step-column .step-badge-num {
   width: 26px;
   height: 26px;
-  background-color: var(--color-brand-pink); /* Glowing pink badge */
-  color: #131313; /* Black number */
+  background-color: var(--color-pink-highlight);
+  color: #ffffff;
   border-radius: 50% !important;
   display: flex;
   align-items: center;
@@ -264,26 +260,23 @@
   font-size: 0.85rem;
   font-weight: 700;
   margin-bottom: 8px; /* Reduced from 12px */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 10px rgba(245, 185, 192, 0.3);
 }
 
 .how-step-column:hover .step-badge-num {
-  background-color: #ffffff;
-  color: #131313;
+  background-color: var(--color-text-main);
 }
 
 .how-step-column .step-title {
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 700;
-  color: #ffffff; /* White title text */
+  color: var(--color-text-main);
   margin-bottom: 8px;
 }
 
 .how-step-column .step-desc {
   font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.7); /* Readable off-white description text */
+  color: #555555;
   line-height: 1.5;
   margin: 0;
   max-width: 260px;
@@ -714,8 +707,81 @@
   margin-bottom: 24px;
 }
 
+/* Happy Commissions Gallery Section (Scrolling Masonry Wall) */
+.commissions-gallery-section {
+  background-color: #1c1a17; /* Deep dark cocoa backdrop */
+  padding: 50px 0;
+  overflow: hidden;
+  border-bottom: 1.5px solid var(--color-border-rgba);
+}
+
+.tc-heading-dark {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: #f8f4ec; /* Cream text */
+  margin: 0 0 24px;
+}
+
+.tc-pets__wall {
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+  touch-action: pan-y;
+  transition: height 0.4s ease;
+  
+  /* Dual mask to fade out all 4 boundaries into background */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), 
+                      linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), 
+              linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.tc-pets__wall:active {
+  cursor: grabbing;
+}
+
+.tc-pets__wall-track {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  align-items: flex-start;
+  will-change: transform;
+}
+
+.tc-pets__wall-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tc-pets__wall-track img {
+  width: 190px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: pointer;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.tc-pets__wall-track img:hover {
+  transform: scale(1.05);
+}
+
 /* Responsive Custom Pets */
 @media (max-width: 991px) {
+  .tc-heading-dark {
+    text-align: center;
+  }
+  .tc-pets__wall-track img {
+    width: 128px;
+    border-radius: 10px;
+  }
   .pet-hero-card {
     grid-template-columns: 1fr;
     min-height: auto;

@@ -89,6 +89,35 @@ function closeModal() {
   selectTier('tier1');
 }
 
+// ---- LIGHTBOX MODAL FOR STEPS ----
+function openLightbox(imgUrl, captionText) {
+  const lightbox = document.getElementById('lightboxModal');
+  const img = document.getElementById('lightboxImg');
+  const caption = document.getElementById('lightboxCaption');
+  
+  if (lightbox && img && caption) {
+    img.src = imgUrl;
+    caption.textContent = captionText;
+    lightbox.classList.add('show-lightbox');
+    document.body.style.overflow = 'hidden'; // Disable page scrolling while zoomed
+  }
+}
+
+function closeLightbox(event) {
+  // Close only if clicking the background overlay, not the card itself
+  if (event.target.id === 'lightboxModal') {
+    closeLightboxDirect();
+  }
+}
+
+function closeLightboxDirect() {
+  const lightbox = document.getElementById('lightboxModal');
+  if (lightbox) {
+    lightbox.classList.remove('show-lightbox');
+    document.body.style.overflow = ''; // Enable page scrolling
+  }
+}
+
 // Ensure the page initializes with correct pricing estimation
 document.addEventListener('DOMContentLoaded', () => {
   updateEstimate();

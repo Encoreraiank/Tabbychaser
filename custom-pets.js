@@ -139,13 +139,16 @@ function initHappyCommissionsWall() {
   }
 
   track.innerHTML = '';
-  cols.forEach(c => track.appendChild(c));
-  // Duplicate for seamless infinite loop scroll
-  cols.forEach(c => {
-    const d = c.cloneNode(true);
-    d.setAttribute('aria-hidden', 'true');
-    track.appendChild(d);
-  });
+  // Append 4 sets of columns to ensure the track is very wide and never leaves empty gaps on high-resolution screens
+  for (let repeat = 0; repeat < 4; repeat++) {
+    cols.forEach(c => {
+      const d = c.cloneNode(true);
+      if (repeat > 0) {
+        d.setAttribute('aria-hidden', 'true');
+      }
+      track.appendChild(d);
+    });
+  }
 
   function halfWidth() {
     const isSmall = window.matchMedia('(max-width: 749px)').matches;

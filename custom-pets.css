@@ -209,7 +209,7 @@
 }
 
 .how-step-column:hover .step-illustration-holder {
-  transform: translateY(-8px) scale(1.05); /* Clean, bouncy lift and scale on hover */
+  transform: translateY(-8px); /* Lift up on hover */
 }
 
 .step-illustration-large {
@@ -217,6 +217,30 @@
   max-height: 100%;
   object-fit: contain;
   display: block;
+  transition: transform 0.4s ease;
+  
+  /* Continuous looping gentle zoom-in/out animation */
+  animation: mascotPulse 4s ease-in-out infinite;
+}
+
+/* Stagger delays for a natural breathing timeline wave */
+.how-step-column:nth-child(1) .step-illustration-large { animation-delay: 0s; }
+.how-step-column:nth-child(2) .step-illustration-large { animation-delay: 1s; }
+.how-step-column:nth-child(3) .step-illustration-large { animation-delay: 2s; }
+.how-step-column:nth-child(4) .step-illustration-large { animation-delay: 3s; }
+
+@keyframes mascotPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06); /* Soft gentle zoom in */
+  }
+}
+
+.how-step-column:hover .step-illustration-large {
+  animation-play-state: paused; /* Pause looping zoom on hover */
+  transform: scale(1.1); /* Snaps to static zoom feedback on hover */
 }
 
 /* Number Badges */

@@ -1,99 +1,82 @@
 (function () {
   'use strict';
 
-  /* ─── 1. Inject Styles ─────────────────────────────────────────── */
-  const style = document.createElement('style');
-  style.textContent = `
-    .tc-page-mask {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      background: #f47aab;
-      z-index: 99999;
-      pointer-events: none;
-      will-change: clip-path;
-    }
-    /* State: full screen, no transition — starting point on page load */
-    .tc-page-mask.state-enter {
-      clip-path: circle(150% at 50% 50%);
-      transition: none;
-    }
-    /* State: shrinking circle — page revealing */
-    .tc-page-mask.state-reveal {
-      clip-path: circle(0% at 50% 50%);
-      transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.175, 1);
-    }
-    /* State: growing circle — page closing before navigation */
-    .tc-page-mask.state-close {
-      clip-path: circle(150% at 50% 50%);
-      transition: clip-path 0.55s cubic-bezier(0.77, 0, 0.175, 1);
-    }
-  `;
-  document.head.appendChild(style);
-
-  /* ─── 2. Create Mask Element ───────────────────────────────────── */
+  /* ─── Create the overlay ───────────────────────────────────────── */
   const mask = document.createElement('div');
-  mask.className = 'tc-page-mask state-enter';
+  mask.style.cssText = [
+    'position:fixed',
+    'inset:0',
+    'width:100vw',
+    'height:100vh',
+    'background:#f47aab',
+    'z-index:99999',
+    'pointer-events:none',
+    'will-change:clip-path',
+    'clip-path:circle(150% at 50% 50%)',
+  ].join(';');
 
-  /* ─── 3. Reveal on Page Load ───────────────────────────────────── */
-  function runReveal() {
+  const EASING = 'cubic-bezier(0.77, 0, 0.175, 1)';
+  const FULL   = 'circle(150% at 50% 50%)';
+  const ZERO   = 'circle(0%   at 50% 50%)';
+
+  /* ─── Reveal: circle shrinks → page appears ────────────────────── */
+  function reveal() {
+    mask.animate(
+      [{ clipPath: FULL }, { clipPath: ZERO }],
+      { duration: 680, easing: EASING, fill: 'forwards' }
+    );
+  }
+
+  /* ─── Close: circle grows → pink covers screen ─────────────────── */
+  function close(dest) {
+    var anim = mask.animate(
+      [{ clipPath: ZERO }, { clipPath: FULL }],
+      { duration: 520, easing: EASING, fill: 'forwards' }
+    );
+    anim.onfinish = function () {
+      window.location.href = dest;
+    };
+  }
+
+  /* ─── Init: inject into DOM and reveal ─────────────────────────── */
+  function init() {
     document.body.appendChild(mask);
-    // Force reflow so the browser registers "state-enter" before we swap classes
-    mask.getBoundingClientRect();
-    requestAnimationFrame(function () {
-      mask.classList.remove('state-enter');
-      mask.classList.add('state-reveal');
-    });
+    reveal();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runReveal);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    runReveal();
+    init();
   }
 
-  /* ─── 4. Intercept Internal Link Clicks ───────────────────────── */
+  /* ─── Intercept internal link clicks ───────────────────────────── */
   document.addEventListener('click', function (e) {
-    const a = e.target.closest('a');
+    var a = e.target.closest('a');
     if (!a || !a.href) return;
 
     try {
-      const url = new URL(a.href, window.location.href);
-      const href = a.getAttribute('href') || '';
-      const isSameOrigin = url.origin === window.location.origin;
-      const isHash = href.startsWith('#') || (url.pathname === window.location.pathname && url.hash);
-      const isExternal = a.getAttribute('target') === '_blank';
+      var url  = new URL(a.href, window.location.href);
+      var href = a.getAttribute('href') || '';
 
-      if (isSameOrigin && !isHash && !isExternal) {
+      var isInternal  = url.origin === window.location.origin;
+      var isHash      = href.charAt(0) === '#' || (url.pathname === window.location.pathname && url.hash);
+      var isNewTab    = a.getAttribute('target') === '_blank';
+
+      if (isInternal && !isHash && !isNewTab) {
         e.preventDefault();
-        const dest = a.href;
-
-        // Reset to revealed state (no transition), then animate close circle
-        mask.className = 'tc-page-mask state-reveal';
-        mask.getBoundingClientRect(); // force reflow
-        requestAnimationFrame(function () {
-          mask.classList.remove('state-reveal');
-          mask.classList.add('state-close');
-          setTimeout(function () {
-            window.location.href = dest;
-          }, 580);
-        });
+        close(a.href);
       }
-    } catch (err) {
-      // Ignore malformed URLs
-    }
+    } catch (err) { /* ignore */ }
   });
 
-  /* ─── 5. Handle Browser Back/Forward Cache ─────────────────────── */
+  /* ─── Handle back/forward browser cache ────────────────────────── */
   window.addEventListener('pageshow', function (e) {
     if (e.persisted) {
-      mask.className = 'tc-page-mask state-enter';
-      mask.getBoundingClientRect();
-      requestAnimationFrame(function () {
-        mask.classList.remove('state-enter');
-        mask.classList.add('state-reveal');
-      });
+      // Cancel any running animation, reset to full, then reveal
+      mask.getAnimations().forEach(function (a) { a.cancel(); });
+      mask.style.clipPath = FULL;
+      reveal();
     }
   });
 })();

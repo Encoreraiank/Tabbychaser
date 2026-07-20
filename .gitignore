@@ -1,0 +1,6 @@
+# Ignore screenshots or reference images in root
+Screenshot*.png
+*.log
+.gemini/
+.agents/
+.vscode/

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabby Chaser – Handmade Clay Charms & Stickers</title>
+  
+  <!-- Bubbly & Script Display Fonts (Chewy, Fredoka, Pacifico) & Body Font (Plus Jakarta Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 1. Top Announcement Bar (Solid Black Patti with White Text) -->
+  <div class="announcement-bar">
+    <div class="announcement-container container">
+      <div class="announcement-social">
+        <a href="https://www.instagram.com/tabbychaser" target="_blank" aria-label="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+      </div>
+      <div class="announcement-text">
+        All these cuties are made to order, so please give me 3-4 weeks to create them for you before I ship them, packed with cute freebie stickers &lt;3
+      </div>
+      <div class="announcement-spacer"></div>
+    </div>
+  </div>
+
+  <!-- 2. Header Navigation (Cream Base matching Page Theme & Brand logo icon) -->
+  <header class="site-header">
+    <div class="header-container container">
+      
+      <!-- Brand Logo Left with Circular Brand Icon -->
+      <a href="#" class="brand-logo">
+        <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
+        <span class="logo-text">Tabby Chaser</span>
+      </a>
+
+      <!-- Menu links as rounded capsules/pills -->
+      <nav class="nav-menu">
+        <a href="#" class="nav-link active-pill">Home</a>
+        <a href="#shop" class="nav-link outline-pill">Shop</a>
+        <a href="#custom" class="nav-link outline-pill">Custom Pets</a>
+        <a href="#policies" class="nav-link outline-pill">Policies</a>
+      </nav>
+
+      <!-- Search bar & Cart -->
+      <div class="header-actions">
+        <div class="search-box-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" placeholder="Search..." />
+        </div>
+        <button class="cart-pill-btn" id="cartBtn">
+          Cart
+          <span class="cart-badge">0</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- 3. Main Hero Rounded Card Section (Pre-rendered Slideshow for zero layout shift) -->
+  <main class="main-content">
+    <section class="hero-card-section">
+      <div class="container">
+        
+        <!-- Elegant Box (#fce9e5) for strong visibility -->
+        <div class="hero-rounded-card">
+          <div class="hero-slides-wrapper" id="slidesWrapper">
+            
+            <!-- Slide 0: Frog Charm -->
+            <div class="hero-slide active" data-index="0">
+              <div class="hero-card-grid">
+                <div class="hero-text-panel">
+                  <div class="handmade-badge-pill">
+                    <span class="badge-dot"></span>
+                    Bestseller 🐸
+                  </div>
+                  <h1 class="hero-headline-title">
+                    Slay everyday with cute little <span class="highlight-pink">frog charms.</span>
+                  </h1>
+                  <p class="hero-paragraph-desc">
+                    A tiny frog friend ready to hop into your everyday adventures. Handmade from cold porcelain clay.
+                  </p>
+                  <a href="#shop" class="btn btn-pink-pill">Adopt Froggy</a>
+                </div>
+                <div class="hero-image-panel">
+                  <div class="image-inner-wrap">
+                    <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp" alt="Pond Hopper Frog Charm" class="hero-card-img" />
+                    <div class="product-overlay-tag">
+                      <span class="tag-title">Pond Hopper Frog</span>
+                      <span class="tag-price">₹219</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 1: Bear Charm -->
+            <div class="hero-slide" data-index="1">
+              <div class="hero-card-grid">
+                <div class="hero-text-panel">
+                  <div class="handmade-badge-pill">
+                    <span class="badge-dot"></span>
+                    Popular 🎀
+                  </div>
+                  <h1 class="hero-headline-title">
+                    Slay everyday with cute little <span class="highlight-pink">bear charms.</span>
+                  </h1>
+                  <p class="hero-paragraph-desc">
+                    A tiny handmade teddy bear charm with a glossy finish and a sweet pink bow, perfect for zip styling.
+                  </p>
+                  <a href="#shop" class="btn btn-pink-pill">Adopt Bearista</a>
+                </div>
+                <div class="hero-image-panel">
+                  <div class="image-inner-wrap">
+                    <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-46e4e5de-0cd7-4387-9f47-92c55a666831-b56fe6d8-ket789.webp" alt="Bow Bear Charm" class="hero-card-img" />
+                    <div class="product-overlay-tag">
+                      <span class="tag-title">Bow Bear Charm</span>
+                      <span class="tag-price">₹219</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 2: Star Cat -->
+            <div class="hero-slide" data-index="2">
+              <div class="hero-card-grid">
+                <div class="hero-text-panel">
+                  <div class="handmade-badge-pill">
+                    <span class="badge-dot"></span>
+                    Featured ⭐
+                  </div>
+                  <h1 class="hero-headline-title">
+                    Slay everyday with cute little <span class="highlight-pink">cat keychains.</span>
+                  </h1>
+                  <p class="hero-paragraph-desc">
+                    Star cat finally got its own star! A handmade clay keychain featuring your favorite little space companion.
+                  </p>
+                  <a href="#shop" class="btn btn-pink-pill">Adopt Space Cat</a>
+                </div>
+                <div class="hero-image-panel">
+                  <div class="image-inner-wrap">
+                    <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-59b33d32-ix8s64.webp" alt="Star Cat Keychain" class="hero-card-img" />
+                    <div class="product-overlay-tag">
+                      <span class="tag-title">Star Cat Keychain</span>
+                      <span class="tag-price">₹399</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 3: Skull Charm -->
+            <div class="hero-slide" data-index="3">
+              <div class="hero-card-grid">
+                <div class="hero-text-panel">
+                  <div class="handmade-badge-pill">
+                    <span class="badge-dot"></span>
+                    Spooky Cute 💀
+                  </div>
+                  <h1 class="hero-headline-title">
+                    Slay everyday with cute little <span class="highlight-pink">spooky skulls.</span>
+                  </h1>
+                  <p class="hero-paragraph-desc">
+                    A tiny skull with a soft spooky heart. Handmade from cold porcelain clay and finished with high-quality glazes.
+                  </p>
+                  <a href="#shop" class="btn btn-pink-pill">Adopt Spooky</a>
+                </div>
+                <div class="hero-image-panel">
+                  <div class="image-inner-wrap">
+                    <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-094dc89c-gsisii.webp" alt="Ghostly Skull Charm" class="hero-card-img" />
+                    <div class="product-overlay-tag">
+                      <span class="tag-title">Ghostly Skull Charm</span>
+                      <span class="tag-price">₹199</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Slider Indicators -->
+          <div class="slider-dots" id="sliderDots">
+            <span class="dot active" onclick="goToSlide(0)"></span>
+            <span class="dot" onclick="goToSlide(1)"></span>
+            <span class="dot" onclick="goToSlide(2)"></span>
+            <span class="dot" onclick="goToSlide(3)"></span>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. Scrolling Black Marquee strip (Continuous Double Track) -->
+    <div class="scrolling-marquee-strip">
+      <div class="marquee-track">
+        <div class="marquee-inner">
+          <span>Chic clay companions &nbsp;+&nbsp; Ships pan-India &nbsp;+&nbsp; One of a kind always &nbsp;+&nbsp; Kawaii desk pals &nbsp;+&nbsp; Cute keychains &nbsp;+&nbsp; Glazed by hand &nbsp;+&nbsp; Named with love &nbsp;+&nbsp; Chic clay companions &nbsp;+&nbsp; Ships pan-India &nbsp;+&nbsp; One of a kind always &nbsp;+&nbsp; Kawaii desk pals &nbsp;+&nbsp; Cute keychains &nbsp;+&nbsp; Glazed by hand &nbsp;+&nbsp; Named with love &nbsp;+&nbsp;</span>
+        </div>
+        <div class="marquee-inner">
+          <span>Chic clay companions &nbsp;+&nbsp; Ships pan-India &nbsp;+&nbsp; One of a kind always &nbsp;+&nbsp; Kawaii desk pals &nbsp;+&nbsp; Cute keychains &nbsp;+&nbsp; Glazed by hand &nbsp;+&nbsp; Named with love &nbsp;+&nbsp; Chic clay companions &nbsp;+&nbsp; Ships pan-India &nbsp;+&nbsp; One of a kind always &nbsp;+&nbsp; Kawaii desk pals &nbsp;+&nbsp; Cute keychains &nbsp;+&nbsp; Glazed by hand &nbsp;+&nbsp; Named with love &nbsp;+&nbsp;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Showcase Detail Section -->
+    <section class="brand-showcase-section">
+      <div class="container showcase-grid">
+        
+        <div class="showcase-left-panel">
+          <div class="floating-hearts-title-wrap">
+            <span class="floating-heart heart-left">♡</span>
+            <h2 class="showcase-title-text">
+              Handmade <br />with <span class="script-love">love.</span>
+            </h2>
+            <span class="floating-heart heart-right">♡</span>
+          </div>
+
+          <p class="showcase-paragraph">
+            Customized clay figurines, charms & keepsakes <br />
+            Made to hold your special moments. ♥
+          </p>
+
+          <div class="showcase-btn-row">
+            <button class="pill-btn btn-grey-closed">
+              <span class="btn-icon">🔒</span>
+              Commissions Closed
+            </button>
+            <a href="#shop" class="pill-btn btn-pink-outline">
+              <span class="btn-icon">💖</span>
+              Explore Collection
+            </a>
+          </div>
+
+          <div class="feature-cards-grid">
+            <div class="feature-card">
+              <div class="card-icon-circle">😊</div>
+              <span class="card-large-stat">500+</span>
+              <span class="card-script-label">Happy Customers</span>
+            </div>
+
+            <div class="feature-card">
+              <div class="card-icon-circle">💝</div>
+              <span class="card-large-stat">100%</span>
+              <span class="card-script-label">Handmade</span>
+            </div>
+
+            <div class="feature-card">
+              <div class="card-icon-circle">📦</div>
+              <span class="card-large-stat">Pan India</span>
+              <span class="card-script-label">Delivery</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-right-panel">
+          <div class="showcase-image-frame">
+            <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/store-assets/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/store-banner-af2ef989.webp" alt="Tabby Chaser Figurines Collage" class="showcase-img" />
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 6. Best Sellers Grid Section -->
+    <section class="best-sellers-section" id="shop">
+      <div class="container">
+        
+        <div class="sellers-header-row">
+          <h2 class="sellers-heading">Best sellers</h2>
+        </div>
+
+        <div class="sellers-products-grid">
+          
+          <!-- Card 1 -->
+          <div class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <span class="card-hot-badge">Bestseller</span>
+              <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp" alt="Pond Hopper Frog" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">Pond Hopper Frog</span>
+                <span class="prod-price">₹219</span>
+              </div>
+              <span class="prod-tagline">Charms</span>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <span class="card-hot-badge badge-orange">Only 3 left</span>
+              <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-f2c594d5-2456-4e9b-a0bd-da99e1367784-354c0636159af917-g8hjt3.webp" alt="Purr parade stickers" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">Purr parade stickers</span>
+                <span class="prod-price">₹99</span>
+              </div>
+              <span class="prod-tagline">Sticker Sheets</span>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <span class="card-hot-badge badge-orange">Only 2 left</span>
+              <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-46e4e5de-0cd7-4387-9f47-92c55a666831-b56fe6d8-ket789.webp" alt="Bow Bear Charm" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">Bow bear charm</span>
+                <span class="prod-price">₹219</span>
+              </div>
+              <span class="prod-tagline">Charms</span>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <span class="card-hot-badge">Spooky cute</span>
+              <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-094dc89c-gsisii.webp" alt="Ghostly Skull Charm" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">Ghostly skull charm</span>
+                <span class="prod-price">₹199</span>
+              </div>
+              <span class="prod-tagline">Charms</span>
+            </div>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <span class="card-hot-badge">Bestseller</span>
+              <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-2079e3bba73627cf-585hmv.webp" alt="Sleepy Froggy" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">Sleepy froggy</span>
+                <span class="prod-price">₹469</span>
+              </div>
+              <span class="prod-tagline">Desk Pals</span>
+            </div>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <span class="card-hot-badge">Featured</span>
+              <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-59b33d32-ix8s64.webp" alt="Star Cat Keychain" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">Star Cat keychain</span>
+                <span class="prod-price">₹399</span>
+              </div>
+              <span class="prod-tagline">Keychains</span>
+            </div>
+          </div>
+
+          <!-- Card 7 -->
+          <div class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <span class="card-hot-badge badge-orange">Only 1 left</span>
+              <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-e566ae4b-051b-4294-975e-0a93fb4a47b3-56e26791-ktpfey.webp" alt="Starcat Worry Stone" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">Starcat Worry Stone</span>
+                <span class="prod-price">₹389</span>
+              </div>
+              <span class="prod-tagline">Worry Stones</span>
+            </div>
+          </div>
+
+          <!-- Card 8 -->
+          <div class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <span class="card-hot-badge">Bestseller</span>
+              <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-fef5ae9ecc16e517-ilew0k.webp" alt="Little Hopper" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">Little hopper</span>
+                <span class="prod-price">₹459</span>
+              </div>
+              <span class="prod-tagline">Desk Pals</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="explore-more-wrap">
+          <button class="explore-pill-btn">
+            <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Icon" class="spark-circle-badge" />
+            Explore More Collections
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 7. Behind the Scenes Section -->
+    <section class="behind-scenes-section" id="custom">
+      <div class="container">
+        
+        <div class="behind-scenes-card">
+          <span class="floating-deco deco-one">✨</span>
+          <span class="floating-deco deco-two">♡</span>
+          <span class="floating-deco deco-three">✨</span>
+
+          <div class="behind-scenes-grid">
+            
+            <div class="behind-scenes-image-panel">
+              <div class="scenes-image-frame">
+                <img src="748418587_1035014559244179_4320727817718422499_n.jpg" alt="Anjali and Mascot Kitty" class="scenes-img" />
+              </div>
+            </div>
+
+            <div class="behind-scenes-text-panel">
+              <span class="scenes-tag">BEHIND THE SCENES</span>
+              <h2 class="scenes-title">Just me, some clay and a little paint.</h2>
+              <p class="scenes-desc">
+                Hi, I'm Anjali. Tabby Chaser started on my kitchen table and still runs on the same two hands. Every single tiny frog companion, sticker sheet, or worry stone is handmade, named, and packed by me in India.
+              </p>
+              <a href="#custom" class="btn btn-pink-pill">See custom pets</a>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 8. My Little Journey Section -->
+    <section class="journey-section">
+      <div class="container journey-inner">
+        
+        <div class="journey-card">
+          <span class="floating-deco deco-four">♡</span>
+          <span class="floating-deco deco-five">✨</span>
+
+          <div class="journey-two-col">
+            
+            <div class="journey-left-col">
+              <div class="journey-header">
+                <div class="journey-eyebrow">✦ MY LITTLE JOURNEY ✦</div>
+                <h2 class="journey-heading">Crafted with love,</h2>
+                <p class="journey-heading-script">
+                  just for you.
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7396" stroke-width="1.6">
+                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path>
+                  </svg>
+                </p>
+                <p class="journey-subtext">From my hands to your heart in 3 simple steps.</p>
+              </div>
+              
+              <div class="journey-steps-row">
+                
+                <!-- Step 1: Sculpt -->
+                <div class="step-wrap step-1">
+                  <div class="step-card">
+                    <div class="img-ring">
+                      <img src="him 1.jpeg" alt="Sculpting clay by hand" class="step-img" />
+                    </div>
+                    <div class="arrow">
+                      <svg width="46" height="16" viewBox="0 0 46 16" fill="none">
+                        <path d="M2 12 Q 22 2, 42 12" stroke="#F47AAB" stroke-width="1.8" stroke-linecap="round"></path>
+                        <path d="M35 6 L42 12 L33 15" stroke="#F47AAB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 class="step-title">Sculpt</h3>
+                  <p class="step-desc">Every piece is carefully handcrafted with patience and precision.</p>
+                </div>
+
+                <!-- Step 2: Paint -->
+                <div class="step-wrap step-2">
+                  <div class="step-card">
+                    <div class="img-ring">
+                      <img src="him 2.jpeg" alt="Painting process of clay figurine" class="step-img" />
+                    </div>
+                    <div class="arrow">
+                      <svg width="46" height="16" viewBox="0 0 46 16" fill="none">
+                        <path d="M2 12 Q 22 2, 42 12" stroke="#F47AAB" stroke-width="1.8" stroke-linecap="round"></path>
+                        <path d="M35 6 L42 12 L33 15" stroke="#F47AAB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 class="step-title">Paint</h3>
+                  <p class="step-desc">Carefully hand-painted to bring every detail to life.</p>
+                </div>
+
+                <!-- Step 3: Pack -->
+                <div class="step-wrap step-3">
+                  <div class="step-card">
+                    <div class="img-ring">
+                      <img src="him 3.jpeg" alt="Packing process of clay figurine" class="step-img" />
+                    </div>
+                  </div>
+                  <h3 class="step-title">Pack</h3>
+                  <p class="step-desc">Thoughtfully packed to keep your keepsake safe and special.</p>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="journey-right-col">
+              <p class="phone-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#FF7396">
+                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path>
+                </svg>
+                Watch it come to life
+              </p>
+              <div class="phone-mockup">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                  <img src="phn gif.gif" alt="Creation Process Video" class="phone-media" />
+                </div>
+                <div class="phone-bump-l"></div>
+                <div class="phone-bump-r"></div>
+                <div class="phone-bump-r2"></div>
+                <div class="phone-bar"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 9. Instagram Feed Section (Displaying 10 ACTUAL post thumbnails of @tabbychaser locally) -->
+    <section class="instagram-section">
+      <div class="container">
+        
+        <div class="instagram-header-row">
+          <div class="insta-header-left">
+            <h2 class="insta-heading">@tabbychaser on Instagram</h2>
+            <p class="insta-subtext">Follow along for new pals, studio peeks, and a daily dose of cuteness.</p>
+          </div>
+          <a href="https://www.instagram.com/tabbychaser/" target="_blank" class="insta-follow-btn">
+            Follow @tabbychaser
+          </a>
+        </div>
+
+        <!-- 10 Square Posts Grid (5 Columns x 2 Rows) -->
+        <div class="instagram-posts-grid">
+          
+          <!-- Post 1: Frog charm on lilies -->
+          <a href="https://www.instagram.com/p/DZUG6YST3hd/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-1.jpg" alt="Tabby Chaser Post 1" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 154</span>
+                <span>💬 14</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 2: Intro post -->
+          <a href="https://www.instagram.com/p/DYyp1uyEQgb/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-2.jpg" alt="Tabby Chaser Post 2" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 342</span>
+                <span>💬 28</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 3: Four tiny creations -->
+          <a href="https://www.instagram.com/p/DbAMNtnzRpL/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-3.jpg" alt="Tabby Chaser Post 3" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 188</span>
+                <span>💬 9</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 4: Sleepy frog council -->
+          <a href="https://www.instagram.com/p/Da__GLAzxlj/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-4.jpg" alt="Tabby Chaser Post 4" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 201</span>
+                <span>💬 17</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 5: Pocket Pals Sticker Sheets -->
+          <a href="https://www.instagram.com/p/Da5PjVYzQ3S/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-5.jpg" alt="Tabby Chaser Post 5" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 290</span>
+                <span>💬 31</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 6: Frog process video cover -->
+          <a href="https://www.instagram.com/p/Da42GWNTmtH/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-6.jpg" alt="Tabby Chaser Post 6" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 125</span>
+                <span>💬 6</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 7: Little corner of internet -->
+          <a href="https://www.instagram.com/p/Da15mAKT2Uu/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-7.jpg" alt="Tabby Chaser Post 7" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 216</span>
+                <span>💬 15</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 8: Little hopper frog -->
+          <a href="https://www.instagram.com/p/DazqwEzzZnB/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-8.jpg" alt="Tabby Chaser Post 8" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 198</span>
+                <span>💬 11</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 9: Hoppy little buddy -->
+          <a href="https://www.instagram.com/p/DayB5DGzC0f/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-9.jpg" alt="Tabby Chaser Post 9" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 172</span>
+                <span>💬 8</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Post 10: Take a break video cover -->
+          <a href="https://www.instagram.com/p/DaxVb6dTn9/" target="_blank" class="instagram-post-card">
+            <img src="assets/instagram/post-10.jpg" alt="Tabby Chaser Post 10" />
+            <div class="instagram-hover-overlay">
+              <span class="overlay-icon">📸</span>
+              <div class="overlay-stats">
+                <span>❤️ 208</span>
+                <span>💬 22</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+
+        <!-- 10. Newsletter Bar (Pal of the Week) -->
+        <div class="newsletter-rounded-bar" id="policies">
+          <div class="newsletter-left-panel">
+            <span class="newsletter-display-title">Pal of the Week 💌</span>
+            <span class="newsletter-desc">A new character in your inbox every Friday.</span>
+          </div>
+          <form class="newsletter-form-panel" onsubmit="event.preventDefault(); alert('Subscribed! Heart symbols coming to your inbox &lt;3');">
+            <input type="email" placeholder="your@email.com" class="newsletter-input" required />
+            <button type="submit" class="newsletter-btn-join">Join</button>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 11. Wavy Footer Section -->
+  <footer class="site-footer">
+    
+    <!-- Wavy Top Divider Frame filled with card bg color -->
+    <div class="footer-wave-divider" aria-hidden="true">
+      <svg class="footer-wave-svg" viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1440" height="45" fill="var(--color-page-bg)"></rect>
+        <path d="M0,60 C180,10 360,90 540,50 C720,10 900,80 1080,45 C1260,10 1380,70 1440,55 L1440,90 L0,90 Z" fill="var(--color-card-bg)"></path>
+      </svg>
+    </div>
+
+    <!-- Footer Body Area -->
+    <div class="footer-body">
+      <div class="container footer-grid">
+        
+        <!-- Brand Info Column -->
+        <div class="footer-brand-column">
+          <div class="footer-brand-logo">
+            <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="footer-logo-img" />
+            <span class="footer-logo-text">Tabby Chaser</span>
+          </div>
+          <p class="footer-brand-tagline">Tiny handcrafted pieces of joy,<br />made with love for you.</p>
+          <p class="footer-brand-about">
+            Tabby Chaser is a premium handmade clay gifting brand in India. Every custom figurine, charm, and miniature is 100% handcrafted to order.
+          </p>
+        </div>
+
+        <!-- Links Columns -->
+        <div class="footer-links-column">
+          <h4 class="footer-column-title">Quick Links</h4>
+          <ul class="footer-links-list">
+            <li><a href="#">Home</a></li>
+            <li><a href="#shop">Shop Collections</a></li>
+            <li><a href="#custom">Custom Commissions</a></li>
+            <li><a href="https://www.instagram.com/tabbychaser" target="_blank">Instagram Updates</a></li>
+          </ul>
+        </div>
+
+        <!-- Policies Columns -->
+        <div class="footer-links-column">
+          <h4 class="footer-column-title">Our Policies</h4>
+          <ul class="footer-links-list">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Refund Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="#">Contact Information</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Copyright Bottom bar -->
+      <div class="footer-bottom-copyright">
+        <div class="container copyright-flex">
+          <span>&copy; 2026 Tabby Chaser. Made with love in Bangalore.</span>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

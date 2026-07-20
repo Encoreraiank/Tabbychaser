@@ -150,17 +150,17 @@ function initHappyCommissionsWall() {
   let half = 0;
   function halfWidth() {
     if (!half) {
-      half = track.scrollWidth / 2;
+      // Find the first cloned column (at index colCount) to get the exact width of one loop cycle
+      const firstCloneCol = track.children[colCount];
+      if (firstCloneCol) {
+        half = firstCloneCol.offsetLeft;
+      } else {
+        half = track.scrollWidth / 2;
+      }
     }
     return half || 1;
   }
-  
-  // Clear layout cache when window resize or elements finish loading
   window.addEventListener('resize', () => { half = 0; });
-  window.addEventListener('load', () => { half = 0; });
-  track.querySelectorAll('img').forEach(img => {
-    img.addEventListener('load', () => { half = 0; });
-  });
 
   const SPEED = 40; // px per second auto-cruise speed
   let offset = Math.random() * 200;

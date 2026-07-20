@@ -730,38 +730,9 @@
   touch-action: pan-y;
   transition: height 0.4s ease;
   
-  /* Dual mask to fade out all 4 boundaries into background */
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), 
-                      linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), 
-              linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
-}
-
-/* Deep absolute gradient overlays for robust side fades exactly matching example site */
-.tc-pets__wall::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 150px;
-  background: linear-gradient(to right, #1c1a17 15%, rgba(28, 26, 23, 0));
-  z-index: 5;
-  pointer-events: none;
-}
-
-.tc-pets__wall::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 150px;
-  background: linear-gradient(to left, #1c1a17 15%, rgba(28, 26, 23, 0));
-  z-index: 5;
-  pointer-events: none;
+  /* Perfect horizontal edge fading mask (left and right) */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
 }
 
 .tc-pets__wall:active {
@@ -785,8 +756,8 @@
 .tc-pets__wall-track img {
   width: 190px;
   height: 160px;
-  object-fit: cover;
-  border-radius: 22px !important; /* Soft, highly-rounded corners matching polymer clay aesthetic */
+  object-fit: cover !important;
+  border-radius: 18px !important; /* Enforces beautiful rounded corners on masonry items */
   display: block;
   user-select: none;
   -webkit-user-drag: none;
@@ -805,7 +776,7 @@
   }
   .tc-pets__wall-track img {
     width: 128px;
-    border-radius: 10px;
+    border-radius: 12px !important; /* Compact rounded corners on mobile */
   }
   .pet-hero-card {
     grid-template-columns: 1fr;

@@ -125,7 +125,7 @@
 
 /* How It Works Section (Premium Cohesive Card Style) */
 .how-it-works-section {
-  padding: 80px 0;
+  padding: 30px 0; /* Reduced from 80px to make section thin */
   background-color: var(--color-page-bg);
   border-bottom: 1.5px solid var(--color-border-rgba);
 }
@@ -134,7 +134,7 @@
   background-color: var(--color-card-bg); /* Soft pinkish cream card */
   border-radius: 24px !important;
   border: 1.5px solid var(--color-border-rgba);
-  padding: 60px 40px 70px;
+  padding: 35px 40px 40px; /* Reduced paddings to make card compact */
   position: relative;
   overflow: hidden;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
@@ -150,22 +150,22 @@
 }
 
 .how-works-box .deco-one {
-  top: 30px;
-  left: 40px;
+  top: 20px;
+  left: 30px;
   animation-delay: 0.2s;
 }
 
 .how-works-box .deco-two {
-  bottom: 40px;
-  right: 50px;
+  bottom: 25px;
+  right: 35px;
   font-size: 1.6rem;
   color: var(--color-pink-highlight);
   animation-delay: 0.8s;
 }
 
 .how-works-box .deco-three {
-  top: 40px;
-  right: 60px;
+  top: 25px;
+  right: 40px;
   animation-delay: 1.4s;
 }
 
@@ -176,11 +176,11 @@
 
 .how-heading {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.5vw, 2.6rem);
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
   font-weight: 700;
   color: var(--color-text-main);
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 24px; /* Reduced from 50px */
 }
 
 .how-steps-horizontal-grid {
@@ -199,11 +199,11 @@
 /* Big Illustration Holders (Direct display, NO circles, large size) */
 .step-illustration-holder {
   width: 100%;
-  height: 220px; /* Big height to give illustration max size */
+  height: 160px; /* Reduced height from 220px to save vertical space while keeping kitty large */
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px; /* Reduced from 16px */
   background-color: transparent;
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -232,7 +232,7 @@
   font-family: var(--font-display);
   font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 8px; /* Reduced from 12px */
 }
 
 .how-step-column:hover .step-badge-num {
@@ -697,7 +697,7 @@
     gap: 36px 20px;
   }
   .step-illustration-holder {
-    height: 180px; /* Scale down slightly on tablet */
+    height: 130px; /* Scale down slightly on tablet */
   }
   .planner-layout {
     grid-template-columns: 1fr;
@@ -721,14 +721,14 @@
     text-align: center;
   }
   .how-works-box {
-    padding: 40px 20px;
+    padding: 30px 16px;
   }
   .how-steps-horizontal-grid {
     grid-template-columns: 1fr;
-    gap: 36px;
+    gap: 28px;
   }
   .step-illustration-holder {
-    height: 200px;
+    height: 150px;
   }
   .radio-group {
     grid-template-columns: repeat(2, 1fr);

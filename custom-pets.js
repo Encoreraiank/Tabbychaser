@@ -230,6 +230,15 @@ function initHappyCommissionsWall() {
   wall.addEventListener('touchend', () => {
     dragging = false;
   });
+
+  // Force recalculating scrolling loop limits once all masonry image files are loaded
+  if (document.readyState === 'complete') {
+    half = 0;
+  } else {
+    window.addEventListener('load', () => {
+      half = 0;
+    });
+  }
 }
 
 // Ensure the page initializes correctly

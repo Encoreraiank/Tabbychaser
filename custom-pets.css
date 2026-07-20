@@ -729,10 +729,20 @@
   cursor: grab;
   touch-action: pan-y;
   transition: height 0.4s ease;
-  
-  /* Perfect horizontal edge fading mask (left and right) */
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+}
+
+/* Fades left/right and top/bottom edges seamlessly to #1c1a17 using overlay gradients */
+.tc-pets__wall-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: 
+    linear-gradient(to right, #1c1a17 0%, transparent 15%, transparent 85%, #1c1a17 100%),
+    linear-gradient(to bottom, #1c1a17 0%, transparent 10%, transparent 90%, #1c1a17 100%);
 }
 
 .tc-pets__wall:active {

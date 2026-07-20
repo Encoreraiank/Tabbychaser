@@ -57,67 +57,77 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="pet-hero">
-    <div class="container pet-hero-grid">
-      <div class="pet-hero-text">
-        <span class="pet-hero-tag">🐾 Handcrafted Memories</span>
-        <h1 class="pet-hero-title">Your pet, <br /><span class="script-accent">in clay.</span></h1>
-        <p class="pet-hero-desc">
-          Send me a few photos of your best friend and I will sculpt them into a tiny glazed figurine, hand-painted down to the floppy ears, freckles, and that one funny whisker.
-        </p>
-        <div class="pet-hero-btns">
-          <a href="#planner" class="btn btn-pink-pill">Plan Your Commission</a>
-          <a href="https://ig.me/m/tabbychaser" target="_blank" class="btn btn-black-pill">DM @tabbychaser</a>
-        </div>
-      </div>
-      <div class="pet-hero-visual">
-        <div class="visual-stack">
-          <div class="visual-card image-one">
-            <img src="748418587_1035014559244179_4320727817718422499_n.jpg" alt="Mascot Custom pet" />
-            <span class="card-label">Handcrafted with care</span>
+  <!-- Hero Section (Premium Rounded Card Layout) -->
+  <section class="pet-hero-section">
+    <div class="container">
+      <div class="pet-hero-card">
+        
+        <div class="pet-hero-card-left">
+          <div class="commission-badge-pill">
+            <span class="badge-pulse-dot"></span>
+            Custom commissions, made to order
           </div>
-          <div class="visual-card image-two">
-            <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-59b33d32-ix8s64.webp" alt="Cat keychain" />
-            <span class="card-label">Star Cat keychain</span>
+          <h1 class="pet-hero-title">Your pet, <br />in <span class="highlight-clay">clay.</span></h1>
+          <p class="pet-hero-desc">
+            Send me a few photos of your best friend and I will sculpt them into a tiny glazed figurine, hand painted down to the floppy ears, freckles and that one funny whisker.
+          </p>
+          <div class="pet-hero-actions">
+            <a href="https://ig.me/m/tabbychaser" target="_blank" class="btn btn-solid-pink">DM @tabbychaser to start</a>
+            <a href="#how-it-works" class="btn btn-outline-white">See how it works</a>
           </div>
         </div>
+
+        <div class="pet-hero-card-right">
+          <img src="assets/custom_pet_clay.png" alt="Orange cat looking at its tiny handmade clay figurine duplicate" class="pet-hero-img" />
+        </div>
+
       </div>
     </div>
   </section>
 
-  <!-- How It Works Section -->
-  <section class="how-it-works">
+  <!-- How It Works Section (Premium High Contrast Cards) -->
+  <section class="how-it-works-section" id="how-it-works">
     <div class="container">
-      <div class="section-header-centered">
-        <h2 class="section-title">How it works</h2>
-        <p class="section-subtitle">Adopt your custom keepsake in 4 simple steps.</p>
-      </div>
-
-      <div class="steps-grid">
-        <div class="step-card">
-          <div class="step-num">01</div>
-          <h3 class="step-card-title">Share Photos</h3>
-          <p class="step-card-desc">Send 2 to 3 clear pictures of your pet on Instagram. Different angles help, especially the face and the back details.</p>
+      <h2 class="how-heading">How it works</h2>
+      
+      <div class="how-steps-grid">
+        
+        <!-- Step 1 -->
+        <div class="how-step-card">
+          <div class="step-badge-num">1</div>
+          <h3 class="step-title">Send your photos</h3>
+          <p class="step-desc">
+            DM 2 to 3 clear pictures of your pet on Instagram @tabbychaser. Different angles help, especially the face and the back.
+          </p>
         </div>
 
-        <div class="step-card">
-          <div class="step-num">02</div>
-          <h3 class="step-card-title">Choose Your Tier</h3>
-          <p class="step-card-desc">Select a style tier based on details or add-ons. I will review your photos and confirm what is possible.</p>
+        <!-- Step 2 -->
+        <div class="how-step-card">
+          <div class="step-badge-num">2</div>
+          <h3 class="step-title">Pick your size</h3>
+          <p class="step-desc">
+            Choose a tier below based on detail and how many pets you want. I will confirm what is possible from your photos.
+          </p>
         </div>
 
-        <div class="step-card">
-          <div class="step-num">03</div>
-          <h3 class="step-card-title">Sculpt & Approve</h3>
-          <p class="step-card-desc">A deposit books your slot, then I sculpt from scratch. You approve progress photos before I apply the final glaze.</p>
+        <!-- Step 3 -->
+        <div class="how-step-card">
+          <div class="step-badge-num">3</div>
+          <h3 class="step-title">I sculpt it by hand</h3>
+          <p class="step-desc">
+            A small deposit books your slot, then I get to work. Expect about 2 to 3 weeks, since every piece is made from scratch.
+          </p>
         </div>
 
-        <div class="step-card">
-          <div class="step-num">04</div>
-          <h3 class="step-card-title">Ship & Adopt</h3>
-          <p class="step-card-desc">Pay the balance, and your miniature pet arrives at your doorstep, packaged securely to live on your desk forever.</p>
+        <!-- Step 4 -->
+        <div class="how-step-card">
+          <div class="step-badge-num">4</div>
+          <h3 class="step-title">Your keepsake ships</h3>
+          <p class="step-desc">
+            You approve a progress photo, pay the balance, and your pet arrives ready to live on your desk forever.
+          </p>
         </div>
+
       </div>
     </div>
   </section>

@@ -1,207 +1,195 @@
-/* ==========================================================================
-   Tabby Chaser – Custom Pets Styles
-   ========================================================================== */
-
-/* Hero Section */
-.pet-hero {
-  padding: 80px 0 60px;
-  background: linear-gradient(to bottom, #fce9e5, var(--color-page-bg));
-  border-bottom: 1.5px solid var(--color-border-rgba);
+/* Hero Section (Rounded Card Style) */
+.pet-hero-section {
+  padding: 40px 0;
+  background-color: var(--color-page-bg);
 }
 
-.pet-hero-grid {
+.pet-hero-card {
+  background-color: #231f1e; /* Deep cozy dark charcoal */
+  border-radius: 28px !important;
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
-  gap: 60px;
-  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  min-height: 520px;
 }
 
-.pet-hero-tag {
-  display: inline-block;
-  background: var(--color-brand-pink);
-  color: var(--color-text-main);
-  padding: 6px 12px;
+.pet-hero-card-left {
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.commission-badge-pill {
+  background-color: rgba(245, 185, 192, 0.15);
+  color: var(--color-brand-pink);
+  border-radius: 50px !important;
+  padding: 6px 16px;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.5px;
-  margin-bottom: 20px;
-}
-
-.pet-hero-title {
-  font-family: var(--font-display);
-  font-size: clamp(2.5rem, 5vw, 3.8rem);
-  font-weight: 700;
-  line-height: 1.15;
-  color: var(--color-text-main);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 24px;
 }
 
-.pet-hero-title .script-accent {
-  font-family: var(--font-script);
-  color: var(--color-pink-highlight);
-  font-size: 1.1em;
-  font-weight: normal;
+.badge-pulse-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #8ed081; /* Soft green indicator dot */
+  border-radius: 50% !important;
   display: inline-block;
+  box-shadow: 0 0 8px #8ed081;
 }
 
-.pet-hero-desc {
-  font-size: 1.05rem;
-  color: #4a4a4a;
-  line-height: 1.65;
+.pet-hero-card-left .pet-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.12;
+  color: #ffffff;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.pet-hero-card-left .highlight-clay {
+  color: #8ed081; /* Sage green clay word, matching moon kiln theme */
+  font-family: var(--font-display);
+}
+
+.pet-hero-card-left .pet-hero-desc {
+  font-size: 0.96rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
   margin-bottom: 36px;
-  max-width: 500px;
+  max-width: 480px;
 }
 
-.pet-hero-btns {
+.pet-hero-actions {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
-.btn-black-pill {
-  background: var(--color-text-main);
-  color: #fff;
-  border: 1.5px solid var(--color-text-main);
-  padding: 12px 28px;
-  font-family: var(--font-body);
-  font-size: 0.88rem;
+.btn-solid-pink {
+  background-color: var(--color-brand-pink);
+  color: var(--color-text-main) !important;
+  border-radius: 50px !important;
+  padding: 14px 28px;
+  font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-decoration: none;
   transition: var(--transition);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  border: 2px solid var(--color-brand-pink);
 }
 
-.btn-black-pill:hover {
-  background: transparent;
-  color: var(--color-text-main);
+.btn-solid-pink:hover {
+  background-color: transparent;
+  color: var(--color-brand-pink) !important;
 }
 
-/* Visual Stack */
-.pet-hero-visual {
-  position: relative;
-  height: 400px;
+.btn-outline-white {
+  background-color: transparent;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px !important;
+  padding: 14px 28px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: var(--transition);
 }
 
-.visual-stack {
+.btn-outline-white:hover {
+  border-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.pet-hero-card-right {
   position: relative;
   width: 100%;
   height: 100%;
 }
 
-.visual-card {
-  position: absolute;
-  background: #fff;
-  padding: 12px 12px 28px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-  border: 1.5px solid var(--color-border-rgba);
-  transition: var(--transition);
-  width: 250px;
-}
-
-.visual-card img {
+.pet-hero-img {
   width: 100%;
-  aspect-ratio: 1/1;
+  height: 100%;
   object-fit: cover;
   display: block;
-  margin-bottom: 12px;
 }
 
-.card-label {
-  font-family: var(--font-script);
-  font-size: 1.1rem;
-  color: var(--color-pink-highlight);
-  text-align: center;
-  display: block;
-}
-
-.image-one {
-  top: 10px;
-  left: 30px;
-  transform: rotate(-6deg);
-  z-index: 2;
-}
-
-.image-two {
-  bottom: 20px;
-  right: 30px;
-  transform: rotate(4deg);
-  z-index: 1;
-}
-
-.visual-card:hover {
-  transform: translateY(-8px) scale(1.03) rotate(0deg);
-  z-index: 10;
-  box-shadow: 0 30px 60px rgba(245, 185, 192, 0.4);
-}
-
-/* Steps Section */
-.how-it-works {
+/* How It Works Section (Premium Contrast Cards) */
+.how-it-works-section {
   padding: 80px 0;
-  background: var(--color-page-bg);
+  background-color: var(--color-page-bg);
 }
 
-.section-header-centered {
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto 50px;
-}
-
-.section-title {
+.how-heading {
   font-family: var(--font-display);
   font-size: clamp(2rem, 3.5vw, 2.5rem);
+  font-weight: 700;
   color: var(--color-text-main);
-  margin-bottom: 12px;
+  margin-bottom: 40px;
+  text-align: left;
 }
 
-.section-subtitle {
-  font-size: 0.95rem;
-  color: #666;
-}
-
-.steps-grid {
+.how-steps-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 20px;
 }
 
-.step-card {
-  background: var(--color-card-bg);
-  padding: 30px 24px;
-  border-top: 4px solid var(--color-brand-pink);
+.how-step-card {
+  background-color: #231f1e; /* Matching dark hero card */
+  border-radius: 20px !important;
+  padding: 35px 28px 30px;
+  color: #ffffff;
   position: relative;
   transition: var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.step-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 30px rgba(245,185,192,0.25);
+.how-step-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-color: var(--color-brand-pink);
 }
 
-.step-num {
+.step-badge-num {
+  width: 32px;
+  height: 32px;
+  background-color: #f4a261; /* Warm orange number badge */
+  color: #131313;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-display);
-  font-size: 2.8rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: rgba(19, 19, 19, 0.05);
-  position: absolute;
-  top: 15px;
-  right: 20px;
+  margin-bottom: 22px;
 }
 
-.step-card-title {
+.how-step-card .step-title {
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 600;
-  color: var(--color-text-main);
+  color: #ffffff;
   margin-bottom: 12px;
 }
 
-.step-card-desc {
-  font-size: 0.88rem;
-  color: #555;
+.how-step-card .step-desc {
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.55;
+  margin: 0;
 }
+
 
 /* Commission Planner Layout */
 .commission-planner-section {
@@ -622,24 +610,19 @@
 }
 
 /* Responsive Custom Pets */
-@media (max-width: 900px) {
-  .pet-hero-grid {
+@media (max-width: 991px) {
+  .pet-hero-card {
     grid-template-columns: 1fr;
-    gap: 40px;
+    min-height: auto;
   }
-  .pet-hero-visual {
-    height: 300px;
-    display: flex;
-    justify-content: center;
+  .pet-hero-card-left {
+    padding: 50px 40px;
   }
-  .visual-stack {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
+  .pet-hero-card-right {
+    height: 320px;
   }
-  .visual-card {
-    position: static;
-    transform: none !important;
+  .how-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
   .planner-layout {
     grid-template-columns: 1fr;
@@ -648,24 +631,24 @@
   .planner-summary-panel {
     position: static;
   }
-  .steps-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 @media (max-width: 600px) {
-  .steps-grid {
+  .pet-hero-card-left {
+    padding: 40px 24px;
+  }
+  .pet-hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .btn-solid-pink, .btn-outline-white {
+    width: 100%;
+    text-align: center;
+  }
+  .how-steps-grid {
     grid-template-columns: 1fr;
   }
   .radio-group {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .pet-hero-btns {
-    flex-direction: column;
-  }
-  .visual-stack {
-    flex-direction: column;
-    align-items: center;
-    height: auto;
   }
 }

@@ -741,7 +741,7 @@
   pointer-events: none;
   z-index: 10;
   background: 
-    linear-gradient(to right, #1c1a17 0%, transparent 15%, transparent 85%, #1c1a17 100%),
+    linear-gradient(to right, #1c1a17 0%, transparent 24%, transparent 76%, #1c1a17 100%),
     linear-gradient(to bottom, #1c1a17 0%, transparent 10%, transparent 90%, #1c1a17 100%);
 }
 
@@ -755,6 +755,7 @@
   width: max-content;
   align-items: flex-start;
   will-change: transform;
+  position: relative; /* Restricts child offsets relative to track container */
 }
 
 .tc-pets__wall-col {

@@ -147,20 +147,12 @@ function initHappyCommissionsWall() {
     track.appendChild(d);
   });
 
-  let half = 0;
   function halfWidth() {
-    if (!half) {
-      // Find the first cloned column (at index colCount) to get the exact width of one loop cycle
-      const firstCloneCol = track.children[colCount];
-      if (firstCloneCol) {
-        half = firstCloneCol.offsetLeft;
-      } else {
-        half = track.scrollWidth / 2;
-      }
-    }
-    return half || 1;
+    const isSmall = window.matchMedia('(max-width: 749px)').matches;
+    const currentW = isSmall ? 128 : 190;
+    const currentGAP = 12;
+    return colCount * (currentW + currentGAP);
   }
-  window.addEventListener('resize', () => { half = 0; });
 
   const SPEED = 40; // px per second auto-cruise speed
   let offset = Math.random() * 200;
@@ -231,14 +223,7 @@ function initHappyCommissionsWall() {
     dragging = false;
   });
 
-  // Force recalculating scrolling loop limits once all masonry image files are loaded
-  if (document.readyState === 'complete') {
-    half = 0;
-  } else {
-    window.addEventListener('load', () => {
-      half = 0;
-    });
-  }
+
 }
 
 // Ensure the page initializes correctly

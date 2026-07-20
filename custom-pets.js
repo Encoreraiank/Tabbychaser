@@ -91,31 +91,7 @@ function closeModal() {
 
 
 
-// ---- INTERACTIVE STEPS HANDLER ----
-function changeStep(stepNumber, imgPath) {
-  const activeImg = document.getElementById('activeStepImg');
-  if (activeImg) {
-    // Check if the source is already the same to prevent flickering
-    if (!activeImg.src.includes(imgPath)) {
-      activeImg.style.opacity = 0.3;
-      setTimeout(() => {
-        activeImg.src = imgPath;
-        activeImg.style.opacity = 1;
-      }, 100);
-    }
-  }
 
-  // Update active status in list items
-  const items = document.querySelectorAll('.timeline-step-item');
-  items.forEach(item => {
-    const step = parseInt(item.dataset.step);
-    if (step === stepNumber) {
-      item.classList.add('active-step');
-    } else {
-      item.classList.remove('active-step');
-    }
-  });
-}
 
 // Ensure the page initializes with correct pricing estimation
 document.addEventListener('DOMContentLoaded', () => {

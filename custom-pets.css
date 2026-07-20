@@ -183,120 +183,76 @@
   margin-bottom: 50px;
 }
 
-.interactive-steps-showcase {
+.how-steps-horizontal-grid {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 45px;
-  align-items: center;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
 }
 
-.showcase-visual-panel {
+.how-step-column {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 
-.active-illustration-frame {
+/* Big Illustration Holders (Direct display, NO circles, large size) */
+.step-illustration-holder {
   width: 100%;
-  max-width: 440px;
-  aspect-ratio: 1.15 / 1;
-  background-color: #ffffff;
-  border-radius: 28px !important;
-  border: 1.5px solid var(--color-border-rgba);
-  padding: 24px;
-  box-shadow: 0 16px 40px rgba(245, 185, 192, 0.25);
+  height: 220px; /* Big height to give illustration max size */
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  transition: var(--transition);
+  margin-bottom: 16px;
+  background-color: transparent;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.active-step-img {
+.how-step-column:hover .step-illustration-holder {
+  transform: scale(1.08) translateY(-4px); /* Cat mascot expands slightly on hover */
+}
+
+.step-illustration-large {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   display: block;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
 }
 
-.active-illustration-frame:hover .active-step-img {
-  transform: scale(1.05);
-}
-
-.showcase-steps-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* Interactive Timeline Step Items */
-.timeline-step-item {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  padding: 16px 20px;
-  border-radius: 20px !important;
-  border: 1.5px solid transparent;
-  cursor: pointer;
-  background-color: transparent;
-  transition: all 0.30s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.timeline-step-item:hover {
-  background-color: rgba(255, 255, 255, 0.45);
-}
-
-.timeline-step-item.active-step {
-  background-color: #ffffff;
-  border-color: var(--color-brand-pink);
-  box-shadow: 0 10px 25px rgba(245, 185, 192, 0.35);
-}
-
-.timeline-step-item .step-num-badge {
-  width: 30px;
-  height: 30px;
-  background-color: #ffffff;
-  color: var(--color-text-main);
+/* Number Badges */
+.how-step-column .step-badge-num {
+  width: 26px;
+  height: 26px;
+  background-color: var(--color-pink-highlight);
+  color: #ffffff;
   border-radius: 50% !important;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  border: 1.5px solid var(--color-border-rgba);
-  transition: var(--transition);
-  flex-shrink: 0;
-  margin-top: 2px;
+  margin-bottom: 12px;
 }
 
-.timeline-step-item.active-step .step-num-badge {
-  background-color: var(--color-brand-pink);
-  border-color: var(--color-pink-highlight);
-  color: var(--color-text-main);
-  box-shadow: 0 3px 8px rgba(245, 185, 192, 0.5);
+.how-step-column:hover .step-badge-num {
+  background-color: var(--color-text-main);
 }
 
-.timeline-step-item .step-item-title {
+.how-step-column .step-title {
   font-family: var(--font-display);
-  font-size: 1.12rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--color-text-main);
-  margin-bottom: 6px;
-  transition: var(--transition);
+  margin-bottom: 8px;
 }
 
-.timeline-step-item.active-step .step-item-title {
-  color: var(--color-pink-highlight);
-}
-
-.timeline-step-item .step-item-desc,
-.timeline-step-item .step-desc {
+.how-step-column .step-desc {
   font-size: 0.82rem;
   color: #555555;
   line-height: 1.5;
   margin: 0;
+  max-width: 260px;
 }
 
 @keyframes arrowBounce {
@@ -736,15 +692,12 @@
   .pet-hero-card-right {
     height: 320px;
   }
-  .interactive-steps-showcase {
-    grid-template-columns: 1fr;
-    gap: 30px;
+  .how-steps-horizontal-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 36px 20px;
   }
-  .showcase-visual-panel {
-    order: -1; /* Display active illustration above the steps list on mobile/tablet */
-  }
-  .active-illustration-frame {
-    max-width: 360px;
+  .step-illustration-holder {
+    height: 180px; /* Scale down slightly on tablet */
   }
   .planner-layout {
     grid-template-columns: 1fr;
@@ -770,9 +723,12 @@
   .how-works-box {
     padding: 40px 20px;
   }
-  .timeline-step-item {
-    padding: 12px 14px;
-    gap: 12px;
+  .how-steps-horizontal-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .step-illustration-holder {
+    height: 200px;
   }
   .radio-group {
     grid-template-columns: repeat(2, 1fr);

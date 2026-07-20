@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop All – Tabby Chaser</title>
+  <meta name="description" content="Browse all handmade clay charms, keychains, desk pals, stickers and worry stones from Tabby Chaser. Made with love in India." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="shop.css" />
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-container container">
+      <div class="announcement-social">
+        <a href="https://www.instagram.com/tabbychaser" target="_blank" aria-label="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+      </div>
+      <div class="announcement-text">
+        All these cuties are made to order, so please give me 3-4 weeks to create them for you before I ship them, packed with cute freebie stickers &lt;3
+      </div>
+      <div class="announcement-spacer"></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container container">
+      <a href="index.html" class="brand-logo">
+        <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
+        <span class="logo-text">Tabby Chaser</span>
+      </a>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link outline-pill">Home</a>
+        <a href="shop.html" class="nav-link active-pill">Shop</a>
+        <a href="index.html#custom" class="nav-link outline-pill">Custom Pets</a>
+        <a href="index.html#policies" class="nav-link outline-pill">Policies</a>
+      </nav>
+      <div class="header-actions">
+        <div class="search-box-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" placeholder="Search..." id="shopSearchInput" oninput="filterProducts()" />
+        </div>
+        <button class="cart-pill-btn" id="cartBtn">
+          Cart
+          <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Shop Main Layout -->
+  <main class="shop-main">
+    <div class="container shop-layout">
+
+      <!-- LEFT SIDEBAR: Filters -->
+      <aside class="shop-sidebar">
+
+        <div class="sidebar-block">
+          <h3 class="sidebar-heading">Categories</h3>
+          <ul class="filter-list" id="categoryFilter">
+            <li><button class="filter-btn active" data-cat="all" onclick="setCat(this, 'all')">All Products <span class="filter-count">18</span></button></li>
+            <li><button class="filter-btn" data-cat="charms" onclick="setCat(this, 'charms')">Charms <span class="filter-count">4</span></button></li>
+            <li><button class="filter-btn" data-cat="keychains" onclick="setCat(this, 'keychains')">Keychains <span class="filter-count">3</span></button></li>
+            <li><button class="filter-btn" data-cat="desk-pals" onclick="setCat(this, 'desk-pals')">Desk Pals <span class="filter-count">4</span></button></li>
+            <li><button class="filter-btn" data-cat="stickers" onclick="setCat(this, 'stickers')">Sticker Sheets <span class="filter-count">3</span></button></li>
+            <li><button class="filter-btn" data-cat="worry-stones" onclick="setCat(this, 'worry-stones')">Worry Stones <span class="filter-count">2</span></button></li>
+            <li><button class="filter-btn" data-cat="phone-charms" onclick="setCat(this, 'phone-charms')">Phone Charms <span class="filter-count">2</span></button></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-block">
+          <h3 class="sidebar-heading">Price Range</h3>
+          <div class="price-range-wrap">
+            <input type="range" min="0" max="600" value="600" class="price-slider" id="priceSlider" oninput="updatePriceFilter(this.value)" />
+            <div class="price-labels">
+              <span>₹0</span>
+              <span id="priceMax">₹600</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <h3 class="sidebar-heading">Availability</h3>
+          <ul class="filter-list">
+            <li>
+              <label class="checkbox-filter">
+                <input type="checkbox" id="inStockOnly" onchange="filterProducts()" />
+                In Stock Only
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        <div class="sidebar-promo-card">
+          <span class="promo-emoji">🐸</span>
+          <p class="promo-text">Free stickers with every order!</p>
+        </div>
+
+      </aside>
+
+      <!-- RIGHT: Product Grid -->
+      <div class="shop-content">
+
+        <!-- Top Bar: results + sort -->
+        <div class="shop-topbar">
+          <p class="results-count"><span id="resultsNum">18</span> products</p>
+          <div class="sort-wrap">
+            <label class="sort-label">Sort by:</label>
+            <select class="sort-select" id="sortSelect" onchange="filterProducts()">
+              <option value="default">Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name: A–Z</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="shop-products-grid" id="productsGrid">
+
+          <!-- CHARMS -->
+          <div class="shop-card" data-cat="charms" data-price="219" data-stock="in-stock" data-name="Pond Hopper Frog">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-bestseller">Bestseller</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp" alt="Pond Hopper Frog" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Pond Hopper Frog', 219)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Charms</span>
+                <h3 class="card-product-name">Pond Hopper Frog</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹219</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="charms" data-price="219" data-stock="low-stock" data-name="Bow Bear Charm">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-low">Only 2 left</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-46e4e5de-0cd7-4387-9f47-92c55a666831-b56fe6d8-ket789.webp" alt="Bow Bear Charm" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Bow Bear Charm', 219)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Charms</span>
+                <h3 class="card-product-name">Bow Bear Charm</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹219</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="charms" data-price="199" data-stock="in-stock" data-name="Ghostly Skull Charm">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-new">Spooky Cute</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-094dc89c-gsisii.webp" alt="Ghostly Skull Charm" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Ghostly Skull Charm', 199)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Charms</span>
+                <h3 class="card-product-name">Ghostly Skull Charm</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹199</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="charms" data-price="189" data-stock="low-stock" data-name="Tiny Mushroom Charm">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-low">Only 3 left</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp" alt="Tiny Mushroom Charm" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Tiny Mushroom Charm', 189)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Charms</span>
+                <h3 class="card-product-name">Tiny Mushroom Charm</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹189</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- KEYCHAINS -->
+          <div class="shop-card" data-cat="keychains" data-price="399" data-stock="in-stock" data-name="Star Cat Keychain">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-bestseller">Featured</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-59b33d32-ix8s64.webp" alt="Star Cat Keychain" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Star Cat Keychain', 399)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Keychains</span>
+                <h3 class="card-product-name">Star Cat Keychain</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹399</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="keychains" data-price="349" data-stock="in-stock" data-name="Sleepy Bear Keychain">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-46e4e5de-0cd7-4387-9f47-92c55a666831-b56fe6d8-ket789.webp" alt="Sleepy Bear Keychain" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Sleepy Bear Keychain', 349)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Keychains</span>
+                <h3 class="card-product-name">Sleepy Bear Keychain</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹349</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="keychains" data-price="299" data-stock="low-stock" data-name="Froggy Phone Charm Keychain">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-low">Only 1 left</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp" alt="Froggy Phone Charm Keychain" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Froggy Phone Charm Keychain', 299)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Keychains</span>
+                <h3 class="card-product-name">Froggy Phone Charm Keychain</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹299</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- DESK PALS -->
+          <div class="shop-card" data-cat="desk-pals" data-price="469" data-stock="in-stock" data-name="Sleepy Froggy">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-bestseller">Bestseller</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-2079e3bba73627cf-585hmv.webp" alt="Sleepy Froggy" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Sleepy Froggy', 469)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Desk Pals</span>
+                <h3 class="card-product-name">Sleepy Froggy</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹469</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="desk-pals" data-price="459" data-stock="in-stock" data-name="Little Hopper">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-bestseller">Bestseller</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-fef5ae9ecc16e517-ilew0k.webp" alt="Little Hopper" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Little Hopper', 459)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Desk Pals</span>
+                <h3 class="card-product-name">Little Hopper</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹459</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="desk-pals" data-price="499" data-stock="low-stock" data-name="Starcat Desk Pal">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-low">Only 2 left</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-59b33d32-ix8s64.webp" alt="Starcat Desk Pal" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Starcat Desk Pal', 499)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Desk Pals</span>
+                <h3 class="card-product-name">Starcat Desk Pal</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹499</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="desk-pals" data-price="449" data-stock="in-stock" data-name="Hoppy Buddy">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-new">New</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-2079e3bba73627cf-585hmv.webp" alt="Hoppy Buddy" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Hoppy Buddy', 449)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Desk Pals</span>
+                <h3 class="card-product-name">Hoppy Buddy</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹449</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- STICKERS -->
+          <div class="shop-card" data-cat="stickers" data-price="99" data-stock="low-stock" data-name="Purr Parade Sticker Sheet">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-low">Only 3 left</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-f2c594d5-2456-4e9b-a0bd-da99e1367784-354c0636159af917-g8hjt3.webp" alt="Purr Parade Sticker Sheet" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Purr Parade Sticker Sheet', 99)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Sticker Sheets</span>
+                <h3 class="card-product-name">Purr Parade Sticker Sheet</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹99</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="stickers" data-price="89" data-stock="in-stock" data-name="Froggies Sticker Sheet">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-f2c594d5-2456-4e9b-a0bd-da99e1367784-354c0636159af917-g8hjt3.webp" alt="Froggies Sticker Sheet" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Froggies Sticker Sheet', 89)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Sticker Sheets</span>
+                <h3 class="card-product-name">Froggies Sticker Sheet</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹89</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="stickers" data-price="109" data-stock="in-stock" data-name="Pocket Pals Sticker Sheet">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-new">New</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-f2c594d5-2456-4e9b-a0bd-da99e1367784-354c0636159af917-g8hjt3.webp" alt="Pocket Pals Sticker Sheet" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Pocket Pals Sticker Sheet', 109)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Sticker Sheets</span>
+                <h3 class="card-product-name">Pocket Pals Sticker Sheet</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹109</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- WORRY STONES -->
+          <div class="shop-card" data-cat="worry-stones" data-price="389" data-stock="in-stock" data-name="Starcat Worry Stone">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-low">Only 1 left</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-e566ae4b-051b-4294-975e-0a93fb4a47b3-56e26791-ktpfey.webp" alt="Starcat Worry Stone" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Starcat Worry Stone', 389)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Worry Stones</span>
+                <h3 class="card-product-name">Starcat Worry Stone</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹389</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="worry-stones" data-price="369" data-stock="in-stock" data-name="Froggy Worry Stone">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp" alt="Froggy Worry Stone" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Froggy Worry Stone', 369)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Worry Stones</span>
+                <h3 class="card-product-name">Froggy Worry Stone</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹369</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- PHONE CHARMS -->
+          <div class="shop-card" data-cat="phone-charms" data-price="249" data-stock="in-stock" data-name="Frog Phone Charm">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-new">New</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp" alt="Frog Phone Charm" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Frog Phone Charm', 249)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Phone Charms</span>
+                <h3 class="card-product-name">Frog Phone Charm</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹249</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="shop-card" data-cat="phone-charms" data-price="249" data-stock="low-stock" data-name="Bear Phone Charm">
+            <a href="#" class="shop-card-link">
+              <div class="shop-card-img-wrap">
+                <span class="stock-badge badge-low">Only 2 left</span>
+                <img src="https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-46e4e5de-0cd7-4387-9f47-92c55a666831-b56fe6d8-ket789.webp" alt="Bear Phone Charm" class="shop-card-img" loading="lazy" />
+                <div class="shop-card-hover-overlay">
+                  <button class="quick-add-btn" onclick="event.preventDefault(); addToCart('Bear Phone Charm', 249)">+ Quick Add</button>
+                </div>
+              </div>
+              <div class="shop-card-meta">
+                <span class="card-category-tag">Phone Charms</span>
+                <h3 class="card-product-name">Bear Phone Charm</h3>
+                <div class="card-price-row">
+                  <span class="card-price">₹249</span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <span class="empty-emoji">🐸</span>
+          <p>No products match your filter!</p>
+          <button class="btn btn-pink-pill" onclick="resetFilters()">Clear Filters</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Cart Toast Notification -->
+  <div class="cart-toast" id="cartToast">
+    <span class="toast-emoji">🛍️</span>
+    <span id="toastMsg">Added to cart!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-wave-divider" aria-hidden="true">
+      <svg class="footer-wave-svg" viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1440" height="45" fill="var(--color-page-bg)"></rect>
+        <path d="M0,60 C180,10 360,90 540,50 C720,10 900,80 1080,45 C1260,10 1380,70 1440,55 L1440,90 L0,90 Z" fill="var(--color-card-bg)"></path>
+      </svg>
+    </div>
+    <div class="footer-body">
+      <div class="container footer-grid">
+        <div class="footer-brand-column">
+          <div class="footer-brand-logo">
+            <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="footer-logo-img" />
+            <span class="footer-logo-text">Tabby Chaser</span>
+          </div>
+          <p class="footer-brand-tagline">Tiny handcrafted pieces of joy,<br />made with love for you.</p>
+        </div>
+        <div class="footer-links-column">
+          <h4 class="footer-column-title">Quick Links</h4>
+          <ul class="footer-links-list">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shop.html">Shop Collections</a></li>
+            <li><a href="index.html#custom">Custom Commissions</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-column">
+          <h4 class="footer-column-title">Our Policies</h4>
+          <ul class="footer-links-list">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Refund Policy</a></li>
+            <li><a href="#">Shipping Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom-copyright">
+        <div class="container copyright-flex">
+          <span>&copy; 2026 Tabby Chaser. Made with love in Bangalore.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="shop.js"></script>
+</body>
+</html>

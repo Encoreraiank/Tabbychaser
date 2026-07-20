@@ -185,38 +185,40 @@
 
 .how-steps-timeline {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+  max-width: 1050px;
+  margin: 0 auto;
 }
 
 .how-timeline-col {
   background-color: #ffffff; /* White card to contrast with pink-cream box background */
   border-radius: 24px !important;
   border: 1.5px solid var(--color-border-rgba);
-  padding: 30px 20px 25px;
+  padding: 24px 28px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  text-align: center;
+  text-align: left;
   position: relative;
   transition: var(--transition);
 }
 
 .how-timeline-col:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 45px rgba(245, 185, 192, 0.45);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 35px rgba(245, 185, 192, 0.35);
   border-color: var(--color-pink-highlight);
 }
 
 /* Step Illustration Containers (Direct display, NO circles) */
 .step-illustration-container {
-  width: 100%;
-  height: 160px; /* High height to give cat mascot illustrations breathing room */
+  width: 180px; /* Wider and taller display for the cat mascots */
+  height: 180px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
   background-color: transparent;
   overflow: hidden;
 }
@@ -230,7 +232,15 @@
 }
 
 .how-timeline-col:hover .step-illustration-img {
-  transform: scale(1.08); /* Cat mascot expands slightly on hover */
+  transform: scale(1.06); /* Cat mascot expands slightly on hover */
+}
+
+/* Info Panel on the Right Side of the Card */
+.step-info-container {
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 /* Number Badges */
@@ -246,7 +256,7 @@
   font-family: var(--font-display);
   font-size: 0.9rem;
   font-weight: 700;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   border: 1.5px solid var(--color-border-rgba);
   box-shadow: 0 3px 8px rgba(0,0,0,0.05);
 }
@@ -259,31 +269,17 @@
 
 .how-timeline-col .step-title {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: var(--color-text-main);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .how-timeline-col .step-desc {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: #555555;
-  line-height: 1.55;
+  line-height: 1.5;
   margin: 0;
-  max-width: 250px;
-}
-
-/* Step Flow Connectors (SVG arrows between columns) */
-.step-arrow-divider {
-  position: absolute;
-  top: 96px; /* Aligned vertically with the center of the cards */
-  right: -36px;
-  width: 46px;
-  height: 16px;
-  z-index: 5;
-  opacity: 0.8;
-  pointer-events: none;
-  animation: arrowBounce 1.5s infinite alternate ease-in-out;
 }
 
 @keyframes arrowBounce {
@@ -725,10 +721,17 @@
   }
   .how-steps-timeline {
     grid-template-columns: repeat(2, 1fr);
-    gap: 36px 20px;
+    gap: 20px;
   }
-  .step-arrow-divider {
-    display: none; /* Hide horizontal arrows when wrapped */
+  .how-timeline-col {
+    padding: 20px;
+  }
+  .step-illustration-container {
+    width: 140px; /* Scale down illustration slightly on tablet */
+    height: 140px;
+  }
+  .step-info-container {
+    padding-left: 18px;
   }
   .planner-layout {
     grid-template-columns: 1fr;
@@ -736,6 +739,13 @@
   }
   .planner-summary-panel {
     position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .how-steps-timeline {
+    grid-template-columns: 1fr; /* Single column timeline on mobile */
+    gap: 20px;
   }
 }
 
@@ -754,11 +764,25 @@
   .how-works-box {
     padding: 40px 20px;
   }
-  .how-steps-timeline {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
   .radio-group {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .how-timeline-col {
+    flex-direction: column; /* Stack image and text vertically on very small screens */
+    text-align: center;
+    align-items: center;
+    padding: 24px;
+  }
+  .step-illustration-container {
+    width: 160px;
+    height: 160px;
+    margin-bottom: 16px;
+  }
+  .step-info-container {
+    padding-left: 0;
+    align-items: center;
   }
 }

@@ -123,11 +123,20 @@
   display: block;
 }
 
-/* How It Works Section (Premium High Contrast Cards) */
+/* How It Works Section (Organic, Cardless illustration layout) */
 .how-it-works-section {
-  padding: 80px 0;
+  padding: 90px 0 80px;
   background-color: var(--color-page-bg);
   border-bottom: 1.5px solid var(--color-border-rgba);
+  position: relative;
+}
+
+.how-header-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 45px;
 }
 
 .how-heading {
@@ -135,213 +144,113 @@
   font-size: clamp(2rem, 3.5vw, 2.5rem);
   font-weight: 700;
   color: var(--color-text-main);
-  margin-bottom: 40px;
+  margin: 0;
   text-align: center;
+}
+
+.decor-heart {
+  font-size: 1.6rem;
+  animation: heartPulse 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1.1); }
 }
 
 .how-steps-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 30px;
 }
 
-.how-step-card {
-  background-color: var(--color-card-bg); /* Soft cream/pink card to blend with illustrations */
-  border-radius: 24px !important;
-  overflow: hidden;
-  color: var(--color-text-main);
-  position: relative;
+.how-step-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   transition: var(--transition);
-  border: 1.5px solid var(--color-border-rgba);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
 }
 
-.how-step-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 45px rgba(245, 185, 192, 0.45);
-  border-color: var(--color-pink-highlight);
-}
-
-.step-img-container {
-  position: relative;
+.step-illustration-wrap {
   width: 100%;
-  aspect-ratio: 1.1 / 1;
-  background-color: #fff8f5;
-  border-bottom: 1.5px solid var(--color-border-rgba);
-  overflow: hidden;
-}
-
-.step-illustration {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s ease;
-}
-
-.how-step-card:hover .step-illustration {
-  transform: scale(1.05);
-}
-
-.step-img-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(19, 19, 19, 0.25);
+  aspect-ratio: 1.15 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  background-color: transparent;
+  margin-bottom: 20px;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.how-step-card:hover .step-img-overlay {
-  opacity: 1;
+.how-step-column:hover .step-illustration-wrap {
+  transform: translateY(-8px) scale(1.04);
 }
 
-.zoom-icon {
-  background-color: #ffffff;
-  color: var(--color-text-main);
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 8px 16px;
-  border-radius: 50px !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transform: translateY(10px);
-  transition: transform 0.3s ease;
-}
-
-.how-step-card:hover .zoom-icon {
-  transform: translateY(0);
-}
-
-.step-info-panel {
-  padding: 24px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  flex-grow: 1;
-}
-
-.step-badge-num {
-  width: 26px;
-  height: 26px;
-  background-color: var(--color-pink-highlight);
-  color: #ffffff;
-  border-radius: 50% !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-bottom: 14px;
-}
-
-.how-step-card .step-title {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text-main);
-  margin-bottom: 8px;
-}
-
-.how-step-card .step-desc {
-  font-size: 0.82rem;
-  color: #555;
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* Lightbox Modal for Step Illustrations */
-.lightbox-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(19, 19, 19, 0.6);
-  backdrop-filter: blur(8px);
-  z-index: 11000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.lightbox-overlay.show-lightbox {
-  display: flex;
-  opacity: 1;
-}
-
-.lightbox-card {
-  background-color: #fff8f5;
-  padding: 20px;
-  border-radius: 28px !important;
-  border: 1.5px solid var(--color-border-rgba);
-  max-width: 600px;
-  width: 100%;
-  position: relative;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
-  animation: lightboxPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-@keyframes lightboxPop {
-  from { transform: scale(0.92); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.lightbox-close-btn {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50% !important;
-  background-color: #ffffff;
-  border: 1.5px solid var(--color-border-rgba);
-  font-size: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--color-text-main);
-  transition: var(--transition);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  z-index: 10;
-}
-
-.lightbox-close-btn:hover {
-  background-color: var(--color-brand-pink);
-  transform: rotate(90deg);
-}
-
-.lightbox-card img {
-  width: 100%;
-  border-radius: 18px !important;
+.step-illustration-img {
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
   display: block;
-  border: 1px solid var(--color-border-rgba);
 }
 
-.lightbox-caption {
+.step-number-badge {
+  width: 28px;
+  height: 28px;
+  background-color: #f4a261; /* Cozy orange number circle to match the drawing */
+  color: #131313;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 10px rgba(244, 162, 97, 0.25);
+}
+
+.step-column-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--color-text-main);
-  margin-top: 16px;
-  text-align: center;
+  margin-bottom: 10px;
+}
+
+.step-column-desc {
+  font-size: 0.85rem;
+  color: #555555;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 260px;
+}
+
+/* Cute Doodle Bottom Decorative Bar */
+.how-decor-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin-top: 60px;
+  font-size: 1.6rem;
+  border-top: 1.5px dashed var(--color-border-rgba);
+  padding-top: 35px;
+}
+
+.decor-item {
+  display: inline-block;
+  animation: floatSlow 4s ease-in-out infinite alternate;
+}
+
+.decor-item:nth-child(2) { animation-delay: 0.8s; }
+.decor-item:nth-child(3) { animation-delay: 1.6s; }
+.decor-item:nth-child(4) { animation-delay: 2.4s; }
+.decor-item:nth-child(5) { animation-delay: 3.2s; }
+
+@keyframes floatSlow {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-8px) rotate(6deg); }
 }
 
 /* Commission Planner Layout */

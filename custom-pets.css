@@ -131,20 +131,20 @@
 }
 
 .how-works-box {
-  background-color: var(--color-card-bg); /* Soft pinkish cream card */
+  background-color: #131313; /* Premium solid black background card */
   border-radius: 24px !important;
-  border: 1.5px solid var(--color-border-rgba);
+  border: 1.5px solid rgba(255, 255, 255, 0.1); /* Subtle dark border */
   padding: 35px 40px 40px; /* Reduced paddings to make card compact */
   position: relative;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
 }
 
 /* Floating decorations inside card */
 .how-works-box .floating-deco {
   position: absolute;
   font-size: 1.4rem;
-  opacity: 0.7;
+  opacity: 0.5; /* Slightly muted for dark mode */
   user-select: none;
   animation: floatDeco 4s ease-in-out infinite alternate;
 }
@@ -152,6 +152,7 @@
 .how-works-box .deco-one {
   top: 20px;
   left: 30px;
+  color: #ffffff;
   animation-delay: 0.2s;
 }
 
@@ -159,13 +160,14 @@
   bottom: 25px;
   right: 35px;
   font-size: 1.6rem;
-  color: var(--color-pink-highlight);
+  color: var(--color-brand-pink);
   animation-delay: 0.8s;
 }
 
 .how-works-box .deco-three {
   top: 25px;
   right: 40px;
+  color: #ffffff;
   animation-delay: 1.4s;
 }
 
@@ -178,7 +180,7 @@
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 3vw, 2.2rem);
   font-weight: 700;
-  color: var(--color-text-main);
+  color: #ffffff; /* White title on black card */
   text-align: center;
   margin-bottom: 24px; /* Reduced from 50px */
 }
@@ -219,8 +221,10 @@
   display: block;
   transition: transform 0.4s ease;
   
-  /* Silhouette Drop Shadow to make transparent PNG mascot pop off background */
-  filter: drop-shadow(0 12px 24px rgba(245, 185, 192, 0.45)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.05));
+  /* IMPROVED Silhouette Glow Drop Shadow for high visibility on black background */
+  filter: drop-shadow(0 4px 15px rgba(255, 255, 255, 0.15)) 
+          drop-shadow(0 0 25px rgba(245, 185, 192, 0.4)) 
+          drop-shadow(0 0 6px rgba(245, 185, 192, 0.5));
   
   /* Continuous looping gentle zoom-in/out animation */
   animation: mascotPulse 4s ease-in-out infinite;
@@ -250,8 +254,8 @@
 .how-step-column .step-badge-num {
   width: 26px;
   height: 26px;
-  background-color: var(--color-pink-highlight);
-  color: #ffffff;
+  background-color: var(--color-brand-pink); /* Glowing pink badge */
+  color: #131313; /* Black number */
   border-radius: 50% !important;
   display: flex;
   align-items: center;
@@ -260,23 +264,26 @@
   font-size: 0.85rem;
   font-weight: 700;
   margin-bottom: 8px; /* Reduced from 12px */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 10px rgba(245, 185, 192, 0.3);
 }
 
 .how-step-column:hover .step-badge-num {
-  background-color: var(--color-text-main);
+  background-color: #ffffff;
+  color: #131313;
 }
 
 .how-step-column .step-title {
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--color-text-main);
+  color: #ffffff; /* White title text */
   margin-bottom: 8px;
 }
 
 .how-step-column .step-desc {
   font-size: 0.82rem;
-  color: #555555;
+  color: rgba(255, 255, 255, 0.7); /* Readable off-white description text */
   line-height: 1.5;
   margin: 0;
   max-width: 260px;

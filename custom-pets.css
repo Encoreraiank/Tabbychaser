@@ -183,71 +183,80 @@
   margin-bottom: 50px;
 }
 
-.how-steps-timeline {
+.interactive-steps-showcase {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  max-width: 1050px;
-  margin: 0 auto;
-}
-
-.how-timeline-col {
-  background-color: #ffffff; /* White card to contrast with pink-cream box background */
-  border-radius: 24px !important;
-  border: 1.5px solid var(--color-border-rgba);
-  padding: 24px 28px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
-  display: flex;
-  flex-direction: row;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 45px;
   align-items: center;
-  text-align: left;
-  position: relative;
-  transition: var(--transition);
 }
 
-.how-timeline-col:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 35px rgba(245, 185, 192, 0.35);
-  border-color: var(--color-pink-highlight);
+.showcase-visual-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Step Illustration Containers (Direct display, NO circles) */
-.step-illustration-container {
-  width: 180px; /* Wider and taller display for the cat mascots */
-  height: 180px;
-  flex-shrink: 0;
+.active-illustration-frame {
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 1.15 / 1;
+  background-color: #ffffff;
+  border-radius: 28px !important;
+  border: 1.5px solid var(--color-border-rgba);
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(245, 185, 192, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: transparent;
   overflow: hidden;
+  transition: var(--transition);
 }
 
-.step-illustration-img {
+.active-step-img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
   display: block;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
 }
 
-.how-timeline-col:hover .step-illustration-img {
-  transform: scale(1.06); /* Cat mascot expands slightly on hover */
+.active-illustration-frame:hover .active-step-img {
+  transform: scale(1.05);
 }
 
-/* Info Panel on the Right Side of the Card */
-.step-info-container {
-  padding-left: 24px;
+.showcase-steps-panel {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 12px;
 }
 
-/* Number Badges */
-.how-timeline-col .step-number-badge {
-  width: 28px;
-  height: 28px;
-  background-color: var(--color-brand-pink);
+/* Interactive Timeline Step Items */
+.timeline-step-item {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-radius: 20px !important;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all 0.30s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timeline-step-item:hover {
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+.timeline-step-item.active-step {
+  background-color: #ffffff;
+  border-color: var(--color-brand-pink);
+  box-shadow: 0 10px 25px rgba(245, 185, 192, 0.35);
+}
+
+.timeline-step-item .step-num-badge {
+  width: 30px;
+  height: 30px;
+  background-color: #ffffff;
   color: var(--color-text-main);
   border-radius: 50% !important;
   display: flex;
@@ -256,27 +265,35 @@
   font-family: var(--font-display);
   font-size: 0.9rem;
   font-weight: 700;
-  margin-bottom: 12px;
   border: 1.5px solid var(--color-border-rgba);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  transition: var(--transition);
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.how-timeline-col:hover .step-number-badge {
-  background-color: var(--color-pink-highlight);
-  color: #ffffff;
+.timeline-step-item.active-step .step-num-badge {
+  background-color: var(--color-brand-pink);
   border-color: var(--color-pink-highlight);
+  color: var(--color-text-main);
+  box-shadow: 0 3px 8px rgba(245, 185, 192, 0.5);
 }
 
-.how-timeline-col .step-title {
+.timeline-step-item .step-item-title {
   font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.12rem;
+  font-weight: 700;
   color: var(--color-text-main);
   margin-bottom: 6px;
+  transition: var(--transition);
 }
 
-.how-timeline-col .step-desc {
-  font-size: 0.84rem;
+.timeline-step-item.active-step .step-item-title {
+  color: var(--color-pink-highlight);
+}
+
+.timeline-step-item .step-item-desc,
+.timeline-step-item .step-desc {
+  font-size: 0.82rem;
   color: #555555;
   line-height: 1.5;
   margin: 0;
@@ -719,19 +736,15 @@
   .pet-hero-card-right {
     height: 320px;
   }
-  .how-steps-timeline {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+  .interactive-steps-showcase {
+    grid-template-columns: 1fr;
+    gap: 30px;
   }
-  .how-timeline-col {
-    padding: 20px;
+  .showcase-visual-panel {
+    order: -1; /* Display active illustration above the steps list on mobile/tablet */
   }
-  .step-illustration-container {
-    width: 140px; /* Scale down illustration slightly on tablet */
-    height: 140px;
-  }
-  .step-info-container {
-    padding-left: 18px;
+  .active-illustration-frame {
+    max-width: 360px;
   }
   .planner-layout {
     grid-template-columns: 1fr;
@@ -739,13 +752,6 @@
   }
   .planner-summary-panel {
     position: static;
-  }
-}
-
-@media (max-width: 768px) {
-  .how-steps-timeline {
-    grid-template-columns: 1fr; /* Single column timeline on mobile */
-    gap: 20px;
   }
 }
 
@@ -764,25 +770,11 @@
   .how-works-box {
     padding: 40px 20px;
   }
+  .timeline-step-item {
+    padding: 12px 14px;
+    gap: 12px;
+  }
   .radio-group {
     grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .how-timeline-col {
-    flex-direction: column; /* Stack image and text vertically on very small screens */
-    text-align: center;
-    align-items: center;
-    padding: 24px;
-  }
-  .step-illustration-container {
-    width: 160px;
-    height: 160px;
-    margin-bottom: 16px;
-  }
-  .step-info-container {
-    padding-left: 0;
-    align-items: center;
   }
 }

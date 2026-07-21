@@ -3,6 +3,22 @@
 // smooth crossfade slideshow, global cart drawer, search suggestion, and login auth
 // ==========================================================================
 
+// Load Supabase dynamically at the very top of app.js
+(function() {
+  if (document.getElementById('supabase-sdk-script')) return;
+  const cdn = document.createElement('script');
+  cdn.id = 'supabase-sdk-script';
+  cdn.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  cdn.async = false;
+  cdn.onload = () => {
+    const config = document.createElement('script');
+    config.src = 'supabase-config.js';
+    config.async = false;
+    document.head.appendChild(config);
+  };
+  document.head.appendChild(cdn);
+})();
+
 let currentSlideIdx = 0;
 let slideInterval;
 const totalSlides = 4;
@@ -546,21 +562,78 @@ window.togglePasswordVisibility = function(inputId) {
   }
 };
 
-window.handleLoginSubmit = function(event) {
+window.handleLoginSubmit = async function(event) {
   event.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();
-  const name = email.split('@')[0].toUpperCase();
-  localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true }));
+  const password = document.getElementById('loginPassword')?.value || 'dummyPassword123';
+
+  let name = email.split('@')[0];
+  let loggedIn = false;
+
+  if (window.supabaseClient) {
+    try {
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+      if (error) throw error;
+
+      if (data.user) {
+        loggedIn = true;
+        // Try fetching user name from profile
+        const { data: profile } = await window.supabaseClient
+          .from('profiles')
+          .select('name')
+          .eq('id', data.user.id)
+          .single();
+        if (profile && profile.name) {
+          name = profile.name;
+        }
+      }
+    } catch (err) {
+      console.warn('Supabase Login failed, using offline fallback:', err.message);
+    }
+  }
+
+  localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true, offline: !loggedIn }));
   window.toggleLoginModal(false);
   initHeaderAccountButton();
   window.location.href = 'account.html';
 };
 
-window.handleSignUpSubmit = function(event) {
+window.handleSignUpSubmit = async function(event) {
   event.preventDefault();
   const name = document.getElementById('signUpName').value.trim();
   const email = document.getElementById('signUpEmail').value.trim();
-  localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true }));
+  const password = document.getElementById('signUpPassword')?.value || 'dummyPassword123';
+
+  let loggedIn = false;
+
+  if (window.supabaseClient) {
+    try {
+      const { data, error } = await window.supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: { name: name }
+        }
+      });
+      if (error) throw error;
+
+      if (data.user) {
+        loggedIn = true;
+        // Insert into public profiles table
+        const { error: profileError } = await window.supabaseClient
+          .from('profiles')
+          .upsert({ id: data.user.id, name: name, email: email });
+        if (profileError) console.error('Error inserting profile:', profileError);
+      }
+    } catch (err) {
+      console.warn('Supabase SignUp failed, using offline fallback:', err.message);
+    }
+  }
+
+  localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true, offline: !loggedIn }));
   window.toggleLoginModal(false);
   initHeaderAccountButton();
   window.location.href = 'account.html';

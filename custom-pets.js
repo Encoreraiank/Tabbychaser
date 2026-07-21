@@ -120,6 +120,54 @@ function toggleFaq(btn) {
 function submitInquiry(event) {
   event.preventDefault();
   
+  const form = document.getElementById('petPlannerForm');
+  if (!form) return;
+
+  const sizeVal = form.elements['sizeSelection'].value;
+  const details = document.getElementById('charmDetails').value.trim();
+  const additional = document.getElementById('additionalRequests').value.trim();
+
+  let basePrice = 450;
+  const shippingPrice = 59;
+  if (sizeVal === 'medium') {
+    basePrice = 900;
+  } else if (sizeVal === 'large') {
+    basePrice = 1350;
+  }
+  const totalPrice = basePrice + shippingPrice;
+
+  // Retrieve user session
+  const session = JSON.parse(localStorage.getItem('tabby_user_session'));
+  const userEmail = session ? session.email : 'guest@example.com';
+
+  // Save to Supabase custom_orders table
+  if (window.supabaseClient) {
+    (async () => {
+      try {
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        const customOrderRecord = {
+          user_id: user ? user.id : null,
+          email: userEmail,
+          pet_name: details.substring(0, 100) || 'Custom Pet Order',
+          pet_type: sizeVal.toUpperCase(),
+          special_notes: `Details: ${details}\n\nAdditional Requests: ${additional}`,
+          subtotal: basePrice,
+          shipping: shippingPrice,
+          total: totalPrice,
+          status: 'pending'
+        };
+
+        const { error } = await window.supabaseClient
+          .from('custom_orders')
+          .insert(customOrderRecord);
+        if (error) throw error;
+        console.log('✅ Custom order saved to Supabase database!');
+      } catch (err) {
+        console.error('Error saving custom order to Supabase:', err.message);
+      }
+    })();
+  }
+
   // Display Success Modal
   const modal = document.getElementById('successModal');
   if (modal) modal.classList.add('show-modal');

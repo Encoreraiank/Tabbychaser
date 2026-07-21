@@ -475,7 +475,7 @@
   
   <script>
     // Ensure user session exists, else redirect to index
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const session = JSON.parse(localStorage.getItem('tabby_user_session'));
       
       if (!session || !session.loggedIn) {
@@ -484,12 +484,12 @@
         return;
       }
 
-      // Populate welcome user
+      // Populate welcome user info
       document.getElementById('welcomeUserName').textContent = session.name;
       document.getElementById('profileNameDisplay').textContent = session.name;
       document.getElementById('profileEmailDisplay').textContent = session.email;
 
-      // Load shipping address if saved
+      // Load shipping address if saved in localStorage
       const savedAddress = JSON.parse(localStorage.getItem('tabby_user_address'));
       if (savedAddress) {
         document.getElementById('addrStreet').value = savedAddress.street || '';
@@ -497,6 +497,34 @@
         document.getElementById('addrState').value = savedAddress.state || '';
         document.getElementById('addrZip').value = savedAddress.zip || '';
         document.getElementById('addrPhone').value = savedAddress.phone || '';
+      }
+
+      // Async sync from Supabase profiles
+      if (window.supabaseClient) {
+        try {
+          const { data: { user } } = await window.supabaseClient.auth.getUser();
+          if (user) {
+            const { data: profile } = await window.supabaseClient
+              .from('profiles')
+              .select('*')
+              .eq('id', user.id)
+              .single();
+
+            if (profile) {
+              if (profile.name) {
+                document.getElementById('welcomeUserName').textContent = profile.name;
+                document.getElementById('profileNameDisplay').textContent = profile.name;
+              }
+              if (profile.address) document.getElementById('addrStreet').value = profile.address;
+              if (profile.city) document.getElementById('addrCity').value = profile.city;
+              if (profile.state) document.getElementById('addrState').value = profile.state;
+              if (profile.pin) document.getElementById('addrZip').value = profile.pin;
+              if (profile.phone) document.getElementById('addrPhone').value = profile.phone;
+            }
+          }
+        } catch (err) {
+          console.warn('Could not sync profile from Supabase:', err.message);
+        }
       }
     });
 
@@ -515,21 +543,52 @@
       if (panel) panel.classList.add('active');
     }
 
-    function saveShippingAddress(e) {
+    async function saveShippingAddress(e) {
       e.preventDefault();
-      const address = {
-        street: document.getElementById('addrStreet').value.trim(),
-        city: document.getElementById('addrCity').value.trim(),
-        state: document.getElementById('addrState').value.trim(),
-        zip: document.getElementById('addrZip').value.trim(),
-        phone: document.getElementById('addrPhone').value.trim()
-      };
-      
+      const street = document.getElementById('addrStreet').value.trim();
+      const city = document.getElementById('addrCity').value.trim();
+      const state = document.getElementById('addrState').value.trim();
+      const zip = document.getElementById('addrZip').value.trim();
+      const phone = document.getElementById('addrPhone').value.trim();
+
+      const address = { street, city, state, zip, phone };
       localStorage.setItem('tabby_user_address', JSON.stringify(address));
+
+      // Sync to Supabase profile
+      if (window.supabaseClient) {
+        try {
+          const { data: { user } } = await window.supabaseClient.auth.getUser();
+          if (user) {
+            const { error } = await window.supabaseClient
+              .from('profiles')
+              .upsert({
+                id: user.id,
+                name: document.getElementById('profileNameDisplay').textContent,
+                address: street,
+                city,
+                state,
+                pin: zip,
+                phone,
+                updated_at: new Date()
+              });
+            if (error) throw error;
+          }
+        } catch (err) {
+          console.warn('Could not sync address to Supabase:', err.message);
+        }
+      }
+      
       alert("Address saved successfully! 💾");
     }
 
-    function handleLogout() {
+    async function handleLogout() {
+      if (window.supabaseClient) {
+        try {
+          await window.supabaseClient.auth.signOut();
+        } catch (err) {
+          console.warn('Supabase sign out error:', err.message);
+        }
+      }
       localStorage.removeItem('tabby_user_session');
       alert("Logged out successfully! 🐈");
       window.location.href = 'index.html';

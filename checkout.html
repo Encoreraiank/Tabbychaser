@@ -758,6 +758,48 @@
       const container = document.getElementById('checkoutLayoutContainer');
       const orderId = localStorage.getItem('tabby_latest_order_id') || 'TC-928471';
       
+      const name = document.getElementById('checkoutName').value.trim();
+      const email = document.getElementById('checkoutEmail').value.trim();
+      const phone = document.getElementById('checkoutPhone').value.trim();
+      const street = document.getElementById('checkoutAddress').value.trim();
+      const city = document.getElementById('checkoutCity').value.trim();
+      const state = document.getElementById('checkoutState').value.trim();
+      const pin = document.getElementById('checkoutPin').value.trim();
+      const address = `${street}, ${city}, ${state} - ${pin}`;
+      
+      const cart = window.getCart ? window.getCart() : [];
+
+      // Save order record to Supabase orders table
+      if (window.supabaseClient) {
+        (async () => {
+          try {
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            const orderRecord = {
+              order_reference: orderId,
+              user_id: user ? user.id : null,
+              email: email,
+              name: name,
+              phone: phone,
+              address: address,
+              items: cart,
+              subtotal: checkoutSubtotal,
+              discount: checkoutDiscount,
+              shipping: checkoutShipping + (method === 'cod' ? 50 : 0),
+              total: checkoutTotal,
+              payment_method: method,
+              status: 'pending'
+            };
+            const { error } = await window.supabaseClient
+              .from('orders')
+              .insert(orderRecord);
+            if (error) throw error;
+            console.log('✅ Order saved to Supabase database!');
+          } catch (err) {
+            console.error('Error saving order to Supabase:', err.message);
+          }
+        })();
+      }
+
       // Clear shopping bag
       if (window.saveCart) {
         window.saveCart([]);

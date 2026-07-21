@@ -117,12 +117,40 @@ function toggleFaq(btn) {
 }
 
 // ---- SUBMIT INQUIRY FORM ----
-function submitInquiry(event) {
+// Global array to store uploaded pet photos URLs
+window.uploadedPetPhotos = [];
+
+// Helper function to upload image file to Cloudinary
+async function uploadImageToCloudinary(file) {
+  const cloudName = window.cloudinaryConfig ? window.cloudinaryConfig.cloudName : 'rjjympjfdmvjuuovidtc';
+  const preset = window.cloudinaryConfig ? window.cloudinaryConfig.uploadPreset : 'tabby_unsigned_preset';
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', preset);
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: 'POST',
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || 'Upload failed');
+  }
+
+  const data = await response.json();
+  return data.secure_url;
+}
+
+// ---- SUBMIT INQUIRY FORM ----
+async function submitInquiry(event) {
   event.preventDefault();
   
   const form = document.getElementById('petPlannerForm');
   if (!form) return;
 
+  const submitBtn = form.querySelector('.btn-planner-submit');
   const sizeVal = form.elements['sizeSelection'].value;
   const details = document.getElementById('charmDetails').value.trim();
   const additional = document.getElementById('additionalRequests').value.trim();
@@ -140,32 +168,61 @@ function submitInquiry(event) {
   const session = JSON.parse(localStorage.getItem('tabby_user_session'));
   const userEmail = session ? session.email : 'guest@example.com';
 
+  // Gather files to upload
+  const filesToUpload = [];
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`photo-input-${i}`);
+    if (input && input.files && input.files[0]) {
+      filesToUpload.push(input.files[0]);
+    }
+  }
+
+  window.uploadedPetPhotos = [];
+
+  if (filesToUpload.length > 0) {
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    
+    // Upload files sequentially to Cloudinary
+    for (let idx = 0; idx < filesToUpload.length; idx++) {
+      submitBtn.textContent = `Uploading pet photos (${idx + 1} of ${filesToUpload.length})... ⏳`;
+      try {
+        const url = await uploadImageToCloudinary(filesToUpload[idx]);
+        window.uploadedPetPhotos.push(url);
+      } catch (err) {
+        console.warn('Cloudinary upload failed for index', idx, 'falling back. Error:', err.message);
+        // Fallback dummy URL to prevent blocking user submission
+        window.uploadedPetPhotos.push(`https://via.placeholder.com/600x600.png?text=Photo+Upload+Failed`);
+      }
+    }
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
+  }
+
   // Save to Supabase custom_orders table
   if (window.supabaseClient) {
-    (async () => {
-      try {
-        const { data: { user } } = await window.supabaseClient.auth.getUser();
-        const customOrderRecord = {
-          user_id: user ? user.id : null,
-          email: userEmail,
-          pet_name: details.substring(0, 100) || 'Custom Pet Order',
-          pet_type: sizeVal.toUpperCase(),
-          special_notes: `Details: ${details}\n\nAdditional Requests: ${additional}`,
-          subtotal: basePrice,
-          shipping: shippingPrice,
-          total: totalPrice,
-          status: 'pending'
-        };
+    try {
+      const { data: { user } } = await window.supabaseClient.auth.getUser();
+      const customOrderRecord = {
+        user_id: user ? user.id : null,
+        email: userEmail,
+        pet_name: details.substring(0, 100) || 'Custom Pet Order',
+        pet_type: sizeVal.toUpperCase(),
+        special_notes: `Details: ${details}\n\nAdditional Requests: ${additional}\n\nUploaded Images: ${window.uploadedPetPhotos.join(', ')}`,
+        subtotal: basePrice,
+        shipping: shippingPrice,
+        total: totalPrice,
+        status: 'pending'
+      };
 
-        const { error } = await window.supabaseClient
-          .from('custom_orders')
-          .insert(customOrderRecord);
-        if (error) throw error;
-        console.log('✅ Custom order saved to Supabase database!');
-      } catch (err) {
-        console.error('Error saving custom order to Supabase:', err.message);
-      }
-    })();
+      const { error } = await window.supabaseClient
+        .from('custom_orders')
+        .insert(customOrderRecord);
+      if (error) throw error;
+      console.log('✅ Custom order saved to Supabase database!');
+    } catch (err) {
+      console.error('Error saving custom order to Supabase:', err.message);
+    }
   }
 
   // Display Success Modal
@@ -191,7 +248,19 @@ function sendEmail() {
   if (additional) {
     bodyText += `• Additional Requests:\n${additional}\n\n`;
   }
-  bodyText += `(I will attach my reference photos to this email)\n\nThank you!`;
+
+  // Append hosted Cloudinary image links
+  if (window.uploadedPetPhotos && window.uploadedPetPhotos.length > 0) {
+    bodyText += `• Reference Photos (Hosted on Cloudinary):\n`;
+    window.uploadedPetPhotos.forEach((url, i) => {
+      bodyText += `  - Photo ${i + 1}: ${url}\n`;
+    });
+    bodyText += `\n`;
+  } else {
+    bodyText += `• Reference Photos: No photos uploaded.\n\n`;
+  }
+
+  bodyText += `Thank you!`;
   
   const body = encodeURIComponent(bodyText);
   

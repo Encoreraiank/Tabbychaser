@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leave a Review – Tabby Chaser</title>
+  <meta name="description" content="Review your handmade Tabby Chaser order and get a 15% discount coupon!" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .review-hero {
+      padding: 50px 0 30px;
+      text-align: center;
+      background: var(--color-page-bg);
+    }
+    .review-card {
+      background: #ffffff;
+      border: 1.5px solid var(--color-border-rgba);
+      border-radius: 24px !important;
+      padding: 40px 32px;
+      max-width: 580px;
+      margin: 0 auto 60px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    }
+    .star-rating {
+      display: flex;
+      gap: 8px;
+      font-size: 2rem;
+      cursor: pointer;
+      justify-content: center;
+      margin: 10px 0 20px;
+    }
+    .star-rating span { color: #ddd; transition: color 0.15s; }
+    .star-rating span.active { color: #ffb703; }
+    .photo-preview-grid {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+    }
+    .photo-preview {
+      width: 70px; height: 70px; border-radius: 10px; object-fit: cover; border: 1.5px solid var(--color-border-rgba);
+    }
+    .gift-badge {
+      background: linear-gradient(135deg, #fff0f6, #ffe3ec);
+      border: 1.5px solid var(--color-brand-pink);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="marquee-track">
+      <div class="marquee-content" id="announcementMarquee">
+        <span>🎁 Leave a review & get 15% OFF your next order! 🐾</span>
+        <span>🚚 Free shipping on orders above ₹2,000 | Handmade with love in Bangalore</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container container">
+      <a href="index.html" class="brand-logo">
+        <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
+        <span class="logo-text">Tabby Chaser</span>
+      </a>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link outline-pill">Home</a>
+        <a href="shop.html" class="nav-link outline-pill">Shop</a>
+        <a href="custom-pets.html" class="nav-link outline-pill">Custom Orders</a>
+        <a href="policies.html" class="nav-link outline-pill">Policies</a>
+        <a href="track.html" class="nav-link outline-pill">Track Order</a>
+      </nav>
+      <div class="header-actions">
+        <a href="shop.html" class="login-pill-btn" style="text-decoration:none;">&larr; Back to Shop</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="review-hero">
+      <div class="container">
+        <h1 style="font-family:var(--font-display);font-size:2.2rem;font-weight:800;margin-bottom:8px;">Leave a Review 💖</h1>
+        <p style="color:#666;font-size:0.95rem;">Received your handmade charm? Share your thoughts & unlock a 15% discount coupon!</p>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="review-card" id="reviewFormCard">
+        <div class="gift-badge">
+          🎉 Complete your review to receive a <strong>15% OFF coupon code</strong> instantly upon approval!
+        </div>
+
+        <form id="reviewForm" onsubmit="handleReviewSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="reviewOrderRef">Order Reference ID *</label>
+            <input type="text" id="reviewOrderRef" required class="form-input" placeholder="e.g. TC-928471" style="text-transform:uppercase;" />
+            <small style="color:#888;font-size:0.75rem;">Found on your package label or order email</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reviewEmail">Email Address *</label>
+            <input type="email" id="reviewEmail" required class="form-input" placeholder="Same email used for order" />
+          </div>
+
+          <div class="form-group" style="text-align:center;">
+            <label class="form-label">Your Rating *</label>
+            <div class="star-rating" id="starRating">
+              <span onclick="setRating(1)">★</span>
+              <span onclick="setRating(2)">★</span>
+              <span onclick="setRating(3)">★</span>
+              <span onclick="setRating(4)">★</span>
+              <span onclick="setRating(5)">★</span>
+            </div>
+            <input type="hidden" id="reviewRating" value="5" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reviewTitle">Review Title</label>
+            <input type="text" id="reviewTitle" class="form-input" placeholder="e.g. Absolutely adorable!" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reviewBody">Your Review *</label>
+            <textarea id="reviewBody" required class="form-input" rows="4" placeholder="Tell us what you loved about your handmade charm..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Add Photos (Optional)</label>
+            <input type="file" id="reviewPhotoInput" accept="image/*" multiple onchange="handleReviewPhotos(this.files)" style="display:none;" />
+            <button type="button" class="btn" style="border:1.5px dashed var(--color-brand-pink);background:#fff;width:100%;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;color:var(--color-brand-pink);" onclick="document.getElementById('reviewPhotoInput').click()">
+              📸 Attach Charm Photos
+            </button>
+            <div class="photo-preview-grid" id="photoPreviewGrid"></div>
+          </div>
+
+          <div id="reviewError" style="color:red;font-size:0.82rem;margin-bottom:14px;display:none;font-weight:700;"></div>
+
+          <button type="submit" id="submitReviewBtn" class="place-order-large-btn" style="width:100%;">
+            Submit Review 🌟
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="supabase-config.js"></script>
+  <script src="cloudinary-config.js"></script>
+  <script>
+    let selectedRating = 5;
+    let uploadedPhotos = [];
+
+    function setRating(val) {
+      selectedRating = val;
+      document.getElementById('reviewRating').value = val;
+      const stars = document.querySelectorAll('#starRating span');
+      stars.forEach((s, idx) => {
+        if (idx < val) s.classList.add('active');
+        else s.classList.remove('active');
+      });
+    }
+    setRating(5);
+
+    async function handleReviewPhotos(files) {
+      const grid = document.getElementById('photoPreviewGrid');
+      const cloudName = window.cloudinaryConfig?.cloudName || 'rjjympjfdmvjuuovidtc';
+      const preset = window.cloudinaryConfig?.uploadPreset || 'tabby_unsigned_preset';
+
+      for (const file of Array.from(files).slice(0, 3)) {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', preset);
+        try {
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.secure_url) {
+            uploadedPhotos.push(data.secure_url);
+            const img = document.createElement('img');
+            img.src = data.secure_url;
+            img.className = 'photo-preview';
+            grid.appendChild(img);
+          }
+        } catch(e) {
+          // Fallback to base64 preview
+          const r = new FileReader();
+          r.onload = e => {
+            uploadedPhotos.push(e.target.result);
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'photo-preview';
+            grid.appendChild(img);
+          };
+          r.readAsDataURL(file);
+        }
+      }
+    }
+
+    async function handleReviewSubmit(event) {
+      event.preventDefault();
+      const errEl = document.getElementById('reviewError');
+      errEl.style.display = 'none';
+
+      const orderRef = document.getElementById('reviewOrderRef').value.trim().toUpperCase();
+      const email = document.getElementById('reviewEmail').value.trim().toLowerCase();
+      const title = document.getElementById('reviewTitle').value.trim();
+      const body = document.getElementById('reviewBody').value.trim();
+
+      const btn = document.getElementById('submitReviewBtn');
+      btn.disabled = true;
+      btn.textContent = 'Verifying Order...';
+
+      // 1. Verify Order ID & Email match
+      let orderFound = false;
+      let existingOrder = null;
+
+      // Check Supabase
+      if (window.supabaseClient) {
+        try {
+          const { data } = await window.supabaseClient
+            .from('orders')
+            .select('*')
+            .ilike('order_reference', orderRef);
+          if (data && data.length > 0) {
+            existingOrder = data[0];
+            orderFound = true;
+          }
+        } catch(e) {}
+      }
+
+      // LocalStorage fallback check
+      if (!orderFound) {
+        const latestId = localStorage.getItem('tabby_latest_order_id');
+        if (latestId && latestId.toUpperCase() === orderRef) {
+          orderFound = true;
+          existingOrder = { order_reference: orderRef, email: email };
+        }
+      }
+
+      if (!orderFound) {
+        errEl.textContent = '❌ Order ID not found. Please check your order reference ID (e.g. TC-928471).';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Submit Review 🌟';
+        return;
+      }
+
+      if (existingOrder.email && existingOrder.email.toLowerCase() !== email) {
+        errEl.textContent = '❌ Email address does not match the email used for this order.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Submit Review 🌟';
+        return;
+      }
+
+      // Check if already reviewed
+      const reviewedMap = JSON.parse(localStorage.getItem('tabby_reviewed_orders') || '{}');
+      if (reviewedMap[orderRef]) {
+        errEl.textContent = '❌ A review has already been submitted for this order ID.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Submit Review 🌟';
+        return;
+      }
+
+      // Save Review as Pending
+      const reviewObj = {
+        id: 'rev-' + Date.now(),
+        order_reference: orderRef,
+        customer_name: email.split('@')[0],
+        email: email,
+        rating: selectedRating,
+        title: title || 'Customer Review',
+        body: body,
+        photos: uploadedPhotos,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+
+      // Save to Supabase
+      if (window.supabaseClient) {
+        try {
+          await window.supabaseClient.from('reviews').insert(reviewObj);
+        } catch(e) {}
+      }
+
+      // Save to LocalStorage
+      const localReviews = JSON.parse(localStorage.getItem('tabby_reviews_local') || '[]');
+      localReviews.unshift(reviewObj);
+      localStorage.setItem('tabby_reviews_local', JSON.stringify(localReviews));
+
+      // Mark order as review pending locally
+      reviewedMap[orderRef] = true;
+      localStorage.setItem('tabby_reviewed_orders', JSON.stringify(reviewedMap));
+
+      // Show Success View
+      document.getElementById('reviewFormCard').innerHTML = `
+        <div style="text-align:center;padding:20px 0;">
+          <div style="font-size:3rem;margin-bottom:14px;">🎉💖</div>
+          <h2 style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;margin-bottom:10px;">Thank You!</h2>
+          <p style="color:#666;font-size:0.92rem;line-height:1.6;margin-bottom:20px;">
+            Your review for <strong>#${orderRef}</strong> has been submitted! Our team will verify it shortly.<br/>
+            Once approved, your <strong>15% OFF coupon code</strong> will be active! 🎁
+          </p>
+          <a href="shop.html" class="btn btn-pink-pill" style="display:inline-block;padding:12px 28px;text-decoration:none;">
+            Back to Shop 🌸
+          </a>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

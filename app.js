@@ -140,6 +140,10 @@ function injectCartDrawer() {
       <div class="cart-marketing-text" id="cartMarketingText" style="display:none; font-size: 0.8rem; color: #d35d88; text-align: center; margin-bottom: 12px; font-weight: 600; line-height: 1.4; padding: 10px; background-color: rgba(244, 122, 171, 0.08); border-radius: 10px !important;">
         🎁 Subscribe to our welcome gift to get 10% off on orders above ₹500!
       </div>
+      <div style="display:flex; gap:6px; margin-bottom:12px;">
+        <input type="text" id="cartCouponInput" placeholder="Coupon Code (e.g. PAWS15)" style="flex:1; border:1.5px solid #e8e0f0; border-radius:8px; padding:8px 10px; font-size:0.8rem; outline:none; text-transform:uppercase;" />
+        <button type="button" onclick="window.applyCartCoupon()" style="padding:8px 12px; border:1px solid #ddd; background:#fff; border-radius:8px; font-size:0.78rem; font-weight:700; cursor:pointer;">Apply</button>
+      </div>
       <button class="checkout-btn" onclick="window.triggerCheckout()">Proceed to Checkout ✨</button>
     </div>
   `;
@@ -344,13 +348,72 @@ window.renderCartItems = function() {
     }
   }
 
-  const shipping = 59;
-  const total = subtotal - discount + shipping;
+  // Check applied coupon
+  const appliedCoupon = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+  if (appliedCoupon) {
+    if (appliedCoupon.type === 'percent') {
+      discount = Math.round(subtotal * (appliedCoupon.value / 100));
+    } else if (appliedCoupon.type === 'flat') {
+      discount = appliedCoupon.value;
+    }
+    if (discountRow) {
+      discountRow.style.display = 'flex';
+      discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-₹${discount}</span>`;
+    }
+  }
+
+  // Dynamic shipping calculation
+  const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+  const stdShippingFee = parseInt(siteSettings.standard_shipping_fee || '59');
+  const freeThreshold = parseInt(siteSettings.free_shipping_threshold || '2000');
+
+  let shipping = stdShippingFee;
+  if (subtotal >= freeThreshold || (appliedCoupon && appliedCoupon.type === 'free_shipping')) {
+    shipping = 0;
+  }
+
+  const total = Math.max(0, subtotal - discount + shipping);
 
   if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN');
-  if (shippingEl) shippingEl.textContent = '₹' + shipping;
+  if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE 🚚' : '₹' + shipping;
   if (totalEl) totalEl.textContent = '₹' + total.toLocaleString('en-IN');
-};
+}
+
+// ---- APPLY CART COUPON ----
+window.applyCartCoupon = async function() {
+  const codeInput = document.getElementById('cartCouponInput');
+  const code = (codeInput?.value || '').trim().toUpperCase();
+  if (!code) return;
+
+  let foundCoupon = null;
+
+  // 1. Try Supabase
+  if (window.supabaseClient) {
+    try {
+      const { data } = await window.supabaseClient.from('coupons').select('*').eq('code', code).eq('active', true);
+      if (data && data.length > 0) foundCoupon = data[0];
+    } catch(e) {}
+  }
+
+  // 2. Check LocalStorage fallback
+  if (!foundCoupon) {
+    const localCoupons = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
+    foundCoupon = localCoupons.find(c => c.code.toUpperCase() === code && c.active !== false);
+  }
+
+  // Special welcome coupon check
+  if (!foundCoupon && (code === 'WELCOME10' || code.startsWith('PAWS15'))) {
+    foundCoupon = { code: code, type: 'percent', value: code.startsWith('PAWS15') ? 15 : 10 };
+  }
+
+  if (foundCoupon) {
+    localStorage.setItem('tabby_applied_coupon', JSON.stringify(foundCoupon));
+    alert(`🎉 Coupon "${foundCoupon.code}" applied successfully!`);
+    window.renderCartItems();
+  } else {
+    alert(`❌ Coupon code "${code}" is invalid or expired.`);
+  }
+};;
 
 window.triggerCheckout = function() {
   const cart = window.getCart();

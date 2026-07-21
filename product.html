@@ -694,6 +694,13 @@
               ${detailsListHtml}
             </ul>
 
+            <!-- Reviews Summary Row -->
+            <div id="productStarsSummary" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:0.9rem;font-weight:700;color:#ffb703;">
+              <span id="starRatingIcons">⭐⭐⭐⭐⭐</span>
+              <span id="starRatingText" style="color:var(--color-text-main);">5.0 (5 reviews)</span>
+              <a href="review.html" style="color:var(--color-brand-pink);text-decoration:none;font-size:0.8rem;margin-left:8px;">Write a Review →</a>
+            </div>
+
             <!-- Quantity & Add to Cart -->
             <div class="product-purchase-controls">
               <div class="quantity-picker-box">
@@ -709,10 +716,90 @@
           </div>
 
         </div>
+
+        <!-- CUSTOMER REVIEWS SECTION -->
+        <section style="margin-top: 60px; padding-top: 40px; border-top: 1.5px solid var(--color-border-rgba);" id="reviewsSection">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h2 style="font-family:var(--font-display); font-size:1.8rem; font-weight:800; color:var(--color-text-main);">Customer Reviews 💬</h2>
+              <p style="font-size:0.88rem; color:#666;" id="reviewsSubhead">Read real feedback from happy charm owners</p>
+            </div>
+            <a href="review.html" class="btn" style="border: 2px solid var(--color-brand-pink); border-radius: 50px; padding: 10px 20px; font-weight: 700; color: var(--color-brand-pink); text-decoration: none;">
+              ✍️ Write a Review (+15% OFF Coupon)
+            </a>
+          </div>
+
+          <div id="reviewsListGrid" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="text-align:center; padding:30px; color:#888;">Loading reviews...</div>
+          </div>
+        </section>
       `;
       
       // Update discount notice dynamically on render
       updateProductDiscountNotice(prod, currentQty);
+      renderProductReviews(prod);
+    }
+
+    async function renderProductReviews(prod) {
+      let approvedReviews = [];
+
+      // 1. Try Supabase
+      if (window.supabaseClient) {
+        try {
+          const { data } = await window.supabaseClient
+            .from('reviews')
+            .select('*')
+            .eq('status', 'approved');
+          if (data && data.length > 0) approvedReviews = data;
+        } catch(e) {}
+      }
+
+      // 2. Fallback / Merge with localStorage
+      const localReviews = JSON.parse(localStorage.getItem('tabby_reviews_local') || '[]');
+      const localApproved = localReviews.filter(r => r.status === 'approved');
+      
+      // Combine & deduplicate
+      const combined = [...approvedReviews, ...localApproved];
+      const uniqueReviews = Array.from(new Set(combined.map(r => r.id))).map(id => combined.find(r => r.id === id));
+
+      // Standard default reviews if empty
+      if (uniqueReviews.length === 0) {
+        uniqueReviews.push(
+          { id: 'def-1', customer_name: 'Ananya S.', rating: 5, title: 'Super cute and great quality!', body: 'I ordered the Pond Hopper Frog charm and it looks even cuter in person! High quality glaze and solid finish.', created_at: new Date().toISOString() },
+          { id: 'def-2', customer_name: 'Rohan M.', rating: 5, title: 'Obsessed with the details 🎀', body: 'The bow bear charm came beautifully packaged. The details on the tiny paws are unbelievable! Will buy again.', created_at: new Date().toISOString() }
+        );
+      }
+
+      // Update Summary Header
+      const avgRating = (uniqueReviews.reduce((sum, r) => sum + (r.rating || 5), 0) / uniqueReviews.length).toFixed(1);
+      const starIcons = '⭐'.repeat(Math.round(avgRating));
+      const starTextEl = document.getElementById('starRatingText');
+      const starIconsEl = document.getElementById('starRatingIcons');
+      if (starTextEl) starTextEl.textContent = `${avgRating} (${uniqueReviews.length} review${uniqueReviews.length!==1?'s':''})`;
+      if (starIconsEl) starIconsEl.textContent = starIcons;
+
+      const grid = document.getElementById('reviewsListGrid');
+      if (!grid) return;
+
+      grid.innerHTML = uniqueReviews.map(r => `
+        <div style="background:#fff; border:1.5px solid var(--color-border-rgba); border-radius:16px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-weight:800; font-size:0.95rem; color:var(--color-text-main);">${r.customer_name}</span>
+              <span style="background:#e8f5e9; color:#2e7d32; font-size:0.68rem; font-weight:800; padding:2px 8px; border-radius:50px;">Verified Purchase 🐾</span>
+            </div>
+            <span style="font-size:0.75rem; color:#aaa;">${new Date(r.created_at || Date.now()).toLocaleDateString('en-IN')}</span>
+          </div>
+          <div style="color:#ffb703; font-size:0.9rem; margin-bottom:6px;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</div>
+          ${r.title ? `<h4 style="font-weight:700; font-size:0.9rem; margin-bottom:4px; color:var(--color-text-main);">${r.title}</h4>` : ''}
+          <p style="font-size:0.88rem; color:#555; line-height:1.5; margin:0;">${r.body}</p>
+          ${r.photos && r.photos.length > 0 ? `
+            <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+              ${r.photos.map(p => `<img src="${p}" style="width:64px; height:64px; border-radius:8px; object-fit:cover; border:1px solid #eee;" />`).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
     }
 
     function updateProductDiscountNotice(prod, qty) {

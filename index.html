@@ -775,6 +775,22 @@
 
   <script src="products-data.js"></script>
   <script src="app.js"></script>
-
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+      if (siteSettings.announcement_text) {
+        const marquee = document.getElementById('announcementMarquee');
+        if (marquee) marquee.innerHTML = `<span>${siteSettings.announcement_text}</span>`;
+      }
+      if (siteSettings.hero_title) {
+        const h1s = document.querySelectorAll('.hero-headline-title');
+        if (h1s.length > 0) h1s[0].innerHTML = siteSettings.hero_title;
+      }
+      if (siteSettings.hero_sub) {
+        const descs = document.querySelectorAll('.hero-paragraph-desc');
+        if (descs.length > 0) descs[0].textContent = siteSettings.hero_sub;
+      }
+    });
+  </script>
 </body>
 </html>

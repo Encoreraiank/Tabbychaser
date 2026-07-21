@@ -2336,11 +2336,21 @@ body {
   animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.cute-gift-emoji {
-  font-size: 4rem;
+.cute-gift-illustration {
+  max-width: 160px;
+  width: 100%;
+  height: auto;
   margin-bottom: 16px;
   display: inline-block;
   animation: bounce-gift 2s infinite ease-in-out;
+}
+
+.cart-empty-illustration {
+  max-width: 140px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 16px;
+  display: inline-block;
 }
 
 @keyframes bounce-gift {

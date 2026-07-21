@@ -415,6 +415,7 @@
     <div class="tab-pane" id="tab-products">
       <div class="filter-bar">
         <input type="text" class="search-input" id="searchProducts" placeholder="Search products..." oninput="renderProducts()" />
+        <button class="btn btn-outline" onclick="syncProductsDataToSupabase()" title="Sync all static site products into Supabase Database">⚡ Sync Site Data</button>
         <button class="btn btn-pink" onclick="openProductModal()">+ Add Product</button>
       </div>
       <div id="productGrid" class="product-grid">
@@ -1295,8 +1296,46 @@
     `);
     win.print();
   }
+
+  // SYNC ALL STATIC PRODUCTS DATA TO SUPABASE DATABASE
+  async function syncProductsDataToSupabase() {
+    if (typeof PRODUCTS_DATA === 'undefined' || !PRODUCTS_DATA.length) {
+      alert('PRODUCTS_DATA not loaded.');
+      return;
+    }
+    const client = await db();
+    if (!client) { alert('Supabase client not initialized.'); return; }
+
+    alert(`Syncing ${PRODUCTS_DATA.length} products to Supabase database...`);
+
+    for (const item of PRODUCTS_DATA) {
+      const payload = {
+        name: item.name,
+        price: item.price,
+        description: item.description || '',
+        category: item.category || 'charms',
+        stock: item.stock === 'out-of-stock' ? 0 : (item.stock === 'low-stock' ? 3 : 15),
+        status: 'published',
+        images: item.images || [item.image],
+        materials: (item.details || []).join(', '),
+        updated_at: new Date().toISOString()
+      };
+
+      // Check if product with same name exists
+      const { data: existing } = await client.from('products').select('id').eq('name', item.name);
+      if (existing && existing.length > 0) {
+        await client.from('products').update(payload).eq('id', existing[0].id);
+      } else {
+        await client.from('products').insert(payload);
+      }
+    }
+
+    alert('✅ All site products synced to Supabase successfully!');
+    await loadProducts();
+  }
 </script>
 
+<script src="products-data.js"></script>
 <script src="supabase-config.js"></script>
 <script src="cloudinary-config.js"></script>
 </body>

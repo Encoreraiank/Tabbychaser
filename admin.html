@@ -1297,7 +1297,7 @@
     win.print();
   }
 
-  // SYNC ALL STATIC PRODUCTS DATA TO SUPABASE DATABASE
+    // SYNC ALL STATIC PRODUCTS DATA TO SUPABASE DATABASE
   async function syncProductsDataToSupabase() {
     if (typeof PRODUCTS_DATA === 'undefined' || !PRODUCTS_DATA.length) {
       alert('PRODUCTS_DATA not loaded.');
@@ -1306,32 +1306,39 @@
     const client = await db();
     if (!client) { alert('Supabase client not initialized.'); return; }
 
-    alert(`Syncing ${PRODUCTS_DATA.length} products to Supabase database...`);
+    try {
+      let count = 0;
+      for (const item of PRODUCTS_DATA) {
+        const payload = {
+          name: item.name,
+          price: item.price,
+          description: item.description || '',
+          category: item.category || 'charms',
+          stock: item.stock === 'out-of-stock' ? 0 : (item.stock === 'low-stock' ? 3 : 15),
+          status: 'published',
+          images: item.images || [item.image],
+          materials: (item.details || []).join(', '),
+          updated_at: new Date().toISOString()
+        };
 
-    for (const item of PRODUCTS_DATA) {
-      const payload = {
-        name: item.name,
-        price: item.price,
-        description: item.description || '',
-        category: item.category || 'charms',
-        stock: item.stock === 'out-of-stock' ? 0 : (item.stock === 'low-stock' ? 3 : 15),
-        status: 'published',
-        images: item.images || [item.image],
-        materials: (item.details || []).join(', '),
-        updated_at: new Date().toISOString()
-      };
-
-      // Check if product with same name exists
-      const { data: existing } = await client.from('products').select('id').eq('name', item.name);
-      if (existing && existing.length > 0) {
-        await client.from('products').update(payload).eq('id', existing[0].id);
-      } else {
-        await client.from('products').insert(payload);
+        // Check if product with same name exists
+        const { data: existing } = await client.from('products').select('id').eq('name', item.name);
+        let err;
+        if (existing && existing.length > 0) {
+          ({ error: err } = await client.from('products').update(payload).eq('id', existing[0].id));
+        } else {
+          ({ error: err } = await client.from('products').insert(payload));
+        }
+        if (err) console.error(`Error syncing ${item.name}:`, err);
+        else count++;
       }
-    }
 
-    alert('✅ All site products synced to Supabase successfully!');
-    await loadProducts();
+      alert(`✅ Synced ${count} of ${PRODUCTS_DATA.length} products to Supabase successfully!`);
+      await loadProducts();
+    } catch (e) {
+      console.error('Sync failed:', e);
+      alert('Error during sync: ' + e.message);
+    }
   }
 </script>
 

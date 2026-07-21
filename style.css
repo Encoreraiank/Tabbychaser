@@ -130,7 +130,9 @@ body {
 
 .nav-menu {
   display: flex;
-  gap: 12px;
+  gap: 6px;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .nav-link {
@@ -152,8 +154,10 @@ body {
 
 .outline-pill {
   border: 1px solid var(--color-border-rgba);
-  padding: 8px 18px;
+  padding: 7px 13px;
   border-radius: 9999px !important;
+  font-size: 0.83rem;
+  white-space: nowrap;
 }
 
 .outline-pill:hover {

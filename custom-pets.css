@@ -588,11 +588,13 @@
 }
 
 /* Estimate Summary Card */
-.planner-estimate-card {
+.planner-estimate-inline {
   background: var(--color-card-bg);
-  padding: 40px;
+  padding: 30px;
   border: 1.5px solid var(--color-border-rgba);
-  border-radius: 24px !important;
+  border-radius: 20px !important;
+  margin-top: 15px;
+  margin-bottom: 30px;
 }
 
 .estimate-card-title {
@@ -956,8 +958,8 @@
   .planner-main-card {
     padding: 35px 25px;
   }
-  .planner-estimate-card {
-    padding: 30px 25px;
+  .planner-estimate-inline {
+    padding: 24px 20px;
   }
 }
 

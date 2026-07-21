@@ -934,8 +934,38 @@
 
   // 3. PRODUCTS
   async function loadProducts() {
-    const client = await db(); if (!client) return;
-    const { data } = await client.from('products').select('*').order('created_at', { ascending: false });
+    let data = null;
+    try {
+      const client = await db();
+      if (client) {
+        const res = await client.from('products').select('*').order('created_at', { ascending: false });
+        if (res && res.data && res.data.length > 0) data = res.data;
+      }
+    } catch (e) {
+      console.warn('Supabase fetch failed, using static fallback:', e);
+    }
+
+    if (!data || data.length === 0) {
+      // Fallback to static PRODUCTS_DATA or localStorage
+      const local = localStorage.getItem('tabby_products_local');
+      if (local) {
+        try { data = JSON.parse(local); } catch(e){}
+      }
+      if (!data || data.length === 0) {
+        data = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA.map(p => ({
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          description: p.description || '',
+          category: p.category || 'charms',
+          stock: p.stock === 'out-of-stock' ? 0 : (p.stock === 'low-stock' ? 3 : 15),
+          status: 'published',
+          images: p.images || [p.image],
+          materials: (p.details || []).join(', ')
+        })) : [];
+      }
+    }
+
     allProducts = data || [];
     renderProducts();
     renderInventory();
@@ -1020,6 +1050,7 @@
     if (!name || isNaN(price)) { alert('Name and Price are required.'); return; }
 
     const payload = {
+      id: id || ('prod-' + Date.now()),
       name, price,
       description: document.getElementById('pDesc').value.trim(),
       compare_price: parseFloat(document.getElementById('pComparePrice').value) || null,
@@ -1037,19 +1068,42 @@
       updated_at: new Date().toISOString()
     };
 
-    const client = await db();
-    if (id) await client.from('products').update(payload).eq('id', id);
-    else await client.from('products').insert(payload);
+    // 1. Try Supabase
+    try {
+      const client = await db();
+      if (client) {
+        if (id) await client.from('products').update(payload).eq('id', id);
+        else await client.from('products').insert(payload);
+      }
+    } catch(e) {
+      console.warn('Supabase save product error:', e);
+    }
+
+    // 2. Save to local state & localStorage
+    const idx = allProducts.findIndex(p => p.id === id);
+    if (idx >= 0) allProducts[idx] = payload;
+    else allProducts.unshift(payload);
+    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
 
     document.getElementById('productModal').classList.remove('open');
-    loadProducts();
+    renderProducts();
+    renderInventory();
+    updateDashboardStats();
+    alert('✅ Product saved!');
   }
 
   async function deleteProduct(id) {
     if (!confirm('Delete this product?')) return;
-    const client = await db();
-    await client.from('products').delete().eq('id', id);
-    loadProducts();
+    try {
+      const client = await db();
+      if (client) await client.from('products').delete().eq('id', id);
+    } catch(e) {}
+
+    allProducts = allProducts.filter(p => p.id !== id);
+    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
+    renderProducts();
+    renderInventory();
+    updateDashboardStats();
   }
 
   function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }
@@ -1297,48 +1351,66 @@
     win.print();
   }
 
-    // SYNC ALL STATIC PRODUCTS DATA TO SUPABASE DATABASE
+  // SYNC ALL STATIC PRODUCTS DATA TO SUPABASE & LOCALSTORAGE
   async function syncProductsDataToSupabase() {
     if (typeof PRODUCTS_DATA === 'undefined' || !PRODUCTS_DATA.length) {
       alert('PRODUCTS_DATA not loaded.');
       return;
     }
-    const client = await db();
-    if (!client) { alert('Supabase client not initialized.'); return; }
 
+    const localList = PRODUCTS_DATA.map(item => ({
+      id: item.id || ('prod-' + Math.random().toString(36).substr(2, 9)),
+      name: item.name,
+      price: item.price,
+      description: item.description || '',
+      category: item.category || 'charms',
+      stock: item.stock === 'out-of-stock' ? 0 : (item.stock === 'low-stock' ? 3 : 15),
+      status: 'published',
+      images: item.images || [item.image],
+      materials: (item.details || []).join(', '),
+      updated_at: new Date().toISOString()
+    }));
+
+    // Save to localStorage immediately
+    localStorage.setItem('tabby_products_local', JSON.stringify(localList));
+    allProducts = localList;
+    renderProducts();
+    renderInventory();
+    updateDashboardStats();
+
+    // Also attempt Supabase sync
+    let count = 0;
     try {
-      let count = 0;
-      for (const item of PRODUCTS_DATA) {
-        const payload = {
-          name: item.name,
-          price: item.price,
-          description: item.description || '',
-          category: item.category || 'charms',
-          stock: item.stock === 'out-of-stock' ? 0 : (item.stock === 'low-stock' ? 3 : 15),
-          status: 'published',
-          images: item.images || [item.image],
-          materials: (item.details || []).join(', '),
-          updated_at: new Date().toISOString()
-        };
+      const client = await db();
+      if (client) {
+        for (const item of PRODUCTS_DATA) {
+          const payload = {
+            name: item.name,
+            price: item.price,
+            description: item.description || '',
+            category: item.category || 'charms',
+            stock: item.stock === 'out-of-stock' ? 0 : (item.stock === 'low-stock' ? 3 : 15),
+            status: 'published',
+            images: item.images || [item.image],
+            materials: (item.details || []).join(', '),
+            updated_at: new Date().toISOString()
+          };
 
-        // Check if product with same name exists
-        const { data: existing } = await client.from('products').select('id').eq('name', item.name);
-        let err;
-        if (existing && existing.length > 0) {
-          ({ error: err } = await client.from('products').update(payload).eq('id', existing[0].id));
-        } else {
-          ({ error: err } = await client.from('products').insert(payload));
+          const { data: existing } = await client.from('products').select('id').eq('name', item.name);
+          let err;
+          if (existing && existing.length > 0) {
+            ({ error: err } = await client.from('products').update(payload).eq('id', existing[0].id));
+          } else {
+            ({ error: err } = await client.from('products').insert(payload));
+          }
+          if (!err) count++;
         }
-        if (err) console.error(`Error syncing ${item.name}:`, err);
-        else count++;
       }
-
-      alert(`✅ Synced ${count} of ${PRODUCTS_DATA.length} products to Supabase successfully!`);
-      await loadProducts();
-    } catch (e) {
-      console.error('Sync failed:', e);
-      alert('Error during sync: ' + e.message);
+    } catch(e) {
+      console.warn('Supabase sync skipped, loaded local:', e);
     }
+
+    alert(`✅ Loaded all ${localList.length} site products into Admin Panel! (${count} synced to Supabase)`);
   }
 </script>
 

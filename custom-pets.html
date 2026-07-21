@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Custom Pet Sculptures – Tabby Chaser</title>
-  <meta name="description" content="Turn your beloved pet into a custom handmade clay figurine, crafted from your photos by Tabby Chaser in India." />
+  <title>Custom Orders – Tabby Chaser</title>
+  <meta name="description" content="Turn your ideas into custom handmade clay charms and keepsakes, crafted to order by Tabby Chaser in India." />
 
   <!-- Bubbly & Script Display Fonts & Body Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,7 +25,7 @@
         </a>
       </div>
       <div class="announcement-text">
-        All these cuties are made to order, so please give me 3-4 weeks to create them for you before I ship them, packed with cute freebie stickers &lt;3
+        All the charms will take 4-5 weeks to make before I ship them.
       </div>
       <div class="announcement-spacer"></div>
     </div>
@@ -41,15 +41,15 @@
       <nav class="nav-menu">
         <a href="index.html" class="nav-link outline-pill">Home</a>
         <a href="shop.html" class="nav-link outline-pill">Shop</a>
-        <a href="custom-pets.html" class="nav-link active-pill">Custom Pets</a>
-        <a href="index.html#policies" class="nav-link outline-pill">Policies</a>
+        <a href="custom-pets.html" class="nav-link active-pill">Custom Orders</a>
+        <a href="policies.html" class="nav-link outline-pill">Policies</a>
       </nav>
       <div class="header-actions">
         <div class="search-box-pill">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" placeholder="Search..." disabled />
         </div>
-        <button class="cart-pill-btn" onclick="alert('Cart is empty!')">
+        <button class="cart-pill-btn" id="cartBtn">
           Cart
           <span class="cart-badge">0</span>
         </button>
@@ -63,22 +63,24 @@
       <div class="pet-hero-card">
         
         <div class="pet-hero-card-left">
-          <div class="commission-badge-pill">
-            <span class="badge-pulse-dot"></span>
-            Custom commissions, made to order
+          <div class="custom-orders-pill">
+            <span class="active-dot"></span>
+            Custom orders are open! ✨
           </div>
-          <h1 class="pet-hero-title">Your pet, <br />in <span class="highlight-clay">clay.</span></h1>
+          <h1 class="pet-hero-title">Custom orders,<br />made just for you. ♡</h1>
           <p class="pet-hero-desc">
-            Send me a few photos of your best friend and I will sculpt them into a tiny glazed figurine, hand painted down to the floppy ears, freckles and that one funny whisker.
+            Have something unique in mind?<br />
+            I'll turn your ideas into tiny handmade keepsakes<br />
+            with lots of love and a little bit of panic.
           </p>
           <div class="pet-hero-actions">
-            <a href="https://ig.me/m/tabbychaser" target="_blank" class="btn btn-solid-pink">DM @tabbychaser to start</a>
-            <a href="#how-it-works" class="btn btn-outline-white">See how it works</a>
+            <a href="https://ig.me/m/tabbychaser" target="_blank" class="btn btn-solid-pink">📩 DM @tabbychaser to start</a>
+            <a href="#how-it-works" class="btn btn-outline-white">See how it works &gt;</a>
           </div>
         </div>
 
         <div class="pet-hero-card-right">
-          <img src="assets/custom_pet_clay.png" alt="Orange cat looking at its tiny handmade clay figurine duplicate" class="pet-hero-img" />
+          <img src="custom order/mainnn.png" alt="Custom Orders Hero Illustration" class="pet-hero-img" />
         </div>
 
       </div>
@@ -88,67 +90,69 @@
   <!-- How It Works Section (Horizontal High-Visibility Illustration Layout) -->
   <section class="how-it-works-section" id="how-it-works">
     <div class="container">
-      
-      <!-- Unified Card Box (#fce9e5) matching home page style, padded cleanly -->
       <div class="how-works-box">
         
-        <!-- Floating decos -->
-        <span class="floating-deco deco-one">✨</span>
-        <span class="floating-deco deco-two">♡</span>
-        <span class="floating-deco deco-three">✨</span>
+        <h2 class="how-heading">✨ How it works ✨</h2>
         
-        <h2 class="how-heading">How it works</h2>
-        
-        <div class="how-steps-horizontal-grid">
+        <div class="how-steps-horizontal-row">
           
           <!-- Step 1 -->
-          <div class="how-step-column">
+          <div class="how-step-item">
             <div class="step-illustration-holder">
-              <img src="assets/how-it-works/Send your photos.png" alt="Send your photos illustration" class="step-illustration-large" />
+              <img src="custom order/Place your order.png" alt="Place your order" class="step-illustration-img" />
             </div>
             <div class="step-badge-num">1</div>
-            <h3 class="step-title">Send your photos</h3>
+            <h3 class="step-title">Place your order</h3>
             <p class="step-desc">
-              DM 2 to 3 clear pictures of your pet on Instagram @tabbychaser. Different angles help, especially the face and the back.
+              Fill in the details and upload any reference photos you have.
             </p>
+          </div>
+
+          <!-- Connector 1 -->
+          <div class="step-connector-arrow" aria-hidden="true">
+            <svg viewBox="0 0 50 20" fill="none" class="connector-arrow-svg">
+              <path d="M0,10 H40" stroke="currentColor" stroke-width="2" stroke-dasharray="4,4"></path>
+              <path d="M35,5 L42,10 L35,15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
           </div>
 
           <!-- Step 2 -->
-          <div class="how-step-column">
+          <div class="how-step-item">
             <div class="step-illustration-holder">
-              <img src="assets/how-it-works/Pick your size.png" alt="Pick your size illustration" class="step-illustration-large" />
+              <img src="custom order/I sculpt your charm.png" alt="I sculpt your charm" class="step-illustration-img" />
             </div>
             <div class="step-badge-num">2</div>
-            <h3 class="step-title">Pick your size</h3>
+            <h3 class="step-title">I sculpt your charm</h3>
             <p class="step-desc">
-              Choose a tier below based on detail and how many pets you want. I will confirm what is possible from your photos.
+              I'll sculpt your charm and share a preview for your approval.
             </p>
+          </div>
+
+          <!-- Connector 2 -->
+          <div class="step-connector-arrow" aria-hidden="true">
+            <svg viewBox="0 0 50 20" fill="none" class="connector-arrow-svg">
+              <path d="M0,10 H40" stroke="currentColor" stroke-width="2" stroke-dasharray="4,4"></path>
+              <path d="M35,5 L42,10 L35,15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
           </div>
 
           <!-- Step 3 -->
-          <div class="how-step-column">
+          <div class="how-step-item">
             <div class="step-illustration-holder">
-              <img src="assets/how-it-works/I sculpt it by hand.png" alt="I sculpt it by hand illustration" class="step-illustration-large" />
+              <img src="custom order/Made with love, shipped to you.png" alt="Made with love, shipped to you" class="step-illustration-img" />
             </div>
             <div class="step-badge-num">3</div>
-            <h3 class="step-title">I sculpt it by hand</h3>
+            <h3 class="step-title">Made with love, shipped to you</h3>
             <p class="step-desc">
-              A small deposit books your slot, then I get to work. Expect about 2 to 3 weeks, since every piece is made from scratch.
+              Once approved, I'll add the finishing touches, pack it with care and ship it to your doorstep. ✨
             </p>
           </div>
 
-          <!-- Step 4 -->
-          <div class="how-step-column">
-            <div class="step-illustration-holder">
-              <img src="assets/how-it-works/Your keepsake ships.png" alt="Your keepsake ships illustration" class="step-illustration-large" />
-            </div>
-            <div class="step-badge-num">4</div>
-            <h3 class="step-title">Your keepsake ships</h3>
-            <p class="step-desc">
-              You approve a progress photo, pay the balance, and your pet arrives ready to live on your desk forever.
-            </p>
-          </div>
+        </div>
 
+        <!-- Footer Banner Patti -->
+        <div class="how-works-patti-footer">
+          💖 I take only 5 custom orders each month to give each piece the time and love it deserves. &nbsp;|&nbsp; Thank you for supporting handmade ♡
         </div>
 
       </div>
@@ -371,15 +375,15 @@
               </div>
               
               <div class="estimate-row">
-                <span class="estimate-label">Packaging & Stickers</span>
-                <span class="estimate-value free-text">FREE</span>
+                <span class="estimate-label">Shipping charges - Rs 59</span>
+                <span class="estimate-value">₹59</span>
               </div>
 
               <div class="estimate-divider"></div>
               
               <div class="estimate-row total-row">
                 <span class="estimate-label">Est. Total</span>
-                <span class="estimate-value" id="summaryTotal">₹450</span>
+                <span class="estimate-value" id="summaryTotal">₹509</span>
               </div>
 
               <p class="estimate-disclaimer">
@@ -472,16 +476,17 @@
   <!-- Success Inquiry Modal -->
   <div class="modal-overlay" id="successModal">
     <div class="success-modal-card">
+      <button type="button" class="modal-close-btn" onclick="closeModal()" aria-label="Close modal">&times;</button>
       <span class="success-emoji">🎉</span>
       <h3 class="modal-title">Inquiry Prepared!</h3>
       <p class="modal-desc">
         Your custom charm inquiry details have been saved! To confirm your slot and proceed:
       </p>
       <div class="instruction-box">
-        <p>1. Copy your size selection and details.</p>
-        <p>2. Send it with your reference photos to my Instagram DM.</p>
+        <p>1. Click the button below to open your email client with your details.</p>
+        <p>2. Attach your reference photos to the email and hit send! 🌷</p>
       </div>
-      <a href="https://ig.me/m/tabbychaser" target="_blank" class="btn btn-pink-pill" onclick="closeModal()">Go to Instagram DM</a>
+      <button type="button" class="btn btn-pink-pill" onclick="sendEmail()">Send a Mail ✨</button>
     </div>
   </div>
 
@@ -507,15 +512,14 @@
           <ul class="footer-links-list">
             <li><a href="index.html">Home</a></li>
             <li><a href="shop.html">Shop Collections</a></li>
-            <li><a href="custom-pets.html">Custom Commissions</a></li>
+            <li><a href="custom-pets.html">Custom Orders</a></li>
           </ul>
         </div>
         <div class="footer-links-column">
           <h4 class="footer-column-title">Our Policies</h4>
           <ul class="footer-links-list">
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Refund Policy</a></li>
-            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="policies.html">Store Policies</a></li>
+            <li><a href="policies.html">Shipping & Returns</a></li>
           </ul>
         </div>
       </div>

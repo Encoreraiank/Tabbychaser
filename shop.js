@@ -94,14 +94,20 @@ function resetFilters() {
 
 // ---- ADD TO CART ----
 function addToCart(name, price) {
-  cartCount++;
+  // Find product image from the DOM
+  let imgUrl = '';
+  const cards = document.querySelectorAll('.shop-card');
+  for (const card of cards) {
+    if (card.dataset.name === name) {
+      const img = card.querySelector('.shop-card-img');
+      if (img) imgUrl = img.src;
+      break;
+    }
+  }
 
-  // Update cart badge in header
-  const badge = document.getElementById('cartBadge');
-  if (badge) {
-    badge.textContent = cartCount;
-    badge.style.transform = 'scale(1.4)';
-    setTimeout(() => { badge.style.transform = 'scale(1)'; }, 250);
+  // Add to global cart drawer
+  if (window.addGlobalCartItem) {
+    window.addGlobalCartItem(name, price, imgUrl);
   }
 
   // Show toast notification

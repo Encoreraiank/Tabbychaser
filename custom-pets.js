@@ -76,6 +76,7 @@ function updateEstimate() {
 
   const sizeVal = form.elements['sizeSelection'].value;
   let basePrice = 450;
+  const shippingPrice = 59;
 
   if (sizeVal === 'medium') {
     basePrice = 900;
@@ -86,10 +87,11 @@ function updateEstimate() {
   const summaryBasePrice = document.getElementById('summaryBasePrice');
   const summaryTotal = document.getElementById('summaryTotal');
 
-  const priceFormatted = '₹' + basePrice.toLocaleString('en-IN');
+  const baseFormatted = '₹' + basePrice.toLocaleString('en-IN');
+  const totalFormatted = '₹' + (basePrice + shippingPrice).toLocaleString('en-IN');
 
-  if (summaryBasePrice) summaryBasePrice.textContent = priceFormatted;
-  if (summaryTotal) summaryTotal.textContent = priceFormatted;
+  if (summaryBasePrice) summaryBasePrice.textContent = baseFormatted;
+  if (summaryTotal) summaryTotal.textContent = totalFormatted;
 }
 
 // ---- FAQ ACCORDION TOGGLE ----
@@ -121,6 +123,33 @@ function submitInquiry(event) {
   // Display Success Modal
   const modal = document.getElementById('successModal');
   if (modal) modal.classList.add('show-modal');
+}
+
+// ---- SEND EMAIL DISPATCH ----
+function sendEmail() {
+  const form = document.getElementById('petPlannerForm');
+  if (!form) return;
+
+  const details = document.getElementById('charmDetails').value.trim();
+  const additional = document.getElementById('additionalRequests').value.trim();
+  const sizeVal = form.elements['sizeSelection'].value;
+  const sizeText = sizeVal.toUpperCase();
+
+  const subject = encodeURIComponent("Tabby Chaser - Custom Charm Request Inquiry");
+  
+  let bodyText = `Hi Tabby Chaser,\n\nI would like to place a custom charm request! Here are my details:\n\n`;
+  bodyText += `• Size Selected: ${sizeText}\n`;
+  bodyText += `• Charm Details:\n${details}\n\n`;
+  if (additional) {
+    bodyText += `• Additional Requests:\n${additional}\n\n`;
+  }
+  bodyText += `(I will attach my reference photos to this email)\n\nThank you!`;
+  
+  const body = encodeURIComponent(bodyText);
+  
+  // Open mailto link
+  window.open(`mailto:tabbychaser@gmail.com?subject=${subject}&body=${body}`, '_blank');
+  closeModal();
 }
 
 function closeModal() {

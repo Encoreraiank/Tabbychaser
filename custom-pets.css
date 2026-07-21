@@ -5,12 +5,13 @@
 }
 
 .pet-hero-card {
-  background-color: #231f1e; /* Deep cozy dark charcoal */
+  background-color: #fbf4f0; /* Soft warm pink-cream card */
   border-radius: 28px !important;
+  border: 1.5px solid rgba(245, 185, 192, 0.4);
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: 1.15fr 0.85fr;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
   min-height: 520px;
 }
 
@@ -22,9 +23,9 @@
   align-items: flex-start;
 }
 
-.commission-badge-pill {
-  background-color: rgba(245, 185, 192, 0.15);
-  color: var(--color-brand-pink);
+.custom-orders-pill {
+  background-color: rgba(142, 208, 129, 0.15);
+  color: #2e7d32;
   border-radius: 50px !important;
   padding: 6px 16px;
   font-size: 0.8rem;
@@ -34,35 +35,36 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 24px;
+  border: 1px solid rgba(142, 208, 129, 0.3);
 }
 
-.badge-pulse-dot {
-  width: 7px;
-  height: 7px;
-  background-color: #8ed081; /* Soft green indicator dot */
+.custom-orders-pill .active-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #4caf50;
   border-radius: 50% !important;
   display: inline-block;
-  box-shadow: 0 0 8px #8ed081;
+  animation: blinkPulse 1.8s infinite;
+}
+
+@keyframes blinkPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
 
 .pet-hero-card-left .pet-hero-title {
   font-family: var(--font-display);
   font-size: clamp(2.2rem, 4.5vw, 3.4rem);
   font-weight: 700;
-  line-height: 1.12;
-  color: #ffffff;
+  line-height: 1.15;
+  color: var(--color-text-main);
   margin-bottom: 20px;
   letter-spacing: -0.5px;
 }
 
-.pet-hero-card-left .highlight-clay {
-  color: #8ed081; /* Sage green clay word, matching moon kiln theme */
-  font-family: var(--font-display);
-}
-
 .pet-hero-card-left .pet-hero-desc {
-  font-size: 0.96rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.98rem;
+  color: #4a4a4a;
   line-height: 1.6;
   margin-bottom: 36px;
   max-width: 480px;
@@ -85,6 +87,9 @@
   text-decoration: none;
   transition: var(--transition);
   border: 2px solid var(--color-brand-pink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-solid-pink:hover {
@@ -94,8 +99,8 @@
 
 .btn-outline-white {
   background-color: transparent;
-  color: #ffffff !important;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-text-main) !important;
+  border: 2px solid var(--color-text-main);
   border-radius: 50px !important;
   padding: 14px 28px;
   font-size: 0.85rem;
@@ -106,26 +111,112 @@
 }
 
 .btn-outline-white:hover {
-  border-color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(19, 19, 19, 0.05);
 }
 
 .pet-hero-card-right {
   position: relative;
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pet-hero-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  max-height: 480px;
+  object-fit: contain;
   display: block;
+  padding: 30px;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.05));
+  transition: transform 0.3s ease;
 }
 
-/* How It Works Section (Premium Cohesive Card Style) */
+.pet-hero-img:hover {
+  transform: translateY(-5px) rotate(1deg);
+}
+
+.sticker-logo-wrapper {
+  position: relative;
+  transform: rotate(-10deg) scale(1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 2;
+}
+
+.sticker-logo-wrapper:hover {
+  transform: rotate(-5deg) scale(1.05);
+}
+
+.sticker-logo-img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50% !important;
+  border: 8px solid #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 2px 5px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+}
+
+.sticker-stars {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 1.8rem;
+  user-select: none;
+}
+
+.sticker-sparkle-small {
+  position: absolute;
+  bottom: 5px;
+  left: -15px;
+  font-size: 1.2rem;
+  color: var(--color-brand-pink);
+  user-select: none;
+}
+
+.post-it-note {
+  position: absolute;
+  bottom: 50px;
+  right: 40px;
+  width: 180px;
+  background-color: #fff9e6; /* Soft warm yellow post-it */
+  border: 1.5px solid rgba(19, 19, 19, 0.08);
+  box-shadow: 2px 10px 20px rgba(0, 0, 0, 0.05);
+  padding: 22px 15px 15px;
+  transform: rotate(6deg);
+  transition: transform 0.3s ease;
+  z-index: 3;
+}
+
+.post-it-note:hover {
+  transform: rotate(3deg) translateY(-5px);
+}
+
+.tape-strip {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 70px;
+  height: 20px;
+  background-color: rgba(244, 122, 171, 0.45); /* Semi-transparent pink tape */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.post-it-text {
+  font-family: 'Pacifico', 'Chewy', 'Fredoka', cursive;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #5d4037; /* Warm dark brown text */
+  margin: 0;
+  text-align: center;
+}
+
+/* How It Works Section */
 .how-it-works-section {
-  padding: 30px 0; /* Reduced from 80px to make section thin */
+  padding: 40px 0;
   background-color: var(--color-page-bg);
   border-bottom: 1.5px solid var(--color-border-rgba);
 }
@@ -134,44 +225,10 @@
   background-color: var(--color-card-bg); /* Soft pinkish cream card */
   border-radius: 24px !important;
   border: 1.5px solid var(--color-border-rgba);
-  padding: 35px 40px 40px; /* Reduced paddings to make card compact */
+  padding: 40px 45px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
-}
-
-/* Floating decorations inside card */
-.how-works-box .floating-deco {
-  position: absolute;
-  font-size: 1.4rem;
-  opacity: 0.7;
-  user-select: none;
-  animation: floatDeco 4s ease-in-out infinite alternate;
-}
-
-.how-works-box .deco-one {
-  top: 20px;
-  left: 30px;
-  animation-delay: 0.2s;
-}
-
-.how-works-box .deco-two {
-  bottom: 25px;
-  right: 35px;
-  font-size: 1.6rem;
-  color: var(--color-pink-highlight);
-  animation-delay: 0.8s;
-}
-
-.how-works-box .deco-three {
-  top: 25px;
-  right: 40px;
-  animation-delay: 1.4s;
-}
-
-@keyframes floatDeco {
-  0% { transform: translateY(0) rotate(0deg); }
-  100% { transform: translateY(-10px) rotate(8deg); }
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.02);
 }
 
 .how-heading {
@@ -180,93 +237,71 @@
   font-weight: 700;
   color: var(--color-text-main);
   text-align: center;
-  margin-bottom: 24px; /* Reduced from 50px */
+  margin-bottom: 35px;
 }
 
-.how-steps-horizontal-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 28px;
+.how-steps-horizontal-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+  position: relative;
 }
 
-.how-step-column {
+.how-step-item {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
+  position: relative;
 }
 
-/* Big Illustration Holders (Direct Display, Premium Hover Interactions) */
 .step-illustration-holder {
   width: 100%;
-  height: 200px; /* Increased from 160px for high visibility and larger mascot display */
+  height: 130px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
-  background-color: transparent;
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
 }
 
-.how-step-column:hover .step-illustration-holder {
-  transform: translateY(-8px); /* Lift up on hover */
+.how-step-item:hover .step-illustration-holder {
+  transform: translateY(-5px);
 }
 
-.step-illustration-large {
+.step-illustration-svg,
+.step-illustration-img {
+  height: 100%;
   max-width: 100%;
-  max-height: 100%;
   object-fit: contain;
-  display: block;
-  transition: transform 0.4s ease;
-  
-  /* Silhouette Drop Shadow - improved deep black for clear definition */
-  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.18)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.12));
-  
-  /* Continuous looping sequence zoom-in/out animation (8s total timeline) */
-  animation: mascotPulseSequence 8s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.05));
 }
 
-/* Stagger delays sequence-wise (Step 1, then 2, then 3, then 4) */
-.how-step-column:nth-child(1) .step-illustration-large { animation-delay: 0s; }
-.how-step-column:nth-child(2) .step-illustration-large { animation-delay: 2s; }
-.how-step-column:nth-child(3) .step-illustration-large { animation-delay: 4s; }
-.how-step-column:nth-child(4) .step-illustration-large { animation-delay: 6s; }
-
-@keyframes mascotPulseSequence {
-  0%, 25%, 100% {
-    transform: scale(1);
-  }
-  12.5% {
-    transform: scale(1.08); /* Sequential zoom pulse */
-  }
-}
-
-.how-step-column:hover .step-illustration-large {
-  animation-play-state: paused; /* Pause sequence on hover */
-  transform: scale(1.1); /* Hover zoom feedback */
-}
-
-/* Number Badges */
-.how-step-column .step-badge-num {
-  width: 26px;
-  height: 26px;
-  background-color: var(--color-pink-highlight);
-  color: #ffffff;
+.how-step-item .step-badge-num {
+  width: 28px;
+  height: 28px;
+  background-color: var(--color-brand-pink);
+  color: var(--color-text-main);
   border-radius: 50% !important;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  margin-bottom: 8px; /* Reduced from 12px */
+  margin-bottom: 10px;
+  border: 1.5px solid var(--color-text-main);
 }
 
-.how-step-column:hover .step-badge-num {
+.how-step-item:hover .step-badge-num {
   background-color: var(--color-text-main);
+  color: #ffffff;
 }
 
-.how-step-column .step-title {
+.how-step-item .step-title {
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 700;
@@ -274,20 +309,41 @@
   margin-bottom: 8px;
 }
 
-.how-step-column .step-desc {
+.how-step-item .step-desc {
   font-size: 0.82rem;
-  color: #555555;
+  color: #4a4a4a;
   line-height: 1.5;
   margin: 0;
-  max-width: 260px;
+  max-width: 250px;
 }
 
-@keyframes arrowBounce {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(5px); }
+.step-connector-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 130px;
+  color: var(--color-brand-pink);
+  opacity: 0.6;
+  width: 50px;
 }
 
-/* Responsive adjustment for columns */
+.connector-arrow-svg {
+  width: 100%;
+  height: 20px;
+}
+
+.how-works-patti-footer {
+  background-color: #fbf4f0;
+  border: 1.5px solid rgba(245, 185, 192, 0.4);
+  color: var(--color-text-main);
+  padding: 12px 24px;
+  border-radius: 50px !important;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  margin-top: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+}
 
 /* Commission Planner Layout */
 .commission-planner-section {
@@ -933,7 +989,7 @@
   }
   .tc-pets__wall-track img {
     width: 128px;
-    border-radius: 12px !important; /* Compact rounded corners on mobile */
+    border-radius: 12px !important;
   }
   .pet-hero-card {
     grid-template-columns: 1fr;
@@ -943,14 +999,41 @@
     padding: 50px 40px;
   }
   .pet-hero-card-right {
-    height: 320px;
+    height: auto;
   }
-  .how-steps-horizontal-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 36px 20px;
+  .sticker-illustrations-container {
+    min-height: 260px;
+    padding: 20px 0;
+  }
+  .sticker-logo-img {
+    width: 140px;
+    height: 140px;
+  }
+  .post-it-note {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    margin-left: -20px;
+    margin-top: 20px;
+    width: 150px;
+    padding: 15px 10px 10px;
+  }
+  .post-it-text {
+    font-size: 0.8rem;
+  }
+  .how-steps-horizontal-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  .step-connector-arrow {
+    display: none;
+  }
+  .how-step-item {
+    width: 100%;
   }
   .step-illustration-holder {
-    height: 160px; /* Scale down slightly on tablet */
+    height: 120px;
   }
   .photo-upload-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -978,12 +1061,9 @@
   .how-works-box {
     padding: 30px 16px;
   }
-  .how-steps-horizontal-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-  .step-illustration-holder {
-    height: 180px; /* Increased from 150px on mobile */
+  .how-works-patti-footer {
+    border-radius: 18px !important;
+    font-size: 0.8rem;
   }
   .size-cards-grid {
     grid-template-columns: 1fr;
@@ -992,4 +1072,30 @@
   .photo-upload-grid {
     gap: 8px;
   }
+}
+
+/* Modal Close Button and Modal Improvements */
+.success-modal-card {
+  position: relative;
+  border-radius: 20px !important;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: #888;
+  cursor: pointer;
+  line-height: 1;
+  padding: 5px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  color: var(--color-text-main);
+  transform: scale(1.1);
 }

@@ -109,6 +109,10 @@ function injectCartDrawer() {
         <span>Subtotal</span>
         <span id="cartSubtotal">₹0</span>
       </div>
+      <div class="cart-summary-row" id="cartDiscountRow" style="display:none; color: #2e7d32; font-weight: 600;">
+        <span>10% Welcome Discount</span>
+        <span id="cartDiscount">-₹0</span>
+      </div>
       <div class="cart-summary-row">
         <span>Shipping</span>
         <span id="cartShipping">₹59</span>
@@ -116,6 +120,9 @@ function injectCartDrawer() {
       <div class="cart-summary-row total-row">
         <span>Total Estimate</span>
         <span id="cartTotal">₹0</span>
+      </div>
+      <div class="cart-marketing-text" id="cartMarketingText" style="display:none; font-size: 0.8rem; color: #d35d88; text-align: center; margin-bottom: 12px; font-weight: 600; line-height: 1.4; padding: 10px; background-color: rgba(244, 122, 171, 0.08); border-radius: 10px !important;">
+        🎁 Subscribe to our welcome gift to get 10% off on orders above ₹500!
       </div>
       <button class="checkout-btn" onclick="window.triggerCheckout()">Proceed to Checkout ✨</button>
     </div>
@@ -210,6 +217,8 @@ window.renderCartItems = function() {
   const subtotalEl = document.getElementById('cartSubtotal');
   const shippingEl = document.getElementById('cartShipping');
   const totalEl = document.getElementById('cartTotal');
+  const discountRow = document.getElementById('cartDiscountRow');
+  const marketingEl = document.getElementById('cartMarketingText');
   if (!content) return;
 
   const cart = window.getCart();
@@ -224,6 +233,8 @@ window.renderCartItems = function() {
     if (subtotalEl) subtotalEl.textContent = '₹0';
     if (shippingEl) shippingEl.textContent = '₹0';
     if (totalEl) totalEl.textContent = '₹0';
+    if (discountRow) discountRow.style.display = 'none';
+    if (marketingEl) marketingEl.style.display = 'none';
     return;
   }
 
@@ -251,8 +262,34 @@ window.renderCartItems = function() {
 
   content.innerHTML = html;
   
+  const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
+  let discount = 0;
+  
+  if (isSubscribed) {
+    if (subtotal > 500) {
+      discount = Math.round(subtotal * 0.1);
+      if (discountRow) {
+        discountRow.style.display = 'flex';
+        discountRow.innerHTML = `<span>10% Welcome Discount (Subscribed)</span><span>-₹${discount}</span>`;
+      }
+      if (marketingEl) marketingEl.style.display = 'none';
+    } else {
+      if (discountRow) {
+        discountRow.style.display = 'flex';
+        discountRow.innerHTML = `<span style="color: #ef6c00; font-size: 0.82rem; font-weight: 700;">Add ₹${501 - subtotal} more to unlock 10% welcome discount! 🎁</span><span></span>`;
+      }
+      if (marketingEl) marketingEl.style.display = 'none';
+    }
+  } else {
+    if (discountRow) discountRow.style.display = 'none';
+    if (marketingEl) {
+      marketingEl.style.display = 'block';
+      marketingEl.innerHTML = `🎁 Subscribe to our welcome gift on the Home page to get 10% off on orders above ₹500!`;
+    }
+  }
+
   const shipping = 59;
-  const total = subtotal + shipping;
+  const total = subtotal - discount + shipping;
 
   if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN');
   if (shippingEl) shippingEl.textContent = '₹' + shipping;
@@ -530,5 +567,24 @@ function initShopCardLinks() {
     }
   });
 }
+
+window.handleNewsletterSubscribe = function(event) {
+  event.preventDefault();
+  const form = event.target;
+  const input = form.querySelector('input[type="email"]');
+  if (!input) return;
+  const email = input.value.trim();
+  if (!email) return;
+
+  localStorage.setItem('tabby_subscribed', 'true');
+  localStorage.setItem('tabby_subscribed_email', email);
+  input.value = '';
+
+  alert("🎁 10% discount for order above 500");
+
+  if (window.renderCartItems) {
+    window.renderCartItems();
+  }
+};
 
 

@@ -696,15 +696,15 @@
 
         </div>
 
-        <!-- 10. Newsletter Bar (Pal of the Week) -->
+        <!-- 10. Newsletter Bar (Claim Welcome Gift) -->
         <div class="newsletter-rounded-bar" id="policies">
           <div class="newsletter-left-panel">
-            <span class="newsletter-display-title">Pal of the Week 💌</span>
-            <span class="newsletter-desc">A new character in your inbox every Friday.</span>
+            <span class="newsletter-display-title">Claim Your Welcome Gift 🎁</span>
+            <span class="newsletter-desc">Sign up and receive a special welcome discount on your first handmade charm.</span>
           </div>
-          <form class="newsletter-form-panel" onsubmit="event.preventDefault(); alert('Subscribed! Heart symbols coming to your inbox &lt;3');">
+          <form class="newsletter-form-panel" onsubmit="window.handleNewsletterSubscribe(event)">
             <input type="email" placeholder="your@email.com" class="newsletter-input" required />
-            <button type="submit" class="newsletter-btn-join">Join</button>
+            <button type="submit" class="newsletter-btn-join">Claim Discount</button>
           </form>
         </div>
 

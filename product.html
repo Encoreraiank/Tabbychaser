@@ -651,6 +651,9 @@
               ${stockBadgeHtml}
             </div>
 
+            <!-- Dynamic marketing discount message -->
+            <div id="productDiscountNotice" style="margin: -8px 0 20px 0; font-size: 0.85rem; font-weight: 700; line-height: 1.4;"></div>
+
             <p class="product-description">${prod.description}</p>
 
             <!-- Shipping Info Boxes -->
@@ -706,6 +709,36 @@
 
         </div>
       `;
+      
+      // Update discount notice dynamically on render
+      updateProductDiscountNotice(prod, currentQty);
+    }
+
+    function updateProductDiscountNotice(prod, qty) {
+      const noticeEl = document.getElementById('productDiscountNotice');
+      if (!noticeEl) return;
+      
+      const itemSubtotal = prod.price * qty;
+      const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
+      const potentialSaved = Math.round(itemSubtotal * 0.1);
+      
+      if (itemSubtotal > 500) {
+        if (isSubscribed) {
+          noticeEl.style.color = '#2e7d32';
+          noticeEl.innerHTML = `✨ 10% Welcome Discount active! You save ₹${potentialSaved} on checkout.`;
+        } else {
+          noticeEl.style.color = '#d35d88';
+          noticeEl.innerHTML = `🎁 Want 10% off? <a href="index.html#policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;">Subscribe to our welcome gift</a> on the Home page to save ₹${potentialSaved}!`;
+        }
+      } else {
+        if (isSubscribed) {
+          noticeEl.style.color = '#ef6c00';
+          noticeEl.innerHTML = `💡 Add ₹${501 - itemSubtotal} more in your order to activate your 10% welcome discount!`;
+        } else {
+          noticeEl.style.color = '#666';
+          noticeEl.innerHTML = `🎁 Orders above ₹500 qualify for a 10% discount if you subscribe to our newsletter!`;
+        }
+      }
     }
 
     window.swapProductImage = function(imgUrl, thumbBox) {
@@ -722,6 +755,10 @@
       currentQty = Math.max(1, currentQty + delta);
       const qtyVal = document.getElementById('qtyVal');
       if (qtyVal) qtyVal.textContent = currentQty;
+      
+      if (loadedProduct) {
+        updateProductDiscountNotice(loadedProduct, currentQty);
+      }
     }
 
     function triggerAddToBag() {

@@ -2342,15 +2342,21 @@ body {
   height: auto;
   margin-bottom: 16px;
   display: inline-block;
+  border-radius: 20px !important;
+  border: 3px solid #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   animation: bounce-gift 2s infinite ease-in-out;
 }
 
 .cart-empty-illustration {
-  max-width: 140px;
+  max-width: 160px;
   width: 100%;
   height: auto;
   margin-bottom: 16px;
   display: inline-block;
+  border-radius: 20px !important;
+  border: 3px solid #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
 @keyframes bounce-gift {

@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Your Order – Tabby Chaser</title>
+  <meta name="description" content="Track your Tabby Chaser handmade clay charm order. Enter your order reference ID to see real-time status updates." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .track-main {
+      padding: 60px 0 100px;
+      background-color: var(--color-page-bg);
+      min-height: calc(100vh - 120px);
+    }
+
+    .track-hero {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .track-hero-emoji {
+      font-size: 3.5rem;
+      display: block;
+      margin-bottom: 16px;
+      animation: floatBob 3s ease-in-out infinite;
+    }
+
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .track-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-bottom: 12px;
+    }
+
+    .track-hero-subtitle {
+      font-size: 1rem;
+      color: #777;
+      max-width: 420px;
+      margin: 0 auto 35px;
+      line-height: 1.55;
+    }
+
+    /* Search box */
+    .track-search-wrap {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .track-search-card {
+      background: #ffffff;
+      border: 2px solid var(--color-border-rgba);
+      border-radius: 24px !important;
+      padding: 30px 28px;
+      box-shadow: 0 12px 40px rgba(244, 122, 171, 0.08);
+    }
+
+    .track-input-row {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 480px) {
+      .track-input-row {
+        flex-direction: column;
+      }
+    }
+
+    .track-input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 2px solid #e8e0f0;
+      border-radius: 14px !important;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-text-main);
+      outline: none;
+      transition: border-color 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .track-input:focus {
+      border-color: var(--color-brand-pink);
+    }
+
+    .track-input::placeholder {
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 400;
+      color: #bbb;
+    }
+
+    .track-btn {
+      padding: 14px 24px;
+      background: linear-gradient(135deg, var(--color-brand-pink), #f093b4);
+      border: none;
+      border-radius: 14px !important;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .track-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(244, 122, 171, 0.35);
+    }
+
+    .track-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .track-hint {
+      font-size: 0.78rem;
+      color: #aaa;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    /* Result area */
+    #trackResult {
+      max-width: 680px;
+      margin: 40px auto 0;
+      display: none;
+    }
+
+    #trackResult.visible {
+      display: block;
+      animation: fadeSlideUp 0.4s ease both;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .track-result-card {
+      background: #ffffff;
+      border: 2px solid var(--color-border-rgba);
+      border-radius: 24px !important;
+      padding: 32px 28px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Order info top bar */
+    .track-order-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1.5px solid #f0eaf5;
+    }
+
+    .track-order-ref {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+
+    .track-order-ref span {
+      color: var(--color-brand-pink);
+    }
+
+    .track-order-type-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 50px !important;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      background: #fce4ec;
+      color: #c2185b;
+    }
+
+    /* STATUS STEPPER */
+    .track-stepper {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .track-stepper::before {
+      content: '';
+      position: absolute;
+      top: 22px;
+      left: 40px;
+      right: 40px;
+      height: 3px;
+      background: #f0eaf5;
+      z-index: 0;
+      border-radius: 4px !important;
+    }
+
+    .track-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      flex: 1;
+      z-index: 1;
+    }
+
+    .track-step-dot {
+      width: 44px;
+      height: 44px;
+      border-radius: 50% !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      border: 3px solid #e8e0f0;
+      background: #ffffff;
+      margin-bottom: 10px;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .track-step.done .track-step-dot {
+      border-color: var(--color-brand-pink);
+      background: var(--color-brand-pink);
+      box-shadow: 0 4px 14px rgba(244, 122, 171, 0.4);
+    }
+
+    .track-step.active .track-step-dot {
+      border-color: var(--color-brand-pink);
+      background: #ffffff;
+      box-shadow: 0 0 0 5px rgba(244, 122, 171, 0.15);
+      animation: pulseDot 1.8s ease infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { box-shadow: 0 0 0 5px rgba(244, 122, 171, 0.15); }
+      50% { box-shadow: 0 0 0 10px rgba(244, 122, 171, 0.08); }
+    }
+
+    .track-step-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #bbb;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+      max-width: 70px;
+    }
+
+    .track-step.done .track-step-label,
+    .track-step.active .track-step-label {
+      color: var(--color-text-main);
+    }
+
+    /* Active status message */
+    .track-status-msg {
+      background: linear-gradient(135deg, #fce4ec, #fdf2f8);
+      border: 1.5px solid #f8bbd0;
+      border-radius: 16px !important;
+      padding: 18px 22px;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .track-status-msg-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-bottom: 4px;
+    }
+
+    .track-status-msg-sub {
+      font-size: 0.85rem;
+      color: #888;
+      line-height: 1.45;
+    }
+
+    /* Order details mini table */
+    .track-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .track-details-grid { grid-template-columns: 1fr; }
+    }
+
+    .track-detail-chip {
+      background: #fafafa;
+      border: 1.5px solid #f0eaf5;
+      border-radius: 12px !important;
+      padding: 14px 16px;
+    }
+
+    .track-detail-chip-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .track-detail-chip-value {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+
+    /* Error state */
+    .track-error-card {
+      background: #fff5f5;
+      border: 2px solid #ffd0d0;
+      border-radius: 18px !important;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .track-error-emoji {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .track-error-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #c62828;
+      margin-bottom: 8px;
+    }
+
+    .track-error-sub {
+      font-size: 0.85rem;
+      color: #888;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-container container">
+      <div class="announcement-social">
+        <a href="https://www.instagram.com/tabbychaser" target="_blank" aria-label="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+      </div>
+      <div class="announcement-text">
+        🚚 Free shipping on orders above ₹2,000 &nbsp;|&nbsp; Handmade with love in Bangalore 🐾
+      </div>
+      <div class="announcement-spacer"></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container container">
+      <a href="index.html" class="brand-logo">
+        <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
+        <span class="logo-text">Tabby Chaser</span>
+      </a>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link outline-pill">Home</a>
+        <a href="shop.html" class="nav-link outline-pill">Shop</a>
+        <a href="custom-pets.html" class="nav-link outline-pill">Custom Orders</a>
+        <a href="policies.html" class="nav-link outline-pill">Policies</a>
+      </nav>
+      <div class="header-actions" id="headerActions"></div>
+    </div>
+  </header>
+
+  <!-- Cart Drawer injected by app.js -->
+
+  <main class="track-main">
+    <div class="container">
+
+      <!-- Hero Section -->
+      <div class="track-hero">
+        <span class="track-hero-emoji">📦</span>
+        <h1 class="track-hero-title">Track Your Order</h1>
+        <p class="track-hero-subtitle">
+          Enter your Order Reference ID below to see the latest status of your handmade charm!
+        </p>
+      </div>
+
+      <!-- Search Card -->
+      <div class="track-search-wrap">
+        <div class="track-search-card">
+          <div class="track-input-row">
+            <input
+              type="text"
+              id="trackOrderInput"
+              class="track-input"
+              placeholder="e.g. TC-928471"
+              maxlength="20"
+              autocomplete="off"
+              onkeydown="if(event.key==='Enter') window.trackOrder()"
+            />
+            <button class="track-btn" id="trackSearchBtn" onclick="window.trackOrder()">
+              Track 🔍
+            </button>
+          </div>
+          <p class="track-hint">
+            Your order ID was sent in your confirmation email and shown after checkout.
+          </p>
+        </div>
+      </div>
+
+      <!-- Result Area -->
+      <div id="trackResult"></div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="container footer-top-grid">
+        <div class="footer-brand-col">
+          <a href="index.html" class="brand-logo footer-logo">
+            <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" style="width: 38px; height: 38px;" />
+            <span class="logo-text">Tabby Chaser</span>
+          </a>
+          <p class="footer-tagline">Just me, some clay and a little paint.</p>
+          <div class="footer-social">
+            <a href="https://www.instagram.com/tabbychaser" target="_blank" class="social-icon" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </a>
+          </div>
+        </div>
+        <div class="footer-links-col">
+          <h4 class="footer-col-heading">Store</h4>
+          <ul class="footer-links">
+            <li><a href="shop.html" class="footer-link">Shop All</a></li>
+            <li><a href="custom-pets.html" class="footer-link">Custom Pets</a></li>
+            <li><a href="track.html" class="footer-link">Track Order</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-col">
+          <h4 class="footer-col-heading">Help</h4>
+          <ul class="footer-links">
+            <li><a href="policies.html" class="footer-link">Shipping Policy</a></li>
+            <li><a href="policies.html#returns" class="footer-link">Returns Policy</a></li>
+            <li><a href="policies.html#faq" class="footer-link">FAQs</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom-copyright">
+      <div class="container copyright-flex">
+        <span>&copy; 2026 Tabby Chaser. Made with love in Bangalore.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="products-data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Status config — maps a status key to its display properties
+    const STATUS_STEPS = [
+      {
+        key: 'pending',
+        label: 'Order\nReceived',
+        emoji: '✅',
+        msgTitle: 'Order confirmed! 🎉',
+        msgSub: "We've got your order and it's in our system. Our little shop owner will review it shortly!"
+      },
+      {
+        key: 'processing',
+        label: 'Preparing\nClay',
+        emoji: '🎨',
+        msgTitle: 'Getting started! 🐾',
+        msgSub: "We're gathering your clay colors and prepping the workspace. Your charm is queued for sculpting!"
+      },
+      {
+        key: 'baked',
+        label: 'Being\nBaked',
+        emoji: '🔥',
+        msgTitle: 'In the oven! 🔥',
+        msgSub: "Your charm is being hand-painted and cured in the oven right now. Almost there — good things take time!"
+      },
+      {
+        key: 'shipped',
+        label: 'Shipped! 📦',
+        emoji: '🚚',
+        msgTitle: "It's on its way! 🚚",
+        msgSub: "Your handmade charm has been packed with love and handed over to the courier. Keep an eye out for it! 🐱"
+      }
+    ];
+
+    function getStepIndex(status) {
+      const idx = STATUS_STEPS.findIndex(s => s.key === status);
+      return idx >= 0 ? idx : 0;
+    }
+
+    function buildStepperHTML(currentStatus) {
+      const activeIdx = getStepIndex(currentStatus);
+      let html = '<div class="track-stepper">';
+      STATUS_STEPS.forEach((step, i) => {
+        let cls = '';
+        if (i < activeIdx) cls = 'done';
+        else if (i === activeIdx) cls = 'active';
+        html += `
+          <div class="track-step ${cls}">
+            <div class="track-step-dot">${step.emoji}</div>
+            <div class="track-step-label">${step.label.replace('\n', '<br/>')}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function buildStatusMsg(status) {
+      const step = STATUS_STEPS[getStepIndex(status)];
+      return `
+        <div class="track-status-msg">
+          <div class="track-status-msg-title">${step.msgTitle}</div>
+          <div class="track-status-msg-sub">${step.msgSub}</div>
+        </div>
+      `;
+    }
+
+    function buildDetailChip(label, value) {
+      return `
+        <div class="track-detail-chip">
+          <div class="track-detail-chip-label">${label}</div>
+          <div class="track-detail-chip-value">${value}</div>
+        </div>
+      `;
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toLocaleDateString('en-IN', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+    }
+
+    function renderOrderResult(order, isCustom) {
+      const resultEl = document.getElementById('trackResult');
+
+      const typeBadge = isCustom
+        ? '🎨 Custom Clay Request'
+        : '🛍️ Shop Order';
+
+      const stepper = buildStepperHTML(order.status || 'pending');
+      const statusMsg = buildStatusMsg(order.status || 'pending');
+
+      const chips = isCustom ? `
+        <div class="track-details-grid">
+          ${buildDetailChip('Order Type', typeBadge)}
+          ${buildDetailChip('Pet / Charm', order.pet_name || '–')}
+          ${buildDetailChip('Size', order.pet_type || '–')}
+          ${buildDetailChip('Estimate Total', '₹' + (order.total || 0).toLocaleString('en-IN'))}
+          ${buildDetailChip('Email', order.email || '–')}
+          ${buildDetailChip('Submitted On', formatDate(order.created_at))}
+        </div>
+      ` : `
+        <div class="track-details-grid">
+          ${buildDetailChip('Order Type', typeBadge)}
+          ${buildDetailChip('Customer', order.name || '–')}
+          ${buildDetailChip('Payment', (order.payment_method || '–').toUpperCase())}
+          ${buildDetailChip('Order Total', '₹' + (order.total || 0).toLocaleString('en-IN'))}
+          ${buildDetailChip('Email', order.email || '–')}
+          ${buildDetailChip('Ordered On', formatDate(order.created_at))}
+        </div>
+      `;
+
+      resultEl.innerHTML = `
+        <div class="track-result-card">
+          <div class="track-order-header">
+            <div class="track-order-ref">
+              Order <span>#${order.order_reference || order.id?.substring(0, 8).toUpperCase()}</span>
+            </div>
+            <span class="track-order-type-badge">${isCustom ? 'Custom Request' : 'Shop Order'}</span>
+          </div>
+
+          ${stepper}
+          ${statusMsg}
+          ${chips}
+
+          <p style="font-size: 0.78rem; color: #bbb; text-align: center; margin-top: 20px;">
+            Have questions? Reach us at <a href="mailto:tabbychaser2@gmail.com" style="color: var(--color-brand-pink); font-weight: 700;">tabbychaser2@gmail.com</a>
+          </p>
+        </div>
+      `;
+
+      resultEl.classList.add('visible');
+    }
+
+    function renderError(message) {
+      const resultEl = document.getElementById('trackResult');
+      resultEl.innerHTML = `
+        <div class="track-error-card">
+          <div class="track-error-emoji">🔍😿</div>
+          <div class="track-error-title">Order Not Found</div>
+          <p class="track-error-sub">${message}</p>
+        </div>
+      `;
+      resultEl.classList.add('visible');
+    }
+
+    window.trackOrder = async function() {
+      const input = document.getElementById('trackOrderInput').value.trim().toUpperCase();
+      const btn = document.getElementById('trackSearchBtn');
+      const resultEl = document.getElementById('trackResult');
+
+      if (!input) {
+        document.getElementById('trackOrderInput').focus();
+        return;
+      }
+
+      // Reset state
+      resultEl.classList.remove('visible');
+      resultEl.innerHTML = '';
+      btn.disabled = true;
+      btn.textContent = 'Searching... ⏳';
+
+      // Wait for Supabase to initialize
+      let tries = 0;
+      while (!window.supabaseClient && tries < 10) {
+        await new Promise(r => setTimeout(r, 500));
+        tries++;
+      }
+
+      if (!window.supabaseClient) {
+        btn.disabled = false;
+        btn.textContent = 'Track 🔍';
+        renderError("Could not connect to our database right now. Please try refreshing the page and searching again.");
+        return;
+      }
+
+      try {
+        // Search in orders table first
+        const { data: orders, error: ordErr } = await window.supabaseClient
+          .from('orders')
+          .select('*')
+          .ilike('order_reference', `%${input}%`)
+          .limit(1);
+
+        if (ordErr) throw ordErr;
+
+        if (orders && orders.length > 0) {
+          renderOrderResult(orders[0], false);
+          btn.disabled = false;
+          btn.textContent = 'Track 🔍';
+          return;
+        }
+
+        // Search in custom_orders table
+        const { data: customs, error: custErr } = await window.supabaseClient
+          .from('custom_orders')
+          .select('*')
+          .or(`id.ilike.%${input}%,email.ilike.%${input}%`)
+          .limit(1);
+
+        if (custErr) throw custErr;
+
+        if (customs && customs.length > 0) {
+          renderOrderResult(customs[0], true);
+          btn.disabled = false;
+          btn.textContent = 'Track 🔍';
+          return;
+        }
+
+        // Nothing found
+        renderError(`We couldn't find any order with the reference <strong>${input}</strong>. Please double-check your order confirmation email and try again.`);
+
+      } catch (err) {
+        console.error('Tracking error:', err.message);
+        renderError("Something went wrong while looking up your order. Please try again in a moment.");
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Track 🔍';
+    };
+  </script>
+</body>
+</html>

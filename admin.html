@@ -3,753 +3,1543 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard – Tabby Chaser</title>
-  
+  <title>Admin Panel – Tabby Chaser</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    /* Admin specific layout styles */
-    .admin-main {
-      padding: 50px 0 80px;
-      background-color: var(--color-page-bg);
-      min-height: calc(100vh - 120px);
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink: #f47aab;
+      --pink-light: #fce4ec;
+      --dark: #12111a;
+      --sidebar-bg: #1a1827;
+      --sidebar-w: 240px;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-display: 'Fredoka', sans-serif;
+      --card-bg: #ffffff;
+      --page-bg: #f5f4f8;
+      --border: rgba(0,0,0,0.08);
+      --text: #1a1a2e;
+      --muted: #888;
+      --green: #2e7d32;
+      --orange: #e67e22;
+      --red: #c62828;
+      --blue: #1976d2;
     }
 
-    .admin-grid {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 30px;
-      align-items: start;
+    body { font-family: var(--font-body); background: var(--page-bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* ─── LOGIN GATE ─── */
+    #loginGate {
+      position: fixed; inset: 0; background: linear-gradient(135deg, #1a1827, #2d1b4e);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .login-box {
+      background: #ffffff; border-radius: 24px; padding: 44px 40px; max-width: 400px; width: 90%;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.3); text-align: center;
+    }
+    .login-box-logo { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .login-box-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 30px; }
+    .login-input {
+      width: 100%; padding: 13px 16px; border: 2px solid #e8e0f0; border-radius: 12px;
+      font-family: var(--font-body); font-size: 0.95rem; outline: none; margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus { border-color: var(--pink); }
+    .login-btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, var(--pink), #f093b4);
+      border: none; border-radius: 12px; font-family: var(--font-display); font-size: 1rem;
+      font-weight: 700; cursor: pointer; color: var(--text); transition: opacity 0.2s;
+    }
+    .login-btn:hover { opacity: 0.9; }
+    .login-error { color: var(--red); font-size: 0.8rem; margin-top: 8px; }
+
+    /* ─── SIDEBAR ─── */
+    #sidebar {
+      width: var(--sidebar-w); background: var(--sidebar-bg); min-height: 100vh;
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100;
+      transition: transform 0.3s ease;
+    }
+    .sidebar-logo {
+      padding: 22px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar-logo-icon {
+      width: 36px; height: 36px; background: var(--pink); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 1rem; font-weight: 800; color: #fff;
+    }
+    .sidebar-logo-text { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: #ffffff; }
+    .sidebar-logo-sub { font-size: 0.6rem; color: rgba(255,255,255,0.4); display: block; }
+
+    .sidebar-nav { padding: 14px 10px; flex: 1; overflow-y: auto; }
+    .sidebar-section-label {
+      font-size: 0.6rem; font-weight: 800; color: rgba(255,255,255,0.3);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      padding: 12px 10px 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 10px; cursor: pointer; transition: all 0.18s;
+      font-size: 0.88rem; font-weight: 600; color: rgba(255,255,255,0.55);
+      border: none; background: none; width: 100%; text-align: left; margin-bottom: 2px;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+    .nav-item.active { background: rgba(244,122,171,0.18); color: var(--pink); }
+    .nav-item-icon { font-size: 1rem; flex-shrink: 0; width: 20px; text-align: center; }
+    .nav-badge {
+      margin-left: auto; background: var(--pink); color: #fff; font-size: 0.6rem;
+      font-weight: 800; padding: 2px 6px; border-radius: 50px; min-width: 18px; text-align: center;
     }
 
-    @media (max-width: 900px) {
-      .admin-grid {
-        grid-template-columns: 1fr;
-      }
+    .sidebar-footer {
+      padding: 14px 10px; border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .sidebar-logout-btn {
+      display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+      border-radius: 10px; cursor: pointer; font-size: 0.82rem; font-weight: 600;
+      color: rgba(255,255,255,0.4); border: none; background: none; width: 100%;
+      transition: all 0.18s;
+    }
+    .sidebar-logout-btn:hover { color: #ff6b6b; background: rgba(255,107,107,0.08); }
+
+    /* ─── MAIN CONTENT ─── */
+    #mainContent { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; }
+
+    .topbar {
+      background: var(--card-bg); border-bottom: 1px solid var(--border);
+      padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .admin-badge {
+      background: var(--pink-light); color: #c2185b; font-size: 0.72rem; font-weight: 800;
+      padding: 4px 10px; border-radius: 50px;
+    }
+    .mobile-menu-btn {
+      display: none; background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 4px;
     }
 
+    .page-content { padding: 28px; }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── STAT CARDS ─── */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      background: var(--card-bg); border-radius: 16px; padding: 20px 18px;
+      border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .stat-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .stat-value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text); }
+    .stat-sub { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+    .stat-card.pink { background: linear-gradient(135deg, var(--pink), #f093b4); border-color: transparent; }
+    .stat-card.pink .stat-label, .stat-card.pink .stat-value, .stat-card.pink .stat-sub { color: #fff; }
+
+    /* ─── CARDS & TABLES ─── */
     .admin-card {
-      background-color: #ffffff;
-      border: 1.5px solid var(--color-border-rgba);
-      border-radius: 20px !important;
-      padding: 30px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.01);
+      background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 24px;
     }
+    .card-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .card-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+    .card-body { padding: 20px; }
 
-    .admin-nav-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .admin-nav-btn {
-      background: none;
-      border: none;
-      width: 100%;
-      text-align: left;
-      padding: 12px 18px;
-      font-family: var(--font-display);
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--color-text-main);
-      border-radius: 12px !important;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.2s ease;
-    }
-
-    .admin-nav-btn:hover {
-      background-color: rgba(19, 19, 19, 0.03);
-    }
-
-    .admin-nav-btn.active {
-      background-color: var(--color-brand-pink);
-      color: var(--color-text-main);
-    }
-
-    .admin-tab-content {
-      display: none;
-    }
-
-    .admin-tab-content.active {
-      display: block;
-    }
-
-    /* Admin Table styles */
-    .admin-table-container {
-      width: 100%;
-      overflow-x: auto;
-      margin-top: 15px;
-    }
-
-    .admin-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.88rem;
-    }
-
-    .admin-table th, .admin-table td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--color-border-rgba);
-    }
-
-    .admin-table th {
-      font-family: var(--font-display);
-      font-weight: 700;
-      color: #666;
-      background-color: #fafafa;
-    }
-
-    .admin-table tbody tr:hover {
-      background-color: #fafafa;
-    }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #fafafa; padding: 10px 14px; text-align: left; font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; border-bottom: 1px solid #f8f8f8; font-size: 0.85rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
 
     .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 50px !important;
-      font-weight: 700;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .status-pending { background: #fff3e0; color: #e65100; }
+    .status-processing { background: #e3f2fd; color: #1565c0; }
+    .status-baked { background: #fce4ec; color: #c2185b; }
+    .status-shipped { background: #e8f5e9; color: #2e7d32; }
+    .status-delivered { background: #e8f5e9; color: var(--green); }
+    .status-cancelled { background: #ffebee; color: var(--red); }
+    .status-active { background: #e8f5e9; color: var(--green); }
+    .status-draft { background: #f5f5f5; color: #666; }
+    .status-out_of_stock { background: #ffebee; color: var(--red); }
+
+    /* ─── BUTTONS ─── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-family: var(--font-body); font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.18s; }
+    .btn-pink { background: linear-gradient(135deg, var(--pink), #f093b4); color: var(--text); }
+    .btn-pink:hover { opacity: 0.88; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f5f5f5; }
+    .btn-red { background: #ffebee; color: var(--red); }
+    .btn-red:hover { background: var(--red); color: #fff; }
+    .btn-green { background: #e8f5e9; color: var(--green); }
+    .btn-green:hover { background: var(--green); color: #fff; }
+    .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+    .btn-icon { padding: 6px; border-radius: 6px; }
+
+    /* ─── FORMS ─── */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 0.78rem; font-weight: 700; color: #555; margin-bottom: 6px; }
+    .form-control {
+      width: 100%; padding: 10px 14px; border: 1.5px solid #e8e0f0; border-radius: 10px;
+      font-family: var(--font-body); font-size: 0.88rem; outline: none; background: #fff;
+      transition: border-color 0.2s; color: var(--text);
+    }
+    .form-control:focus { border-color: var(--pink); }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+    /* ─── MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+      z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 20px; width: 100%; max-width: 620px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes modalPop { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+    .modal-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted); padding: 2px 6px; border-radius: 6px; }
+    .modal-close:hover { background: #f5f5f5; }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+    /* ─── PRODUCT GRID ─── */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .product-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .product-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .product-card-img { width: 100%; height: 150px; object-fit: cover; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+    .product-card-body { padding: 12px 14px; }
+    .product-card-name { font-weight: 700; font-size: 0.88rem; margin-bottom: 4px; line-height: 1.3; }
+    .product-card-price { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text); }
+    .product-card-meta { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+    .product-card-actions { display: flex; gap: 6px; padding: 10px 14px; border-top: 1px solid #f5f5f5; }
+
+    /* ─── UPLOAD ZONE ─── */
+    .upload-zone {
+      border: 2px dashed #e0d6f0; border-radius: 12px; padding: 24px;
+      text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa;
+    }
+    .upload-zone:hover { border-color: var(--pink); background: #fdf0f6; }
+    .upload-zone.drag { border-color: var(--pink); background: #fdf0f6; }
+    .upload-zone-icon { font-size: 2rem; margin-bottom: 8px; }
+    .upload-zone-text { font-size: 0.82rem; color: var(--muted); }
+
+    /* ─── SEARCH / FILTER ─── */
+    .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filter-input {
+      flex: 1; min-width: 180px; padding: 9px 14px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: var(--font-body); font-size: 0.85rem; outline: none;
+    }
+    .filter-input:focus { border-color: var(--pink); }
+    .filter-select {
+      padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: var(--font-body); font-size: 0.85rem; outline: none; background: #fff; cursor: pointer;
     }
 
-    .status-pending { background-color: #ffe0b2; color: #e65100; }
-    .status-processing { background-color: #bbdefb; color: #0d47a1; }
-    .status-baked { background-color: #e1bee7; color: #4a148c; }
-    .status-shipped { background-color: #c8e6c9; color: #1b5e20; }
+    /* ─── SELECT INPUT ─── */
+    select.form-control { cursor: pointer; }
 
-    .admin-select-status {
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border-radius: 8px !important;
-      border: 1.5px solid #e2e8f0;
-      outline: none;
-      background-color: #ffffff;
-      cursor: pointer;
+    /* ─── IMAGE PREVIEW ─── */
+    .img-preview-wrap { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .img-preview { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
+
+    /* ─── TOGGLE SWITCH ─── */
+    .toggle-wrap { display: flex; align-items: center; gap: 8px; }
+    .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: #ccc; border-radius: 50px; cursor: pointer; transition: 0.2s; }
+    .slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.2s; }
+    input:checked + .slider { background: var(--pink); }
+    input:checked + .slider:before { transform: translateX(18px); }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state { text-align: center; padding: 50px 20px; color: var(--muted); }
+    .empty-state-emoji { font-size: 3rem; margin-bottom: 14px; }
+    .empty-state-text { font-size: 0.9rem; }
+
+    /* ─── ALERT ─── */
+    .alert { padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; display: none; }
+    .alert-success { background: #e8f5e9; color: var(--green); }
+    .alert-error { background: #ffebee; color: var(--red); }
+    .alert.show { display: block; animation: fadeIn 0.25s ease; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #mainContent { margin-left: 0; }
+      .mobile-menu-btn { display: block; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+      .page-content { padding: 16px; }
     }
 
-    /* Details Drawer */
-    .order-details-drawer {
-      background-color: #fafafa;
-      border: 1px solid var(--color-border-rgba);
-      border-radius: 14px !important;
-      padding: 20px;
-      margin-top: 10px;
-      animation: slideDown 0.25s ease;
-      display: none;
-      text-align: left;
-    }
+    /* ─── SETTINGS SECTION ─── */
+    .settings-section { margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .settings-section:last-child { border-bottom: none; }
+    .settings-section-title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
 
-    .order-details-drawer.show {
-      display: block;
-    }
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
 
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    /* ─── ORDER DETAIL EXPAND ─── */
+    .expand-row td { padding: 0; }
+    .expand-inner { padding: 14px 20px; background: #fafafa; border-top: 1px solid #f0f0f0; }
+    .expand-items-list { display: flex; flex-direction: column; gap: 6px; }
+    .expand-item { display: flex; gap: 10px; align-items: center; font-size: 0.82rem; }
+    .expand-item img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
 
-    .order-detail-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
+    /* ─── COUPON TABLE ─── */
+    .coupon-code { font-family: monospace; background: #f5f4f8; padding: 3px 8px; border-radius: 5px; font-weight: 700; font-size: 0.85rem; }
 
-    @media (max-width: 600px) {
-      .order-detail-grid {
-        grid-template-columns: 1fr;
-      }
+    .loading-spinner {
+      display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(244,122,171,0.2);
+      border-top-color: var(--pink); border-radius: 50%; animation: spin 0.8s linear infinite;
     }
-
-    /* Polaroid card in admin requests */
-    .admin-polaroid-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-top: 12px;
-    }
-
-    .admin-polaroid-card {
-      background: #ffffff;
-      padding: 8px 8px 20px 8px;
-      border-radius: 8px !important;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      border: 1.5px solid rgba(0,0,0,0.05);
-      width: 100px;
-      text-align: center;
-      transition: transform 0.2s ease;
-    }
-
-    .admin-polaroid-card:hover {
-      transform: scale(1.05);
-    }
-
-    .admin-polaroid-card img {
-      width: 100%;
-      height: 84px;
-      object-fit: cover !important;
-      border-radius: 4px !important;
-      cursor: pointer;
-    }
-
-    /* Admin Password Gate modal */
-    .gate-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(254, 248, 243, 0.95);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-
-    .gate-card {
-      background: #ffffff;
-      border: 2px solid var(--color-border-rgba);
-      border-radius: 28px !important;
-      max-width: 400px;
-      width: 90%;
-      padding: 40px 30px;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(244, 122, 171, 0.15);
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <!-- Announcement Bar -->
-  <div class="announcement-bar">
-    <div class="announcement-container container">
-      <div class="announcement-social">
-        <a href="https://www.instagram.com/tabbychaser" target="_blank" aria-label="Instagram">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-        </a>
-      </div>
-      <div class="announcement-text">
-        🔒 Tabby Chaser Store Administration Console
-      </div>
-      <div class="announcement-spacer"></div>
+<!-- ═══════════════════════════════════════════ LOGIN GATE ══ -->
+<div id="loginGate">
+  <div class="login-box">
+    <div class="login-box-logo">🐾 Tabby Chaser</div>
+    <div class="login-box-sub">Admin Panel — Enter your access password</div>
+    <input type="password" id="adminPassInput" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter') window.adminLogin()" />
+    <button class="login-btn" onclick="window.adminLogin()">Enter Dashboard</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ SIDEBAR ══ -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">T</div>
+    <div>
+      <div class="sidebar-logo-text">Tabby Chaser</div>
+      <span class="sidebar-logo-sub">Admin Panel v2.0</span>
     </div>
   </div>
 
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-container container">
-      <a href="index.html" class="brand-logo">
-        <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
-        <span class="logo-text">Tabby Chaser</span>
-      </a>
-      <nav class="nav-menu">
-        <a href="index.html" class="nav-link outline-pill">Home</a>
-        <a href="shop.html" class="nav-link outline-pill">Shop</a>
-        <a href="custom-pets.html" class="nav-link outline-pill">Custom Orders</a>
-        <a href="policies.html" class="nav-link outline-pill">Policies</a>
-      </nav>
-      <div class="header-actions">
-        <button type="button" class="login-pill-btn" onclick="window.adminLogout()">Logout Admin</button>
-      </div>
-    </div>
-  </header>
+  <div class="sidebar-nav">
+    <div class="sidebar-section-label">Overview</div>
+    <button class="nav-item active" onclick="switchTab('dashboard', this)">
+      <span class="nav-item-icon">📊</span> Dashboard
+    </button>
 
-  <!-- Password Gate Overlay -->
-  <div class="gate-overlay" id="adminGate">
-    <div class="gate-card">
-      <div style="font-size: 3.5rem; margin-bottom: 15px;">🔒🔑</div>
-      <h2 class="login-modal-title" style="font-size: 1.6rem; margin-bottom: 10px;">Admin Access</h2>
-      <p style="font-size: 0.88rem; color: #666; margin-bottom: 25px; line-height: 1.45;">
-        Please enter the admin password to view order histories and customer requests:
-      </p>
-      
-      <form onsubmit="window.verifyAdminPassword(event)">
-        <div class="form-group" style="position: relative;">
-          <input type="password" id="adminPassInput" class="form-input" required placeholder="Enter password" style="text-align: center;" />
+    <div class="sidebar-section-label">Store</div>
+    <button class="nav-item" onclick="switchTab('orders', this)">
+      <span class="nav-item-icon">📦</span> Orders
+      <span class="nav-badge" id="pendingOrdersBadge">0</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('custom', this)">
+      <span class="nav-item-icon">🎨</span> Custom Requests
+      <span class="nav-badge" id="pendingCustomBadge">0</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('products', this)">
+      <span class="nav-item-icon">🧸</span> Products
+    </button>
+
+    <div class="sidebar-section-label">Customers & Finance</div>
+    <button class="nav-item" onclick="switchTab('customers', this)">
+      <span class="nav-item-icon">👥</span> Customers
+    </button>
+    <button class="nav-item" onclick="switchTab('coupons', this)">
+      <span class="nav-item-icon">🏷️</span> Coupons
+    </button>
+
+    <div class="sidebar-section-label">Site</div>
+    <button class="nav-item" onclick="switchTab('announcements', this)">
+      <span class="nav-item-icon">📢</span> Announcements
+    </button>
+    <button class="nav-item" onclick="switchTab('settings', this)">
+      <span class="nav-item-icon">⚙️</span> Settings
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="sidebar-logout-btn" onclick="window.adminLogout()">
+      <span>🔓</span> Logout
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════ MAIN ══ -->
+<div id="mainContent">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <span class="admin-badge">🛡️ Admin</span>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- ━━━━ DASHBOARD ━━━━ -->
+    <div class="tab-pane active" id="tab-dashboard">
+      <div class="stat-grid" id="dashStatGrid">
+        <div class="stat-card pink">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value" id="statRevenue">₹0</div>
+          <div class="stat-sub">All time orders</div>
         </div>
-        <button type="submit" class="btn btn-pink-pill btn-full-width" style="margin-top: 15px; padding: 14px;">
-          Authorize Dashboard ⚡
-        </button>
-      </form>
-      <p id="gateErrorText" style="color: #d32f2f; font-size: 0.82rem; margin-top: 12px; font-weight: 600; display: none;">
-        Incorrect password. Please try again!
-      </p>
-    </div>
-  </div>
-
-  <!-- Admin Main Panel -->
-  <main class="admin-main">
-    <div class="container">
-      
-      <div class="admin-grid">
-        
-        <!-- SIDEBAR navigation -->
-        <aside class="admin-card">
-          <div style="text-align: center; margin-bottom: 25px; border-bottom: 1.5px solid #f5f5f5; padding-bottom: 15px;">
-            <div style="font-size: 2.2rem; margin-bottom: 6px;">🐈💻</div>
-            <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--color-text-main); margin: 0;">Anjali's Console</h3>
-            <span style="font-size: 0.72rem; color: #888; text-transform: uppercase; font-weight: 800; letter-spacing: 0.8px;">Store Owner</span>
-          </div>
-
-          <div class="admin-nav-list">
-            <button type="button" class="admin-nav-btn active" id="tabBtnOrders" onclick="window.switchAdminTab('orders')">
-              📦 Store Orders
-            </button>
-            <button type="button" class="admin-nav-btn" id="tabBtnCustom" onclick="window.switchAdminTab('custom')">
-              🎨 Custom Requests
-            </button>
-            <button type="button" class="admin-nav-btn" id="tabBtnSubscribers" onclick="window.switchAdminTab('subscribers')">
-              ✉️ Subscribers
-            </button>
-          </div>
-        </aside>
-
-        <!-- CONTENT PANEL -->
-        <section class="admin-card" style="min-height: 480px;">
-          
-          <!-- TAB 1: Store Orders -->
-          <div class="admin-tab-content active" id="tabContentOrders">
-            <h2 class="checkout-section-title" style="margin-bottom: 12px;">
-              <span>📦</span> Shop Checkout Orders
-            </h2>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 25px;">
-              Checkouts completed by shop visitors. Click an entry row to toggle item lists and addresses.
-            </p>
-
-            <div class="admin-table-container">
-              <table class="admin-table" id="ordersTable">
-                <thead>
-                  <tr>
-                    <th>Ref ID</th>
-                    <th>Customer</th>
-                    <th>Total Paid</th>
-                    <th>Payment</th>
-                    <th>Status</th>
-                    <th>Date Placed</th>
-                  </tr>
-                </thead>
-                <tbody id="ordersTableBody">
-                  <tr>
-                    <td colspan="6" style="text-align: center; color: #888; padding: 40px 0;">Loading orders...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- TAB 2: Custom Requests -->
-          <div class="admin-tab-content" id="tabContentCustom">
-            <h2 class="checkout-section-title" style="margin-bottom: 12px;">
-              <span>🎨</span> Custom Clay Pet Requests
-            </h2>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 25px;">
-              Inquiries from the custom planner, detailing size estimates, descriptions, and hosted Cloudinary photo links.
-            </p>
-
-            <div class="admin-table-container">
-              <table class="admin-table" id="customTable">
-                <thead>
-                  <tr>
-                    <th>Pet Name / Type</th>
-                    <th>Email</th>
-                    <th>Estimate</th>
-                    <th>Status</th>
-                    <th>Date Submitted</th>
-                    <th>Photos</th>
-                  </tr>
-                </thead>
-                <tbody id="customTableBody">
-                  <tr>
-                    <td colspan="6" style="text-align: center; color: #888; padding: 40px 0;">Loading custom requests...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- TAB 3: Subscribers -->
-          <div class="admin-tab-content" id="tabContentSubscribers">
-            <h2 class="checkout-section-title" style="margin-bottom: 12px;">
-              <span>✉️</span> Newsletter & Discount Subscribers
-            </h2>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 25px;">
-              Customer emails subscribed to the 10% Welcome Discount campaign.
-            </p>
-
-            <div class="admin-table-container" style="max-width: 500px;">
-              <table class="admin-table" id="subscribersTable">
-                <thead>
-                  <tr>
-                    <th>Subscriber Email</th>
-                    <th>Join Date</th>
-                  </tr>
-                </thead>
-                <tbody id="subscribersTableBody">
-                  <tr>
-                    <td colspan="2" style="text-align: center; color: #888; padding: 40px 0;">Loading subscribers...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-        </section>
-
+        <div class="stat-card">
+          <div class="stat-label">Shop Orders</div>
+          <div class="stat-value" id="statOrders">0</div>
+          <div class="stat-sub" id="statOrdersSub">Loading...</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Custom Requests</div>
+          <div class="stat-value" id="statCustom">0</div>
+          <div class="stat-sub" id="statCustomSub">Loading...</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Products</div>
+          <div class="stat-value" id="statProducts">0</div>
+          <div class="stat-sub">In catalogue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Coupons Active</div>
+          <div class="stat-value" id="statCoupons">0</div>
+          <div class="stat-sub">Discount codes</div>
+        </div>
       </div>
 
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="dash-grid">
+        <div class="admin-card">
+          <div class="card-header">
+            <div class="card-title">Recent Orders</div>
+            <button class="btn btn-outline btn-sm" onclick="switchTab('orders', document.querySelector('[onclick*=\"orders\"]'))">View All →</button>
+          </div>
+          <div id="dashRecentOrders"><div class="empty-state"><div class="loading-spinner"></div></div></div>
+        </div>
+        <div class="admin-card">
+          <div class="card-header">
+            <div class="card-title">Recent Custom Requests</div>
+            <button class="btn btn-outline btn-sm" onclick="switchTab('custom', document.querySelector('[onclick*=\"custom\"]'))">View All →</button>
+          </div>
+          <div id="dashRecentCustom"><div class="empty-state"><div class="loading-spinner"></div></div></div>
+        </div>
+      </div>
     </div>
-  </main>
 
-  <!-- scripts -->
-  <script src="products-data.js"></script>
-  <script src="app.js"></script>
-  <script>
-    let currentTab = 'orders';
+    <!-- ━━━━ ORDERS ━━━━ -->
+    <div class="tab-pane" id="tab-orders">
+      <div class="filter-row">
+        <input type="text" class="filter-input" id="orderSearch" placeholder="🔍 Search by name, email, order ID..." oninput="filterOrders()" />
+        <select class="filter-select" id="orderStatusFilter" onchange="filterOrders()">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="baked">Baked</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="loadOrders()">↻ Refresh</button>
+      </div>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Check admin authorization session
-      const auth = sessionStorage.getItem('tabby_admin_authorized');
-      if (auth === 'true') {
-        document.getElementById('adminGate').style.display = 'none';
-        loadDashboardData();
-      }
+      <div class="admin-card">
+        <div class="card-header">
+          <div class="card-title">All Orders</div>
+          <span id="orderCountLabel" style="font-size:0.78rem;color:var(--muted);"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Order Ref</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Tracking</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ CUSTOM REQUESTS ━━━━ -->
+    <div class="tab-pane" id="tab-custom">
+      <div class="filter-row">
+        <input type="text" class="filter-input" id="customSearch" placeholder="🔍 Search by pet name, email..." oninput="filterCustomOrders()" />
+        <select class="filter-select" id="customStatusFilter" onchange="filterCustomOrders()">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Design Approved</option>
+          <option value="processing">In Progress</option>
+          <option value="baked">Baked</option>
+          <option value="shipped">Shipped</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="loadCustomOrders()">↻ Refresh</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-header">
+          <div class="card-title">Custom Clay Requests</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Pet Name</th>
+                <th>Type</th>
+                <th>Customer</th>
+                <th>Photos</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Tracking</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="customTableBody">
+              <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ PRODUCTS ━━━━ -->
+    <div class="tab-pane" id="tab-products">
+      <div class="filter-row">
+        <input type="text" class="filter-input" id="productSearch" placeholder="🔍 Search products..." oninput="filterProducts()" />
+        <select class="filter-select" id="productStatusFilter" onchange="filterProducts()">
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="draft">Draft</option>
+          <option value="out_of_stock">Out of Stock</option>
+        </select>
+        <button class="btn btn-pink" onclick="openProductModal()">+ Add Product</button>
+      </div>
+
+      <div id="productGrid" class="product-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- ━━━━ CUSTOMERS ━━━━ -->
+    <div class="tab-pane" id="tab-customers">
+      <div class="filter-row">
+        <input type="text" class="filter-input" id="customerSearch" placeholder="🔍 Search customers..." oninput="filterCustomers()" />
+        <button class="btn btn-outline btn-sm" onclick="loadCustomers()">↻ Refresh</button>
+      </div>
+      <div class="admin-card">
+        <div class="card-header">
+          <div class="card-title">Customers</div>
+          <span id="customerCountLabel" style="font-size:0.78rem;color:var(--muted);"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Instagram</th>
+                <th>Orders</th>
+                <th>Total Spent</th>
+                <th>Last Order</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ COUPONS ━━━━ -->
+    <div class="tab-pane" id="tab-coupons">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <button class="btn btn-pink" onclick="openCouponModal()">+ Create Coupon</button>
+      </div>
+      <div class="admin-card">
+        <div class="card-header"><div class="card-title">Discount Coupons</div></div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>Code</th><th>Type</th><th>Value</th><th>Used / Limit</th><th>Expiry</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="couponsTableBody">
+              <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ ANNOUNCEMENTS ━━━━ -->
+    <div class="tab-pane" id="tab-announcements">
+      <div class="admin-card">
+        <div class="card-header"><div class="card-title">📢 Announcement Bar</div></div>
+        <div class="card-body">
+          <div class="alert alert-success" id="annAlert"></div>
+          <div class="form-group">
+            <label class="form-label">Announcement Text</label>
+            <textarea id="annText" class="form-control" rows="3" placeholder="e.g. 🚚 Free shipping on orders above ₹2,000 | Handmade with love in Bangalore 🐾"></textarea>
+            <p style="font-size:0.72rem;color:var(--muted);margin-top:6px;">Use | to separate multiple messages. Emojis are supported!</p>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Free Shipping Threshold (₹)</label>
+              <input type="number" id="annShippingThreshold" class="form-control" placeholder="2000" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Standard Shipping Fee (₹)</label>
+              <input type="number" id="annShippingFee" class="form-control" placeholder="59" />
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Instagram URL</label>
+              <input type="url" id="annInstagram" class="form-control" placeholder="https://www.instagram.com/tabbychaser" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Store Email</label>
+              <input type="email" id="annEmail" class="form-control" placeholder="tabbychaser2@gmail.com" />
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Business Name</label>
+              <input type="text" id="annBizName" class="form-control" placeholder="Tabby Chaser" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Business Tagline</label>
+              <input type="text" id="annTagline" class="form-control" placeholder="Just me, some clay and a little paint." />
+            </div>
+          </div>
+          <button class="btn btn-pink" onclick="saveAnnouncements()">💾 Save Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ SETTINGS ━━━━ -->
+    <div class="tab-pane" id="tab-settings">
+      <div class="admin-card">
+        <div class="card-body">
+          <div class="alert alert-success" id="settingsAlert"></div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">🔑 Change Admin Password</div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" id="newAdminPass" class="form-control" placeholder="Min 8 characters" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" id="confirmAdminPass" class="form-control" placeholder="Repeat password" />
+              </div>
+            </div>
+            <button class="btn btn-pink" onclick="changeAdminPassword()">Update Password</button>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">☁️ Cloudinary Settings</div>
+            <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;">These are used for product image uploads in the admin panel.</p>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">Cloud Name</label>
+                <input type="text" id="cloudName" class="form-control" placeholder="your-cloud-name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Upload Preset</label>
+                <input type="text" id="cloudPreset" class="form-control" placeholder="tabby_unsigned_preset" />
+              </div>
+            </div>
+            <button class="btn btn-pink" onclick="saveCloudinarySettings()">Save Cloudinary Settings</button>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">ℹ️ Panel Info</div>
+            <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;">
+              Admin Panel v2.0 · Tabby Chaser<br/>
+              Built with Supabase + Cloudinary<br/>
+              All changes are saved instantly to your database.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-content -->
+</div><!-- /mainContent -->
+
+<!-- ═══════════════ PRODUCT MODAL ═══════════════ -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="productModalTitle">Add Product</div>
+      <button class="modal-close" onclick="closeProductModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProductId" />
+      <div class="form-group">
+        <label class="form-label">Product Name *</label>
+        <input type="text" id="pName" class="form-control" placeholder="e.g. Ghostly Skull Charm" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="pDesc" class="form-control" rows="3" placeholder="Describe the product..."></textarea>
+      </div>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label class="form-label">Price (₹) *</label>
+          <input type="number" id="pPrice" class="form-control" placeholder="199" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Original Price (₹)</label>
+          <input type="number" id="pOriginalPrice" class="form-control" placeholder="250" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stock *</label>
+          <input type="number" id="pStock" class="form-control" placeholder="10" />
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="pCategory" class="form-control">
+            <option value="">Select category...</option>
+            <option value="charms">Charms</option>
+            <option value="keychains">Keychains</option>
+            <option value="stickers">Stickers</option>
+            <option value="worry-stones">Worry Stones</option>
+            <option value="sets">Sets & Bundles</option>
+            <option value="custom">Custom</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="pStatus" class="form-control">
+            <option value="active">Active</option>
+            <option value="draft">Draft</option>
+            <option value="out_of_stock">Out of Stock</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags (comma separated)</label>
+        <input type="text" id="pTags" class="form-control" placeholder="cat, handmade, clay, cute" />
+      </div>
+      <div class="form-group">
+        <div class="toggle-wrap" style="margin-bottom:8px;">
+          <label class="toggle">
+            <input type="checkbox" id="pFeatured" />
+            <span class="slider"></span>
+          </label>
+          <label class="form-label" style="margin:0;">Featured Product (shown on homepage)</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Product Images</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imageFileInput').click()">
+          <div class="upload-zone-icon">📸</div>
+          <div class="upload-zone-text">Click to upload images (or drag & drop)<br/><small>JPG, PNG, WEBP — up to 5 images</small></div>
+        </div>
+        <input type="file" id="imageFileInput" accept="image/*" multiple style="display:none" onchange="handleImageUpload(this.files)" />
+        <div class="img-preview-wrap" id="imagePreviewWrap"></div>
+        <div id="uploadStatus" style="font-size:0.75rem;color:var(--muted);margin-top:6px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
+      <button class="btn btn-pink" onclick="saveProduct()" id="saveProductBtn">💾 Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ COUPON MODAL ═══════════════ -->
+<div class="modal-overlay" id="couponModal">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">Create Coupon</div>
+      <button class="modal-close" onclick="closeCouponModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Coupon Code *</label>
+        <input type="text" id="cCode" class="form-control" placeholder="e.g. TABBY20" style="text-transform:uppercase;" />
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Discount Type *</label>
+          <select id="cType" class="form-control">
+            <option value="percent">Percentage (%)</option>
+            <option value="flat">Flat Amount (₹)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Value *</label>
+          <input type="number" id="cValue" class="form-control" placeholder="10" />
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Usage Limit (0 = unlimited)</label>
+          <input type="number" id="cLimit" class="form-control" placeholder="0" value="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Expiry Date</label>
+          <input type="date" id="cExpiry" class="form-control" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeCouponModal()">Cancel</button>
+      <button class="btn btn-pink" onclick="saveCoupon()">💾 Create Coupon</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="supabase-config.js"></script>
+<script src="cloudinary-config.js"></script>
+<script>
+  // ═══════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════
+  const ADMIN_PASS_KEY = 'tabby_admin_pass';
+  const SESSION_KEY = 'tabby_admin_session';
+  const DEFAULT_PASS = 'TabbyChaserAdmin@2026';
+
+  let allOrders = [];
+  let allCustomOrders = [];
+  let allProducts = [];
+  let allCustomers = [];
+  let allCoupons = [];
+  let uploadedImageUrls = [];
+
+  // ═══════════════════════════════════════════
+  // AUTH
+  // ═══════════════════════════════════════════
+  function adminLogin() {
+    const pass = document.getElementById('adminPassInput').value;
+    const stored = localStorage.getItem(ADMIN_PASS_KEY) || DEFAULT_PASS;
+    if (pass === stored) {
+      sessionStorage.setItem(SESSION_KEY, 'true');
+      document.getElementById('loginGate').style.display = 'none';
+      initDashboard();
+    } else {
+      const err = document.getElementById('loginError');
+      err.textContent = '❌ Wrong password. Try again.';
+      setTimeout(() => { err.textContent = ''; }, 3000);
+    }
+  }
+
+  function adminLogout() {
+    sessionStorage.removeItem(SESSION_KEY);
+    document.getElementById('loginGate').style.display = 'flex';
+    document.getElementById('adminPassInput').value = '';
+  }
+
+  // Check session on load
+  window.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem(SESSION_KEY) === 'true') {
+      document.getElementById('loginGate').style.display = 'none';
+      initDashboard();
+    }
+
+    // Preload Cloudinary settings into inputs
+    document.getElementById('cloudName').value = localStorage.getItem('tabby_cloudinary_name') || '';
+    document.getElementById('cloudPreset').value = localStorage.getItem('tabby_cloudinary_preset') || '';
+
+    // Drag & drop for upload zone
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag');
+      handleImageUpload(e.dataTransfer.files);
+    });
+  });
+
+  // ═══════════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════════
+  async function initDashboard() {
+    await Promise.all([
+      loadDashboard(),
+      loadOrders(),
+      loadCustomOrders(),
+      loadProducts(),
+      loadCustomers(),
+      loadCoupons(),
+      loadSiteSettings()
+    ]);
+  }
+
+  // ═══════════════════════════════════════════
+  // NAVIGATION
+  // ═══════════════════════════════════════════
+  const TAB_TITLES = {
+    dashboard: 'Dashboard', orders: 'Orders', custom: 'Custom Requests',
+    products: 'Products', customers: 'Customers', coupons: 'Coupons',
+    announcements: 'Announcements', settings: 'Settings'
+  };
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id)?.classList.add('active');
+    if (btn) btn.classList.add('active');
+    document.getElementById('topbarTitle').textContent = TAB_TITLES[id] || id;
+    document.getElementById('sidebar').classList.remove('open');
+  }
+
+  // ═══════════════════════════════════════════
+  // SUPABASE HELPER
+  // ═══════════════════════════════════════════
+  async function db() {
+    let tries = 0;
+    while (!window.supabaseClient && tries < 20) { await sleep(300); tries++; }
+    return window.supabaseClient;
+  }
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function fmtINR(n) { return '₹' + (n || 0).toLocaleString('en-IN'); }
+
+  // ═══════════════════════════════════════════
+  // DASHBOARD
+  // ═══════════════════════════════════════════
+  async function loadDashboard() {
+    const client = await db();
+    if (!client) return;
+
+    const [{ data: orders }, { data: custom }, { data: products }, { data: coupons }] = await Promise.all([
+      client.from('orders').select('*').order('created_at', { ascending: false }),
+      client.from('custom_orders').select('*').order('created_at', { ascending: false }),
+      client.from('products').select('id, status'),
+      client.from('coupons').select('id').eq('active', true)
+    ]);
+
+    const revenue = (orders || []).reduce((s, o) => s + (o.total || 0), 0);
+    const pending = (orders || []).filter(o => o.status === 'pending').length;
+    const pendingCustom = (custom || []).filter(o => o.status === 'pending').length;
+
+    document.getElementById('statRevenue').textContent = fmtINR(revenue);
+    document.getElementById('statOrders').textContent = (orders || []).length;
+    document.getElementById('statOrdersSub').textContent = `${pending} pending`;
+    document.getElementById('statCustom').textContent = (custom || []).length;
+    document.getElementById('statCustomSub').textContent = `${pendingCustom} pending`;
+    document.getElementById('statProducts').textContent = (products || []).length;
+    document.getElementById('statCoupons').textContent = (coupons || []).length;
+
+    // Badges
+    document.getElementById('pendingOrdersBadge').textContent = pending;
+    document.getElementById('pendingCustomBadge').textContent = pendingCustom;
+
+    // Recent orders table
+    const recentOrders = (orders || []).slice(0, 5);
+    document.getElementById('dashRecentOrders').innerHTML = recentOrders.length ? `
+      <table>
+        <thead><tr><th>Ref</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>${recentOrders.map(o => `
+          <tr>
+            <td style="font-weight:700;">#${o.order_reference}</td>
+            <td>${o.name || '—'}</td>
+            <td>${fmtINR(o.total)}</td>
+            <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+          </tr>`).join('')}</tbody>
+      </table>` : `<div class="empty-state"><div class="empty-state-emoji">📭</div><div class="empty-state-text">No orders yet</div></div>`;
+
+    const recentCustom = (custom || []).slice(0, 5);
+    document.getElementById('dashRecentCustom').innerHTML = recentCustom.length ? `
+      <table>
+        <thead><tr><th>Pet</th><th>Email</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>${recentCustom.map(o => `
+          <tr>
+            <td style="font-weight:700;">${o.pet_name}</td>
+            <td>${o.email}</td>
+            <td>${fmtINR(o.total)}</td>
+            <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+          </tr>`).join('')}</tbody>
+      </table>` : `<div class="empty-state"><div class="empty-state-emoji">🎨</div><div class="empty-state-text">No custom requests yet</div></div>`;
+  }
+
+  // ═══════════════════════════════════════════
+  // ORDERS
+  // ═══════════════════════════════════════════
+  async function loadOrders() {
+    const client = await db(); if (!client) return;
+    const { data, error } = await client.from('orders').select('*').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    allOrders = data || [];
+    renderOrders(allOrders);
+  }
+
+  function renderOrders(orders) {
+    document.getElementById('orderCountLabel').textContent = `${orders.length} orders`;
+    const tbody = document.getElementById('ordersTableBody');
+    if (!orders.length) {
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-emoji">📭</div><div class="empty-state-text">No orders found</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = orders.map(o => {
+      const itemCount = Array.isArray(o.items) ? o.items.length : (o.items ? JSON.parse(o.items).length : 0);
+      return `
+        <tr>
+          <td style="font-weight:700;white-space:nowrap;">#${o.order_reference}</td>
+          <td>
+            <div style="font-weight:600;">${o.name || '—'}</div>
+            <div style="font-size:0.72rem;color:var(--muted);">${o.email}</div>
+            ${o.instagram ? `<div style="font-size:0.68rem;color:var(--pink);">${o.instagram}</div>` : ''}
+          </td>
+          <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
+          <td style="font-weight:700;">${fmtINR(o.total)}</td>
+          <td style="text-transform:uppercase;font-size:0.75rem;">${o.payment_method || '—'}</td>
+          <td>
+            <select class="filter-select" style="font-size:0.75rem;padding:4px 8px;" onchange="updateOrderStatus('${o.id}', this.value)">
+              ${['pending','processing','baked','shipped','delivered','cancelled'].map(s =>
+                `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td>
+            <input type="text" placeholder="Tracking ID" value="${o.tracking_id || ''}"
+              onblur="updateTrackingId('${o.id}', this.value)"
+              style="border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.75px;width:110px;font-family:var(--font-body);outline:none;font-size:0.75rem;" />
+          </td>
+          <td style="white-space:nowrap;font-size:0.75rem;">${fmtDate(o.created_at)}</td>
+          <td>
+            <button class="btn btn-outline btn-sm btn-icon" title="View Details" onclick="toggleOrderExpand('${o.id}', this, ${JSON.stringify(JSON.stringify(o.items || []))})">👁</button>
+          </td>
+        </tr>
+        <tr class="expand-row" id="expand-${o.id}" style="display:none;">
+          <td colspan="9">
+            <div class="expand-inner">
+              <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:8px;">ORDER ITEMS</div>
+              <div class="expand-items-list" id="expand-items-${o.id}"></div>
+              ${o.notes ? `<div style="margin-top:10px;font-size:0.78rem;"><strong>Notes:</strong> ${o.notes}</div>` : ''}
+              <div style="margin-top:10px;font-size:0.78rem;color:var(--muted);">📍 ${o.address}</div>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  function toggleOrderExpand(id, btn, itemsJson) {
+    const row = document.getElementById('expand-' + id);
+    const visible = row.style.display !== 'none';
+    row.style.display = visible ? 'none' : 'table-row';
+    btn.textContent = visible ? '👁' : '▲';
+    if (!visible) {
+      let items = [];
+      try { items = JSON.parse(itemsJson); } catch(e) {}
+      document.getElementById('expand-items-' + id).innerHTML = items.map(item =>
+        `<div class="expand-item">
+          <img src="${item.img || 'store-logo-c471e30d.webp'}" alt="${item.name}" />
+          <div><div style="font-weight:600;">${item.name}</div><div style="font-size:0.72rem;color:var(--muted);">Qty: ${item.quantity} × ${fmtINR(item.price)}</div></div>
+          <div style="margin-left:auto;font-weight:700;">${fmtINR(item.price * item.quantity)}</div>
+        </div>`).join('') || '<div style="color:var(--muted);font-size:0.82rem;">No items</div>';
+    }
+  }
+
+  async function updateOrderStatus(id, status) {
+    const client = await db(); if (!client) return;
+    await client.from('orders').update({ status }).eq('id', id);
+    showToast('Order status updated!');
+    loadDashboard();
+  }
+
+  async function updateTrackingId(id, tracking_id) {
+    const client = await db(); if (!client) return;
+    await client.from('orders').update({ tracking_id }).eq('id', id);
+    if (tracking_id) showToast('Tracking ID saved!');
+  }
+
+  function filterOrders() {
+    const q = document.getElementById('orderSearch').value.toLowerCase();
+    const s = document.getElementById('orderStatusFilter').value;
+    renderOrders(allOrders.filter(o =>
+      (!q || (o.name||'').toLowerCase().includes(q) || (o.email||'').toLowerCase().includes(q) || (o.order_reference||'').toLowerCase().includes(q)) &&
+      (!s || o.status === s)
+    ));
+  }
+
+  // ═══════════════════════════════════════════
+  // CUSTOM ORDERS
+  // ═══════════════════════════════════════════
+  async function loadCustomOrders() {
+    const client = await db(); if (!client) return;
+    const { data } = await client.from('custom_orders').select('*').order('created_at', { ascending: false });
+    allCustomOrders = data || [];
+    renderCustomOrders(allCustomOrders);
+  }
+
+  function renderCustomOrders(list) {
+    const tbody = document.getElementById('customTableBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-emoji">🎨</div><div class="empty-state-text">No custom requests yet</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(o => `
+      <tr>
+        <td style="font-weight:700;">${o.pet_name}</td>
+        <td>${o.pet_type || '—'}</td>
+        <td>
+          <div style="font-weight:600;">${o.email}</div>
+        </td>
+        <td>
+          ${(o.special_notes || '').includes('http') ?
+            o.special_notes.match(/(https?:\/\/[^\s,]+)/g)?.slice(0,3).map(url =>
+              `<a href="${url}" target="_blank"><img src="${url}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid #eee;" /></a>`
+            ).join('') || '—' : '—'}
+        </td>
+        <td style="font-weight:700;">${fmtINR(o.total)}</td>
+        <td>
+          <select class="filter-select" style="font-size:0.75rem;padding:4px 8px;" onchange="updateCustomStatus('${o.id}', this.value)">
+            ${['pending','approved','processing','baked','shipped','cancelled'].map(s =>
+              `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+            ).join('')}
+          </select>
+        </td>
+        <td>
+          <input type="text" placeholder="Tracking ID" value="${o.tracking_id || ''}"
+            onblur="updateCustomTracking('${o.id}', this.value)"
+            style="border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;width:110px;font-family:var(--font-body);outline:none;font-size:0.75rem;" />
+        </td>
+        <td style="white-space:nowrap;font-size:0.75rem;">${fmtDate(o.created_at)}</td>
+        <td>
+          ${o.special_notes ? `<button class="btn btn-outline btn-sm" onclick="alert('${(o.special_notes||'').replace(/'/g,'`')}')">📝 Notes</button>` : ''}
+        </td>
+      </tr>`).join('');
+  }
+
+  async function updateCustomStatus(id, status) {
+    const client = await db(); if (!client) return;
+    await client.from('custom_orders').update({ status }).eq('id', id);
+    showToast('Custom order status updated!');
+    loadDashboard();
+  }
+
+  async function updateCustomTracking(id, tracking_id) {
+    const client = await db(); if (!client) return;
+    await client.from('custom_orders').update({ tracking_id }).eq('id', id);
+    if (tracking_id) showToast('Tracking ID saved!');
+  }
+
+  function filterCustomOrders() {
+    const q = document.getElementById('customSearch').value.toLowerCase();
+    const s = document.getElementById('customStatusFilter').value;
+    renderCustomOrders(allCustomOrders.filter(o =>
+      (!q || (o.pet_name||'').toLowerCase().includes(q) || (o.email||'').toLowerCase().includes(q)) &&
+      (!s || o.status === s)
+    ));
+  }
+
+  // ═══════════════════════════════════════════
+  // PRODUCTS
+  // ═══════════════════════════════════════════
+  async function loadProducts() {
+    const client = await db(); if (!client) return;
+    const { data } = await client.from('products').select('*').order('created_at', { ascending: false });
+    allProducts = data || [];
+    renderProducts(allProducts);
+  }
+
+  function renderProducts(list) {
+    const grid = document.getElementById('productGrid');
+    if (!list.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state"><div class="empty-state-emoji">🧸</div><div class="empty-state-text">No products yet. Click "Add Product" to get started!</div></div></div>`;
+      return;
+    }
+    grid.innerHTML = list.map(p => {
+      const img = (p.images && p.images[0]) ? p.images[0] : null;
+      return `
+        <div class="product-card">
+          <div class="product-card-img">
+            ${img ? `<img src="${img}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" />` : '🧸'}
+          </div>
+          <div class="product-card-body">
+            <div class="product-card-name">${p.name}</div>
+            <div class="product-card-price">${fmtINR(p.price)}</div>
+            <div class="product-card-meta">Stock: ${p.stock ?? '—'} · <span class="status-badge status-${p.status}">${p.status}</span></div>
+          </div>
+          <div class="product-card-actions">
+            <button class="btn btn-outline btn-sm" onclick='openProductModal(${JSON.stringify(p)})'>✏️ Edit</button>
+            <button class="btn btn-red btn-sm" onclick="deleteProduct('${p.id}', '${p.name.replace(/'/g,'`')}')">🗑</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function filterProducts() {
+    const q = document.getElementById('productSearch').value.toLowerCase();
+    const s = document.getElementById('productStatusFilter').value;
+    renderProducts(allProducts.filter(p =>
+      (!q || (p.name||'').toLowerCase().includes(q)) &&
+      (!s || p.status === s)
+    ));
+  }
+
+  function openProductModal(product = null) {
+    uploadedImageUrls = [];
+    document.getElementById('imagePreviewWrap').innerHTML = '';
+    document.getElementById('uploadStatus').textContent = '';
+    document.getElementById('productModalTitle').textContent = product ? 'Edit Product' : 'Add Product';
+    document.getElementById('editProductId').value = product?.id || '';
+    document.getElementById('pName').value = product?.name || '';
+    document.getElementById('pDesc').value = product?.description || '';
+    document.getElementById('pPrice').value = product?.price || '';
+    document.getElementById('pOriginalPrice').value = product?.original_price || '';
+    document.getElementById('pStock').value = product?.stock ?? '';
+    document.getElementById('pCategory').value = product?.category || '';
+    document.getElementById('pStatus').value = product?.status || 'active';
+    document.getElementById('pTags').value = (product?.tags || []).join(', ');
+    document.getElementById('pFeatured').checked = product?.featured || false;
+
+    if (product?.images?.length) {
+      uploadedImageUrls = [...product.images];
+      document.getElementById('imagePreviewWrap').innerHTML = product.images.map(url =>
+        `<img src="${url}" class="img-preview" />`).join('');
+    }
+
+    document.getElementById('productModal').classList.add('open');
+  }
+
+  function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }
+
+  async function handleImageUpload(files) {
+    if (!files?.length) return;
+    const cloudName = window.cloudinaryConfig?.cloudName;
+    const preset = window.cloudinaryConfig?.uploadPreset;
+    if (!cloudName || !preset) { alert('Cloudinary not configured. Go to Settings.'); return; }
+
+    const status = document.getElementById('uploadStatus');
+    const preview = document.getElementById('imagePreviewWrap');
+    status.textContent = `Uploading ${files.length} image(s)...`;
+
+    for (const file of Array.from(files).slice(0, 5)) {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('upload_preset', preset);
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.secure_url) {
+          uploadedImageUrls.push(data.secure_url);
+          const img = document.createElement('img');
+          img.src = data.secure_url;
+          img.className = 'img-preview';
+          preview.appendChild(img);
+        }
+      } catch (e) { console.error('Upload failed:', e); }
+    }
+    status.textContent = `✅ ${uploadedImageUrls.length} image(s) ready.`;
+  }
+
+  async function saveProduct() {
+    const id = document.getElementById('editProductId').value;
+    const name = document.getElementById('pName').value.trim();
+    const price = parseFloat(document.getElementById('pPrice').value);
+    if (!name || isNaN(price)) { alert('Name and Price are required.'); return; }
+
+    const btn = document.getElementById('saveProductBtn');
+    btn.disabled = true; btn.innerHTML = '<div class="loading-spinner"></div> Saving...';
+
+    const payload = {
+      name,
+      description: document.getElementById('pDesc').value.trim(),
+      price,
+      original_price: parseFloat(document.getElementById('pOriginalPrice').value) || null,
+      stock: parseInt(document.getElementById('pStock').value) || 0,
+      category: document.getElementById('pCategory').value,
+      status: document.getElementById('pStatus').value,
+      tags: document.getElementById('pTags').value.split(',').map(t => t.trim()).filter(Boolean),
+      featured: document.getElementById('pFeatured').checked,
+      images: uploadedImageUrls,
+      updated_at: new Date().toISOString()
+    };
+
+    const client = await db();
+    let error;
+    if (id) {
+      ({ error } = await client.from('products').update(payload).eq('id', id));
+    } else {
+      ({ error } = await client.from('products').insert(payload));
+    }
+
+    btn.disabled = false; btn.innerHTML = '💾 Save Product';
+
+    if (error) { alert('Error: ' + error.message); return; }
+    closeProductModal();
+    showToast(id ? 'Product updated!' : 'Product added!');
+    await loadProducts();
+  }
+
+  async function deleteProduct(id, name) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    const client = await db();
+    await client.from('products').delete().eq('id', id);
+    showToast('Product deleted.');
+    loadProducts();
+  }
+
+  // ═══════════════════════════════════════════
+  // CUSTOMERS
+  // ═══════════════════════════════════════════
+  async function loadCustomers() {
+    const client = await db(); if (!client) return;
+    const { data: orders } = await client.from('orders').select('email, name, phone, instagram, total, created_at').order('created_at', { ascending: false });
+    const { data: custom } = await client.from('custom_orders').select('email, total, created_at');
+
+    // Merge & deduplicate by email
+    const map = {};
+    (orders || []).forEach(o => {
+      if (!map[o.email]) map[o.email] = { name: o.name, phone: o.phone, instagram: o.instagram, orders: 0, spent: 0, last: o.created_at };
+      map[o.email].orders++;
+      map[o.email].spent += o.total || 0;
+      if (o.created_at > map[o.email].last) map[o.email].last = o.created_at;
+    });
+    (custom || []).forEach(o => {
+      if (!map[o.email]) map[o.email] = { name: o.email.split('@')[0], phone: '—', instagram: null, orders: 0, spent: 0, last: o.created_at };
+      map[o.email].orders++;
+      map[o.email].spent += o.total || 0;
     });
 
-    window.verifyAdminPassword = function(event) {
-      event.preventDefault();
-      const input = document.getElementById('adminPassInput').value;
-      const errorText = document.getElementById('gateErrorText');
+    allCustomers = Object.entries(map).map(([email, d]) => ({ email, ...d })).sort((a, b) => b.spent - a.spent);
+    renderCustomers(allCustomers);
+  }
 
-      // Simple admin password check
-      if (input === 'tabbyadmin123') {
-        sessionStorage.setItem('tabby_admin_authorized', 'true');
-        document.getElementById('adminGate').style.display = 'none';
-        errorText.style.display = 'none';
-        loadDashboardData();
-      } else {
-        errorText.style.display = 'block';
-        document.getElementById('adminPassInput').value = '';
-      }
-    };
-
-    window.adminLogout = function() {
-      sessionStorage.removeItem('tabby_admin_authorized');
-      alert("Logged out of Admin Dashboard successfully! 🐈");
-      window.location.reload();
-    };
-
-    window.switchAdminTab = function(tabId) {
-      currentTab = tabId;
-
-      // Update sidebar buttons active style
-      const btns = document.querySelectorAll('.admin-nav-btn');
-      btns.forEach(b => b.classList.remove('active'));
-
-      if (tabId === 'orders') document.getElementById('tabBtnOrders').classList.add('active');
-      if (tabId === 'custom') document.getElementById('tabBtnCustom').classList.add('active');
-      if (tabId === 'subscribers') document.getElementById('tabBtnSubscribers').classList.add('active');
-
-      // Display active tab panel
-      const panels = document.querySelectorAll('.admin-tab-content');
-      panels.forEach(p => p.classList.remove('active'));
-      document.getElementById(`tabContent${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`).classList.add('active');
-    };
-
-    async function loadDashboardData() {
-      // Make sure Supabase is loaded asynchronously
-      if (!window.supabaseClient) {
-        console.log("Waiting for Supabase client initialization...");
-        setTimeout(loadDashboardData, 1000);
-        return;
-      }
-
-      fetchOrdersData();
-      fetchCustomOrdersData();
-      fetchSubscribersData();
+  function renderCustomers(list) {
+    document.getElementById('customerCountLabel').textContent = `${list.length} customers`;
+    const tbody = document.getElementById('customersTableBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-emoji">👥</div><div class="empty-state-text">No customers yet</div></div></td></tr>`;
+      return;
     }
+    tbody.innerHTML = list.map(c => `
+      <tr>
+        <td style="font-weight:700;">${c.name || '—'}</td>
+        <td>${c.email}</td>
+        <td>${c.phone || '—'}</td>
+        <td>${c.instagram ? `<span style="color:var(--pink);font-weight:700;">${c.instagram}</span>` : '—'}</td>
+        <td>${c.orders}</td>
+        <td style="font-weight:700;">${fmtINR(c.spent)}</td>
+        <td style="font-size:0.75rem;">${fmtDate(c.last)}</td>
+      </tr>`).join('');
+  }
 
-    async function fetchOrdersData() {
-      const tbody = document.getElementById('ordersTableBody');
-      if (!tbody) return;
+  function filterCustomers() {
+    const q = document.getElementById('customerSearch').value.toLowerCase();
+    renderCustomers(allCustomers.filter(c =>
+      (c.name||'').toLowerCase().includes(q) || c.email.toLowerCase().includes(q)
+    ));
+  }
 
-      try {
-        const { data: orders, error } = await window.supabaseClient
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false });
+  // ═══════════════════════════════════════════
+  // COUPONS
+  // ═══════════════════════════════════════════
+  async function loadCoupons() {
+    const client = await db(); if (!client) return;
+    const { data } = await client.from('coupons').select('*').order('created_at', { ascending: false });
+    allCoupons = data || [];
+    renderCoupons(allCoupons);
+  }
 
-        if (error) throw error;
-
-        if (!orders || orders.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #888; padding: 40px 0;">No store orders placed yet.</td></tr>`;
-          return;
-        }
-
-        let html = '';
-        orders.forEach(order => {
-          const date = new Date(order.created_at).toLocaleDateString('en-IN', {
-            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-          });
-          const itemsCount = order.items ? order.items.reduce((acc, i) => acc + i.quantity, 0) : 0;
-
-          html += `
-            <tr style="cursor: pointer;" onclick="window.toggleOrderDrawer('${order.id}')">
-              <td><strong>#${order.order_reference}</strong></td>
-              <td>
-                <div style="font-weight: 700; color: #333;">${order.name}</div>
-                <div style="font-size: 0.78rem; color: #777;">${order.email}</div>
-              </td>
-              <td><strong>₹${order.total.toLocaleString('en-IN')}</strong></td>
-              <td style="text-transform: uppercase;">${order.payment_method}</td>
-              <td>
-                <span class="status-badge status-${order.status || 'pending'}" id="badge-order-${order.id}">
-                  ${order.status || 'pending'}
-                </span>
-              </td>
-              <td>${date}</td>
-            </tr>
-            <tr>
-              <td colspan="6" style="padding: 0; border: none;">
-                <div class="order-details-drawer" id="drawer-order-${order.id}">
-                  <div class="order-detail-grid">
-                    <div>
-                      <h4 style="font-weight: 800; color: var(--color-text-main); margin-bottom: 10px;">📦 Ordered Items (${itemsCount})</h4>
-                      <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;">
-                        ${order.items ? order.items.map(item => `
-                          <li style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem;">
-                            <img src="${item.img || 'store-logo-c471e30d.webp'}" style="width: 32px; height: 32px; object-fit: cover !important; border-radius: 6px !important; border: 1px solid #ddd;" />
-                            <span>${item.name} <strong>x ${item.quantity}</strong></span>
-                            <span style="margin-left: auto; font-weight: 700;">₹${item.price * item.quantity}</span>
-                          </li>
-                        `).join('') : ''}
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 style="font-weight: 800; color: var(--color-text-main); margin-bottom: 10px;">🚚 Shipping & Actions</h4>
-                      <p style="font-size: 0.85rem; color: #555; line-height: 1.4; margin-bottom: 15px;">
-                        <strong>Phone:</strong> ${order.phone}<br/>
-                        <strong>Address:</strong> ${order.address}
-                      </p>
-                      
-                      <div style="display: flex; align-items: center; gap: 10px;">
-                        <label style="font-size: 0.82rem; font-weight: 700; color: #666;">Change Status:</label>
-                        <select class="admin-select-status" onchange="window.updateOrderStatus('${order.id}', this.value)" onclick="event.stopPropagation()">
-                          <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-                          <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
-                          <option value="baked" ${order.status === 'baked' ? 'selected' : ''}>Baked</option>
-                          <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          `;
-        });
-
-        tbody.innerHTML = html;
-      } catch (err) {
-        console.error('Error fetching orders:', err.message);
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #d32f2f; padding: 40px 0;">Error fetching orders from Supabase.</td></tr>`;
-      }
+  function renderCoupons(list) {
+    const tbody = document.getElementById('couponsTableBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-emoji">🏷️</div><div class="empty-state-text">No coupons yet. Create one!</div></div></td></tr>`;
+      return;
     }
+    tbody.innerHTML = list.map(c => `
+      <tr>
+        <td><span class="coupon-code">${c.code}</span></td>
+        <td>${c.type === 'percent' ? '% Off' : '₹ Flat'}</td>
+        <td style="font-weight:700;">${c.type === 'percent' ? c.value + '%' : fmtINR(c.value)}</td>
+        <td>${c.used_count} / ${c.usage_limit || '∞'}</td>
+        <td>${c.expiry ? fmtDate(c.expiry) : '—'}</td>
+        <td>
+          <label class="toggle">
+            <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCoupon('${c.id}', this.checked)" />
+            <span class="slider"></span>
+          </label>
+        </td>
+        <td>
+          <button class="btn btn-red btn-sm btn-icon" onclick="deleteCoupon('${c.id}', '${c.code}')">🗑</button>
+        </td>
+      </tr>`).join('');
+  }
 
-    async function fetchCustomOrdersData() {
-      const tbody = document.getElementById('customTableBody');
-      if (!tbody) return;
+  function openCouponModal() { document.getElementById('couponModal').classList.add('open'); }
+  function closeCouponModal() { document.getElementById('couponModal').classList.remove('open'); }
 
-      try {
-        const { data: customs, error } = await window.supabaseClient
-          .from('custom_orders')
-          .select('*')
-          .order('created_at', { ascending: false });
+  async function saveCoupon() {
+    const code = document.getElementById('cCode').value.trim().toUpperCase();
+    const type = document.getElementById('cType').value;
+    const value = parseFloat(document.getElementById('cValue').value);
+    if (!code || isNaN(value)) { alert('Code and Value are required.'); return; }
 
-        if (error) throw error;
+    const payload = {
+      code, type, value,
+      usage_limit: parseInt(document.getElementById('cLimit').value) || 0,
+      expiry: document.getElementById('cExpiry').value || null,
+      active: true
+    };
 
-        if (!customs || customs.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #888; padding: 40px 0;">No custom pet inquiries received yet.</td></tr>`;
-          return;
-        }
+    const client = await db();
+    const { error } = await client.from('coupons').insert(payload);
+    if (error) { alert('Error: ' + error.message); return; }
+    closeCouponModal();
+    ['cCode','cValue'].forEach(id => document.getElementById(id).value = '');
+    showToast('Coupon created!');
+    loadCoupons();
+  }
 
-        let html = '';
-        customs.forEach(c => {
-          const date = new Date(c.created_at).toLocaleDateString('en-IN', {
-            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-          });
+  async function toggleCoupon(id, active) {
+    const client = await db();
+    await client.from('coupons').update({ active }).eq('id', id);
+    showToast(active ? 'Coupon activated.' : 'Coupon deactivated.');
+  }
 
-          // Parse reference photos
-          let photoUrls = [];
-          if (c.special_notes && c.special_notes.includes('Uploaded Images:')) {
-            const parts = c.special_notes.split('Uploaded Images:');
-            if (parts[1]) {
-              photoUrls = parts[1].split(',').map(url => url.trim()).filter(Boolean);
-            }
-          }
+  async function deleteCoupon(id, code) {
+    if (!confirm(`Delete coupon "${code}"?`)) return;
+    const client = await db();
+    await client.from('coupons').delete().eq('id', id);
+    showToast('Coupon deleted.');
+    loadCoupons();
+  }
 
-          html += `
-            <tr style="cursor: pointer;" onclick="window.toggleCustomDrawer('${c.id}')">
-              <td>
-                <div style="font-weight: 700; color: #333;">${c.pet_name.substring(0, 35)}${c.pet_name.length > 35 ? '...' : ''}</div>
-                <div style="font-size: 0.78rem; color: #d35d88; font-weight: 700;">SIZE: ${c.pet_type}</div>
-              </td>
-              <td>${c.email}</td>
-              <td><strong>₹${c.total.toLocaleString('en-IN')}</strong></td>
-              <td>
-                <span class="status-badge status-${c.status || 'pending'}" id="badge-custom-${c.id}">
-                  ${c.status || 'pending'}
-                </span>
-              </td>
-              <td>${date}</td>
-              <td>
-                <span style="font-weight: 700; color: var(--color-brand-pink);">${photoUrls.length} Files</span>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="6" style="padding: 0; border: none;">
-                <div class="order-details-drawer" id="drawer-custom-${c.id}">
-                  <div class="order-detail-grid">
-                    <div>
-                      <h4 style="font-weight: 800; color: var(--color-text-main); margin-bottom: 6px;">📝 Custom Details & Notes</h4>
-                      <p style="font-size: 0.85rem; color: #555; white-space: pre-line; line-height: 1.45; max-height: 200px; overflow-y: auto; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
-                        ${c.special_notes ? c.special_notes.split('Uploaded Images:')[0] : 'No notes.'}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 style="font-weight: 800; color: var(--color-text-main); margin-bottom: 6px;">📸 Cloudinary Reference Photos</h4>
-                      <div class="admin-polaroid-row">
-                        ${photoUrls.length > 0 ? photoUrls.map((url, i) => `
-                          <div class="admin-polaroid-card">
-                            <a href="${url}" target="_blank">
-                              <img src="${url}" alt="Ref photo ${i + 1}" />
-                            </a>
-                            <span style="font-size: 0.65rem; color: #888; font-weight: 700;">Photo ${i + 1}</span>
-                          </div>
-                        `).join('') : '<span style="font-size: 0.82rem; color: #888; font-style: italic;">No reference photos uploaded.</span>'}
-                      </div>
+  // ═══════════════════════════════════════════
+  // ANNOUNCEMENTS / SITE SETTINGS
+  // ═══════════════════════════════════════════
+  async function loadSiteSettings() {
+    const client = await db(); if (!client) return;
+    const { data } = await client.from('site_settings').select('*');
+    if (!data) return;
+    const s = {};
+    data.forEach(row => { s[row.key] = row.value; });
 
-                      <div style="display: flex; align-items: center; gap: 10px; margin-top: 20px;">
-                        <label style="font-size: 0.82rem; font-weight: 700; color: #666;">Change Status:</label>
-                        <select class="admin-select-status" onchange="window.updateCustomStatus('${c.id}', this.value)" onclick="event.stopPropagation()">
-                          <option value="pending" ${c.status === 'pending' ? 'selected' : ''}>Pending</option>
-                          <option value="processing" ${c.status === 'processing' ? 'selected' : ''}>Processing</option>
-                          <option value="baked" ${c.status === 'baked' ? 'selected' : ''}>Baked</option>
-                          <option value="shipped" ${c.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          `;
-        });
+    document.getElementById('annText').value = s.announcement_text || '';
+    document.getElementById('annShippingThreshold').value = s.free_shipping_threshold || '';
+    document.getElementById('annShippingFee').value = s.standard_shipping_fee || '';
+    document.getElementById('annInstagram').value = s.instagram_url || '';
+    document.getElementById('annEmail').value = s.store_email || '';
+    document.getElementById('annBizName').value = s.business_name || '';
+    document.getElementById('annTagline').value = s.business_tagline || '';
+  }
 
-        tbody.innerHTML = html;
-      } catch (err) {
-        console.error('Error fetching custom requests:', err.message);
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #d32f2f; padding: 40px 0;">Error fetching customs from Supabase.</td></tr>`;
-      }
+  async function saveAnnouncements() {
+    const client = await db(); if (!client) return;
+    const settings = [
+      { key: 'announcement_text', value: document.getElementById('annText').value.trim() },
+      { key: 'free_shipping_threshold', value: document.getElementById('annShippingThreshold').value.trim() },
+      { key: 'standard_shipping_fee', value: document.getElementById('annShippingFee').value.trim() },
+      { key: 'instagram_url', value: document.getElementById('annInstagram').value.trim() },
+      { key: 'store_email', value: document.getElementById('annEmail').value.trim() },
+      { key: 'business_name', value: document.getElementById('annBizName').value.trim() },
+      { key: 'business_tagline', value: document.getElementById('annTagline').value.trim() },
+    ];
+
+    for (const s of settings) {
+      await client.from('site_settings').upsert({ key: s.key, value: s.value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
     }
+    showAlert('annAlert', '✅ Settings saved successfully!', 'success');
+  }
 
-    async function fetchSubscribersData() {
-      const tbody = document.getElementById('subscribersTableBody');
-      if (!tbody) return;
+  // ═══════════════════════════════════════════
+  // SETTINGS
+  // ═══════════════════════════════════════════
+  function changeAdminPassword() {
+    const np = document.getElementById('newAdminPass').value;
+    const cp = document.getElementById('confirmAdminPass').value;
+    if (!np || np.length < 8) { alert('Password must be at least 8 characters.'); return; }
+    if (np !== cp) { alert('Passwords do not match.'); return; }
+    localStorage.setItem(ADMIN_PASS_KEY, np);
+    document.getElementById('newAdminPass').value = '';
+    document.getElementById('confirmAdminPass').value = '';
+    showAlert('settingsAlert', '✅ Admin password updated!', 'success');
+  }
 
-      try {
-        // Query distinct subscriber entries from profiles that have signed up, or use a general select
-        const { data: profiles, error } = await window.supabaseClient
-          .from('profiles')
-          .select('email, updated_at')
-          .not('email', 'is', null)
-          .order('updated_at', { ascending: false });
+  function saveCloudinarySettings() {
+    const name = document.getElementById('cloudName').value.trim();
+    const preset = document.getElementById('cloudPreset').value.trim();
+    if (!name || !preset) { alert('Both fields are required.'); return; }
+    localStorage.setItem('tabby_cloudinary_name', name);
+    localStorage.setItem('tabby_cloudinary_preset', preset);
+    if (window.cloudinaryConfig) { window.cloudinaryConfig.cloudName = name; window.cloudinaryConfig.uploadPreset = preset; }
+    showAlert('settingsAlert', '✅ Cloudinary settings saved!', 'success');
+  }
 
-        if (error) throw error;
+  // ═══════════════════════════════════════════
+  // UI HELPERS
+  // ═══════════════════════════════════════════
+  function showAlert(id, msg, type = 'success') {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = `alert alert-${type} show`;
+    setTimeout(() => { el.classList.remove('show'); }, 3500);
+  }
 
-        if (!profiles || profiles.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: #888; padding: 40px 0;">No welcome gift subscribers yet.</td></tr>`;
-          return;
-        }
-
-        let html = '';
-        profiles.forEach(p => {
-          const date = new Date(p.updated_at).toLocaleDateString('en-IN', {
-            day: 'numeric', month: 'short', year: 'numeric'
-          });
-          html += `
-            <tr>
-              <td><strong>${p.email}</strong></td>
-              <td>${date}</td>
-            </tr>
-          `;
-        });
-
-        tbody.innerHTML = html;
-      } catch (err) {
-        console.error('Error fetching subscribers:', err.message);
-        tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: #d32f2f; padding: 40px 0;">Error fetching profiles from Supabase.</td></tr>`;
-      }
+  let toastTimer;
+  function showToast(msg) {
+    clearTimeout(toastTimer);
+    let toast = document.getElementById('adminToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'adminToast';
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1a1827;color:#fff;padding:12px 20px;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:9000;box-shadow:0 8px 24px rgba(0,0,0,0.2);transition:opacity 0.3s;';
+      document.body.appendChild(toast);
     }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    toastTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2800);
+  }
 
-    window.toggleOrderDrawer = function(id) {
-      const drawer = document.getElementById(`drawer-order-${id}`);
-      if (drawer) drawer.classList.toggle('show');
-    };
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  });
 
-    window.toggleCustomDrawer = function(id) {
-      const drawer = document.getElementById(`drawer-custom-${id}`);
-      if (drawer) drawer.classList.toggle('show');
-    };
-
-    window.updateOrderStatus = async function(id, val) {
-      try {
-        const { error } = await window.supabaseClient
-          .from('orders')
-          .update({ status: val })
-          .eq('id', id);
-
-        if (error) throw error;
-        
-        // Update badge dynamically
-        const badge = document.getElementById(`badge-order-${id}`);
-        if (badge) {
-          badge.className = `status-badge status-${val}`;
-          badge.textContent = val;
-        }
-        console.log('✅ Order status updated successfully to', val);
-      } catch (err) {
-        alert('Failed to update status: ' + err.message);
-      }
-    };
-
-    window.updateCustomStatus = async function(id, val) {
-      try {
-        const { error } = await window.supabaseClient
-          .from('custom_orders')
-          .update({ status: val })
-          .eq('id', id);
-
-        if (error) throw error;
-
-        // Update badge dynamically
-        const badge = document.getElementById(`badge-custom-${id}`);
-        if (badge) {
-          badge.className = `status-badge status-${val}`;
-          badge.textContent = val;
-        }
-        console.log('✅ Custom request status updated successfully to', val);
-      } catch (err) {
-        alert('Failed to update status: ' + err.message);
-      }
-    };
-  </script>
+  // Responsive: collapse sidebar on mobile when content clicked
+  document.getElementById('mainContent').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+  });
+</script>
 </body>
 </html>

@@ -81,6 +81,19 @@ create policy "Allow users to view their own custom orders" on public.custom_ord
 create policy "Allow anonymous and authenticated custom orders insertion" on public.custom_orders
   for insert with check (true);
 
+-- 3b. ADMIN DASHBOARD PERMISSIONS (Allow select & update for managing dashboard records)
+create policy "Allow admin select access to all orders" on public.orders
+  for select using (true);
+
+create policy "Allow admin update access to all orders" on public.orders
+  for update using (true);
+
+create policy "Allow admin select access to all custom orders" on public.custom_orders
+  for select using (true);
+
+create policy "Allow admin update access to all custom orders" on public.custom_orders
+  for update using (true);
+
 
 -- 4. PROFILE TRIGGER ON SIGNUP
 -- Automatically create a profile when a new user signs up

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account – Tabby Chaser</title>
+  <meta name="description" content="Manage your orders, profile details, and shipping address on Tabby Chaser." />
+
+  <!-- Bubbly & Display Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+  
+  <style>
+    /* My Account Specific Layout styles */
+    .account-page-main {
+      padding: 60px 0 80px;
+      background-color: var(--color-page-bg);
+      min-height: calc(100vh - 120px);
+    }
+
+    .back-home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #777;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 30px;
+      transition: color 0.2s ease;
+    }
+
+    .back-home-link:hover {
+      color: var(--color-brand-pink);
+    }
+
+    .account-header-block {
+      margin-bottom: 35px;
+    }
+
+    .account-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-bottom: 8px;
+    }
+
+    .account-subtitle {
+      font-size: 1rem;
+      color: #666;
+      margin: 0;
+    }
+
+    .account-layout-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    /* Sidebar tabs */
+    .account-sidebar-card {
+      background-color: var(--color-card-bg);
+      border: 1.5px solid var(--color-border-rgba);
+      border-radius: 20px !important;
+      padding: 24px 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.01);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .account-tab-btn {
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      padding: 12px 20px;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      border-radius: 12px !important;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .account-tab-btn:hover {
+      background-color: rgba(19, 19, 19, 0.03);
+    }
+
+    .account-tab-btn.active {
+      background-color: var(--color-brand-pink);
+      color: var(--color-text-main);
+    }
+
+    .tab-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Content Cards */
+    .account-content-card {
+      background-color: var(--color-card-bg);
+      border: 1.5px solid var(--color-border-rgba);
+      border-radius: 20px !important;
+      padding: 40px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.01);
+      min-height: 380px;
+    }
+
+    .content-panel-view {
+      display: none;
+    }
+
+    .content-panel-view.active {
+      display: block;
+    }
+
+    /* Empty state inside tabs */
+    .tab-empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 20px;
+      height: 100%;
+    }
+
+    .tab-empty-icon-wrap {
+      width: 64px;
+      height: 64px;
+      background-color: #f1f0ee;
+      border-radius: 50% !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: #999;
+    }
+
+    .tab-empty-icon {
+      width: 30px;
+      height: 30px;
+    }
+
+    .tab-empty-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-bottom: 8px;
+    }
+
+    .tab-empty-desc {
+      font-size: 0.9rem;
+      color: #666;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    /* Forms in account details */
+    .account-details-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 600px;
+    }
+
+    .form-span-2 {
+      grid-column: span 2;
+    }
+
+    .account-logout-btn {
+      align-self: flex-start;
+      margin-top: 20px;
+      border: 1.5px solid #d32f2f;
+      color: #d32f2f !important;
+      background-color: transparent;
+    }
+
+    .account-logout-btn:hover {
+      background-color: rgba(211, 47, 47, 0.05);
+    }
+
+    /* Profile Display details */
+    .profile-info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+      border-bottom: 1.5px solid var(--color-border-rgba);
+      padding-bottom: 16px;
+      max-width: 400px;
+    }
+
+    .profile-info-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-info-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+
+    @media (max-width: 850px) {
+      .account-layout-grid {
+        grid-template-columns: 1fr;
+      }
+      .account-content-card {
+        padding: 24px;
+      }
+      .account-details-form {
+        grid-template-columns: 1fr;
+      }
+      .form-span-2 {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-container container">
+      <div class="announcement-social">
+        <a href="https://www.instagram.com/tabbychaser" target="_blank" aria-label="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+      </div>
+      <div class="announcement-text">
+        All the charms will take 4-5 weeks to make before I ship them.
+      </div>
+      <div class="announcement-spacer"></div>
+    </div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="site-header">
+    <div class="header-container container">
+      <a href="index.html" class="brand-logo">
+        <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
+        <span class="logo-text">Tabby Chaser</span>
+      </a>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link outline-pill">Home</a>
+        <a href="shop.html" class="nav-link outline-pill">Shop</a>
+        <a href="custom-pets.html" class="nav-link outline-pill">Custom Orders</a>
+        <a href="policies.html" class="nav-link outline-pill">Policies</a>
+      </nav>
+      <div class="header-actions">
+        <div class="search-box-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" placeholder="Search..." disabled />
+        </div>
+        <button class="cart-pill-btn" id="cartBtn">
+          Cart
+          <span class="cart-badge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- My Account main section -->
+  <main class="account-page-main">
+    <div class="container">
+      
+      <!-- Back to Shop -->
+      <a href="index.html" class="back-home-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Back to Tabby Chaser
+      </a>
+
+      <!-- Account Welcome Block -->
+      <div class="account-header-block">
+        <h1 class="account-title">My Account</h1>
+        <p class="account-subtitle">Hi <span id="welcomeUserName">User</span>, manage your orders and details below.</p>
+      </div>
+
+      <!-- Grid Layout -->
+      <div class="account-layout-grid">
+        
+        <!-- Left Sidebar Options -->
+        <aside class="account-sidebar-card">
+          
+          <button class="account-tab-btn active" onclick="switchAccountTab('orders', this)">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="21 16 12 21 3 16"></polyline>
+              <polyline points="21 12 12 17 3 12"></polyline>
+              <polyline points="12 3 21 8 12 13 3 8 12 3"></polyline>
+            </svg>
+            My Orders
+          </button>
+          
+          <button class="account-tab-btn" onclick="switchAccountTab('profile', this)">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Profile
+          </button>
+          
+          <button class="account-tab-btn" onclick="switchAccountTab('addresses', this)">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Addresses
+          </button>
+          
+          <button class="account-tab-btn" onclick="switchAccountTab('wishlist', this)">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            Wishlist
+          </button>
+          
+          <button class="account-tab-btn" onclick="window.toggleCartDrawer(true)">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            Cart
+          </button>
+
+        </aside>
+
+        <!-- Right Content Cards -->
+        <section class="account-content-card">
+          
+          <!-- Tab 1: Orders -->
+          <div class="content-panel-view active" id="panel-orders">
+            <div class="tab-empty-state">
+              <div class="tab-empty-icon-wrap">
+                <svg class="tab-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+                  <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                </svg>
+              </div>
+              <h3 class="tab-empty-title">No orders yet</h3>
+              <p class="tab-empty-desc">When you place an order, it will show up here.</p>
+            </div>
+          </div>
+
+          <!-- Tab 2: Profile -->
+          <div class="content-panel-view" id="panel-profile">
+            <div style="display: flex; flex-direction: column; height: 100%;">
+              <h2 style="font-family: var(--font-display); margin-bottom: 24px;">Profile Details</h2>
+              
+              <div class="profile-info-row">
+                <span class="profile-info-label">Full Name</span>
+                <span class="profile-info-value" id="profileNameDisplay">User</span>
+              </div>
+              
+              <div class="profile-info-row">
+                <span class="profile-info-label">Email Address</span>
+                <span class="profile-info-value" id="profileEmailDisplay">user@example.com</span>
+              </div>
+              
+              <button class="btn btn-outline-white account-logout-btn" onclick="handleLogout()">
+                Logout 🚪
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab 3: Addresses -->
+          <div class="content-panel-view" id="panel-addresses">
+            <h2 style="font-family: var(--font-display); margin-bottom: 20px;">Shipping Address</h2>
+            <form class="account-details-form" onsubmit="saveShippingAddress(event)">
+              <div class="form-group form-span-2">
+                <label for="addrStreet">Street Address</label>
+                <input type="text" id="addrStreet" class="form-input" placeholder="Apartment, Street Name, Sector" />
+              </div>
+              <div class="form-group">
+                <label for="addrCity">City</label>
+                <input type="text" id="addrCity" class="form-input" placeholder="Bangalore" />
+              </div>
+              <div class="form-group">
+                <label for="addrState">State</label>
+                <input type="text" id="addrState" class="form-input" placeholder="Karnataka" />
+              </div>
+              <div class="form-group">
+                <label for="addrZip">Postal Code</label>
+                <input type="text" id="addrZip" class="form-input" placeholder="560001" />
+              </div>
+              <div class="form-group">
+                <label for="addrPhone">Phone Number</label>
+                <input type="text" id="addrPhone" class="form-input" placeholder="+91 98765 43210" />
+              </div>
+              <div class="form-span-2" style="margin-top: 10px;">
+                <button type="submit" class="btn btn-pink-pill">Save Address 💾</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Tab 4: Wishlist -->
+          <div class="content-panel-view" id="panel-wishlist">
+            <div class="tab-empty-state">
+              <div class="tab-empty-icon-wrap" style="background-color: rgba(244, 122, 171, 0.1); color: var(--color-pink-highlight);">
+                <svg class="tab-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </div>
+              <h3 class="tab-empty-title">Your wishlist is empty</h3>
+              <p class="tab-empty-desc">Explore our collections and save your favorite cute items here! ♡</p>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-wave-divider" aria-hidden="true">
+      <svg class="footer-wave-svg" viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1440" height="45" fill="var(--color-page-bg)"></rect>
+        <path d="M0,60 C180,10 360,90 540,50 C720,10 900,80 1080,45 C1260,10 1380,70 1440,55 L1440,90 L0,90 Z" fill="var(--color-card-bg)"></path>
+      </svg>
+    </div>
+    <div class="footer-body">
+      <div class="container footer-grid">
+        <div class="footer-brand-column">
+          <div class="footer-brand-logo">
+            <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="footer-logo-img" />
+            <span class="footer-logo-text">Tabby Chaser</span>
+          </div>
+          <p class="footer-brand-tagline">Tiny handcrafted pieces of joy,<br />made with love for you.</p>
+        </div>
+        <div class="footer-links-column">
+          <h4 class="footer-column-title">Quick Links</h4>
+          <ul class="footer-links-list">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shop.html">Shop Collections</a></li>
+            <li><a href="custom-pets.html">Custom Orders</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-column">
+          <h4 class="footer-column-title">Our Policies</h4>
+          <ul class="footer-links-list">
+            <li><a href="policies.html">Store Policies</a></li>
+            <li><a href="policies.html">Shipping & Returns</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom-copyright">
+        <div class="container copyright-flex">
+          <span>&copy; 2026 Tabby Chaser. Made with love in Bangalore.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="products-data.js"></script>
+  <script src="app.js"></script>
+  
+  <script>
+    // Ensure user session exists, else redirect to index
+    document.addEventListener('DOMContentLoaded', () => {
+      const session = JSON.parse(localStorage.getItem('tabby_user_session'));
+      
+      if (!session || !session.loggedIn) {
+        alert("Please log in to view your profile!");
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Populate welcome user
+      document.getElementById('welcomeUserName').textContent = session.name;
+      document.getElementById('profileNameDisplay').textContent = session.name;
+      document.getElementById('profileEmailDisplay').textContent = session.email;
+
+      // Load shipping address if saved
+      const savedAddress = JSON.parse(localStorage.getItem('tabby_user_address'));
+      if (savedAddress) {
+        document.getElementById('addrStreet').value = savedAddress.street || '';
+        document.getElementById('addrCity').value = savedAddress.city || '';
+        document.getElementById('addrState').value = savedAddress.state || '';
+        document.getElementById('addrZip').value = savedAddress.zip || '';
+        document.getElementById('addrPhone').value = savedAddress.phone || '';
+      }
+    });
+
+    function switchAccountTab(tabId, btn) {
+      // 1. Remove active button classes
+      const btns = document.querySelectorAll('.account-tab-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      
+      // 2. Hide all panels
+      const panels = document.querySelectorAll('.content-panel-view');
+      panels.forEach(p => p.classList.remove('active'));
+
+      // 3. Highlight current
+      btn.classList.add('active');
+      const panel = document.getElementById(`panel-${tabId}`);
+      if (panel) panel.classList.add('active');
+    }
+
+    function saveShippingAddress(e) {
+      e.preventDefault();
+      const address = {
+        street: document.getElementById('addrStreet').value.trim(),
+        city: document.getElementById('addrCity').value.trim(),
+        state: document.getElementById('addrState').value.trim(),
+        zip: document.getElementById('addrZip').value.trim(),
+        phone: document.getElementById('addrPhone').value.trim()
+      };
+      
+      localStorage.setItem('tabby_user_address', JSON.stringify(address));
+      alert("Address saved successfully! 💾");
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('tabby_user_session');
+      alert("Logged out successfully! 🐈");
+      window.location.href = 'index.html';
+    }
+  </script>
+
+</body>
+</html>

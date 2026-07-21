@@ -1,6 +1,6 @@
 // ==========================================================================
 // Tabby Chaser E-Commerce Engine
-// smooth crossfade slideshow, global cart drawer management
+// smooth crossfade slideshow, global cart drawer, search suggestion, and login auth
 // ==========================================================================
 
 let currentSlideIdx = 0;
@@ -15,6 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set simple cart quantity
   window.updateCartBadge();
+
+  // Inject Login Modal HTML
+  injectLoginModal();
+
+  // Initialize Login Button in Header
+  initHeaderAccountButton();
+
+  // Initialize Search suggestions dropdown
+  initGlobalSearch();
+
+  // Convert shop card placeholders to dynamic links on the fly
+  initShopCardLinks();
 
   // Start Autoplay
   startAutoPlay();
@@ -255,3 +267,220 @@ window.triggerCheckout = function() {
   window.saveCart([]);
   window.toggleCartDrawer(false);
 };
+
+// ==========================================================================
+// SEARCH SECTION LOGIC
+// ==========================================================================
+
+function initGlobalSearch() {
+  const searchPills = document.querySelectorAll('.search-box-pill');
+  searchPills.forEach(pill => {
+    if (pill.querySelector('.search-suggestions-dropdown')) return;
+    
+    // Create Dropdown Overlay
+    const dropdown = document.createElement('div');
+    dropdown.className = 'search-suggestions-dropdown';
+    dropdown.id = 'searchSuggestions';
+    pill.appendChild(dropdown);
+
+    const input = pill.querySelector('input');
+    if (input) {
+      input.removeAttribute('disabled'); // Allow searching
+      input.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        if (!query) {
+          dropdown.classList.remove('active');
+          dropdown.innerHTML = '';
+          return;
+        }
+
+        // Search PRODUCTS_DATA if loaded
+        if (typeof PRODUCTS_DATA !== 'undefined') {
+          const matches = PRODUCTS_DATA.filter(p => 
+            p.name.toLowerCase().includes(query) || 
+            p.category.toLowerCase().includes(query)
+          ).slice(0, 5);
+
+          if (matches.length === 0) {
+            dropdown.innerHTML = `<div class="search-no-results">No results found 🐈</div>`;
+          } else {
+            dropdown.innerHTML = matches.map(p => `
+              <a href="product.html?id=${p.id}" class="search-suggestion-item">
+                <img src="${p.image}" alt="${p.name}" class="suggestion-img">
+                <div class="suggestion-info">
+                  <span class="suggestion-name">${p.name}</span>
+                  <span class="suggestion-price">₹${p.price}</span>
+                </div>
+              </a>
+            `).join('');
+          }
+          dropdown.classList.add('active');
+        }
+      });
+
+      // Close overlay on clicking outside
+      document.addEventListener('click', (event) => {
+        if (!pill.contains(event.target)) {
+          dropdown.classList.remove('active');
+        }
+      });
+
+      // Handle Enter key submit search
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const query = input.value.trim();
+          if (query) {
+            window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
+          }
+        }
+      });
+    }
+  });
+}
+
+// ==========================================================================
+// USER LOGIN MODAL LOGIC
+// ==========================================================================
+
+function injectLoginModal() {
+  if (document.getElementById('loginModalOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'loginModalOverlay';
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="login-modal-card">
+      <button type="button" class="modal-close-btn" onclick="window.toggleLoginModal(false)" aria-label="Close modal">&times;</button>
+      <div class="login-tabs">
+        <button class="login-tab active" id="tabLoginBtn" onclick="window.setLoginTab('login')">Login</button>
+        <button class="login-tab" id="tabSignUpBtn" onclick="window.setLoginTab('signup')">Sign Up</button>
+      </div>
+      
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="window.handleLoginSubmit(event)" class="login-modal-form">
+        <h3 class="login-modal-title">Welcome back! ♡</h3>
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" required class="form-input" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required class="form-input" placeholder="••••••••" />
+        </div>
+        <button type="submit" class="btn btn-pink-pill login-submit-btn">Login ✨</button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="signUpForm" onsubmit="window.handleSignUpSubmit(event)" class="login-modal-form" style="display:none;">
+        <h3 class="login-modal-title">Create an Account ✨</h3>
+        <div class="form-group">
+          <label for="signUpName">Full Name</label>
+          <input type="text" id="signUpName" required class="form-input" placeholder="ENCORE" />
+        </div>
+        <div class="form-group">
+          <label for="signUpEmail">Email Address</label>
+          <input type="email" id="signUpEmail" required class="form-input" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="signUpPassword">Password</label>
+          <input type="password" id="signUpPassword" required class="form-input" placeholder="••••••••" />
+        </div>
+        <button type="submit" class="btn btn-pink-pill login-submit-btn">Sign Up 🌸</button>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+window.toggleLoginModal = function(open) {
+  const overlay = document.getElementById('loginModalOverlay');
+  if (!overlay) return;
+  if (open) {
+    overlay.style.display = 'flex';
+  } else {
+    overlay.style.display = 'none';
+  }
+};
+
+window.setLoginTab = function(tab) {
+  const loginForm = document.getElementById('loginForm');
+  const signUpForm = document.getElementById('signUpForm');
+  const tabLogin = document.getElementById('tabLoginBtn');
+  const tabSignUp = document.getElementById('tabSignUpBtn');
+
+  if (tab === 'login') {
+    loginForm.style.display = 'flex';
+    signUpForm.style.display = 'none';
+    tabLogin.classList.add('active');
+    tabSignUp.classList.remove('active');
+  } else {
+    loginForm.style.display = 'none';
+    signUpForm.style.display = 'flex';
+    tabLogin.classList.remove('active');
+    tabSignUp.classList.add('active');
+  }
+};
+
+window.handleLoginSubmit = function(event) {
+  event.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  // Simulate login
+  const name = email.split('@')[0].toUpperCase();
+  localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true }));
+  window.toggleLoginModal(false);
+  initHeaderAccountButton();
+  window.location.href = 'account.html';
+};
+
+window.handleSignUpSubmit = function(event) {
+  event.preventDefault();
+  const name = document.getElementById('signUpName').value.trim();
+  const email = document.getElementById('signUpEmail').value.trim();
+  localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true }));
+  window.toggleLoginModal(false);
+  initHeaderAccountButton();
+  window.location.href = 'account.html';
+};
+
+function initHeaderAccountButton() {
+  const headerActions = document.querySelector('.header-actions');
+  if (!headerActions) return;
+
+  let loginBtn = document.getElementById('loginBtn');
+  if (!loginBtn) {
+    loginBtn = document.createElement('a');
+    loginBtn.id = 'loginBtn';
+    loginBtn.className = 'login-pill-btn';
+    loginBtn.href = '#';
+    headerActions.insertBefore(loginBtn, headerActions.querySelector('.cart-pill-btn') || headerActions.firstChild);
+  }
+
+  const session = JSON.parse(localStorage.getItem('tabby_user_session'));
+  if (session && session.loggedIn) {
+    loginBtn.textContent = `Hi, ${session.name.split(' ')[0]}`;
+    loginBtn.href = 'account.html';
+    loginBtn.onclick = null;
+  } else {
+    loginBtn.textContent = 'Login';
+    loginBtn.href = '#';
+    loginBtn.onclick = (e) => {
+      e.preventDefault();
+      window.toggleLoginModal(true);
+    };
+  }
+}
+
+function initShopCardLinks() {
+  document.querySelectorAll('.shop-card').forEach(card => {
+    const name = card.getAttribute('data-name');
+    if (name && typeof PRODUCTS_DATA !== 'undefined') {
+      const product = PRODUCTS_DATA.find(p => p.name === name);
+      if (product) {
+        const link = card.querySelector('.shop-card-link');
+        if (link) link.href = `product.html?id=${product.id}`;
+      }
+    }
+  });
+}
+
+

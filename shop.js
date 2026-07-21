@@ -131,5 +131,11 @@ function showToast(message) {
 
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchParam = urlParams.get('search');
+  const searchInput = document.getElementById('shopSearchInput');
+  if (searchParam && searchInput) {
+    searchInput.value = decodeURIComponent(searchParam);
+  }
   filterProducts();
 });

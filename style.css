@@ -1890,3 +1890,175 @@ body {
   background-color: transparent;
   color: var(--color-brand-pink);
 }
+
+/* Login Pill Button in Header */
+.login-pill-btn {
+  background-color: transparent;
+  color: var(--color-text-main);
+  border: 1.5px solid var(--color-text-main);
+  border-radius: 9999px !important;
+  padding: 8px 18px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.login-pill-btn:hover {
+  background-color: rgba(19, 19, 19, 0.05);
+}
+
+/* Search Dropdown Panel */
+.search-box-pill {
+  position: relative; /* Anchor for search Suggestions */
+}
+
+.search-suggestions-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 290px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--color-border-rgba);
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1005;
+}
+
+.search-suggestions-dropdown.active {
+  display: flex;
+}
+
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  text-decoration: none;
+  color: var(--color-text-main);
+  transition: background-color 0.2s ease;
+  border-bottom: 1.5px solid var(--color-border-rgba);
+}
+
+.search-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.search-suggestion-item:hover {
+  background-color: #fbf4f0;
+}
+
+.suggestion-img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--color-border-rgba);
+}
+
+.suggestion-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.suggestion-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+  color: var(--color-text-main);
+}
+
+.suggestion-price {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.search-no-results {
+  padding: 16px;
+  font-size: 0.85rem;
+  color: #888;
+  text-align: center;
+}
+
+/* User Login Modal Card */
+.login-modal-card {
+  background: #ffffff;
+  max-width: 400px;
+  width: 100%;
+  padding: 35px 30px;
+  border-radius: 24px !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+  border: 1.5px solid var(--color-border-rgba);
+  position: relative;
+  animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.login-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--color-border-rgba);
+  margin-bottom: 24px;
+}
+
+.login-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+}
+
+.login-tab.active {
+  color: var(--color-text-main);
+  border-bottom-color: var(--color-brand-pink);
+}
+
+.login-modal-form {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.login-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+  color: var(--color-text-main);
+  text-align: center;
+}
+
+.login-submit-btn {
+  width: 100%;
+  margin-top: 15px;
+}

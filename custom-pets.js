@@ -148,7 +148,7 @@ function sendEmail() {
   const body = encodeURIComponent(bodyText);
   
   // Open mailto link
-  window.open(`mailto:tabbychaser@gmail.com?subject=${subject}&body=${body}`, '_blank');
+  window.open(`mailto:tabbychaser2@gmail.com?subject=${subject}&body=${body}`, '_blank');
   closeModal();
 }
 

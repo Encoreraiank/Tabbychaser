@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Details – Tabby Chaser</title>
+  <meta name="description" content="View product details, pricing, description, and buy custom handmade clay charms, keychains, and desk pals." />
+
+  <!-- Bubbly & Display Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+  
+  <style>
+    /* Premium Product Details CSS */
+    .product-page-main {
+      padding: 60px 0 80px;
+      background-color: var(--color-page-bg);
+    }
+
+    .breadcrumb-row {
+      font-size: 0.85rem;
+      color: #777;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .breadcrumb-row a {
+      color: #777;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .breadcrumb-row a:hover {
+      color: var(--color-brand-pink);
+    }
+
+    .product-details-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      background-color: var(--color-card-bg);
+      border: 1.5px solid var(--color-border-rgba);
+      border-radius: 28px !important;
+      padding: 40px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.02);
+    }
+
+    .product-image-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #ffffff;
+      border: 1.5px solid var(--color-border-rgba);
+      border-radius: 20px !important;
+      overflow: hidden;
+      aspect-ratio: 1;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.01);
+    }
+
+    .product-main-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover !important;
+      transition: transform 0.5s ease;
+    }
+
+    .product-image-panel:hover .product-main-img {
+      transform: scale(1.03);
+    }
+
+    .product-info-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .product-category-badge {
+      align-self: flex-start;
+      background-color: rgba(244, 122, 171, 0.15);
+      color: var(--color-pink-highlight);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px !important;
+      margin-bottom: 16px;
+    }
+
+    .product-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3.5vw, 2.5rem);
+      font-weight: 700;
+      color: var(--color-text-main);
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .product-price-stock-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .product-price-val {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+
+    .product-stock-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 50px !important;
+      border: 1px solid transparent;
+    }
+
+    .stock-in {
+      background-color: rgba(142, 208, 129, 0.15);
+      color: #2e7d32;
+      border-color: rgba(142, 208, 129, 0.3);
+    }
+
+    .stock-low {
+      background-color: #fff3e0;
+      color: #ef6c00;
+      border-color: #ffe0b2;
+    }
+
+    .product-description {
+      font-size: 0.95rem;
+      color: #4a4a4a;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .product-details-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 30px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 20px;
+      border-top: 1.5px solid var(--color-border-rgba);
+      padding-top: 24px;
+    }
+
+    .product-detail-item {
+      font-size: 0.85rem;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bullet-heart {
+      color: var(--color-brand-pink);
+    }
+
+    .product-purchase-controls {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .quantity-picker-box {
+      display: flex;
+      align-items: center;
+      background-color: #ffffff;
+      border: 1.5px solid var(--color-text-main);
+      border-radius: 50px !important;
+      padding: 6px 14px;
+    }
+
+    .quantity-picker-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      cursor: pointer;
+      padding: 0 8px;
+      line-height: 1;
+    }
+
+    .quantity-picker-val {
+      font-size: 1rem;
+      font-weight: 700;
+      min-width: 24px;
+      text-align: center;
+      color: var(--color-text-main);
+    }
+
+    .add-to-bag-large-btn {
+      flex: 1;
+      background-color: var(--color-brand-pink);
+      color: var(--color-text-main);
+      border: 2px solid var(--color-text-main);
+      padding: 14px 28px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 50px !important;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .add-to-bag-large-btn:hover {
+      background-color: transparent;
+      color: var(--color-brand-pink);
+    }
+
+    /* Related Products Shelf */
+    .related-products-section {
+      padding: 60px 0;
+      border-top: 1.5px solid var(--color-border-rgba);
+      background-color: var(--color-page-bg);
+    }
+
+    .related-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      margin-bottom: 30px;
+      color: var(--color-text-main);
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    /* Product Card Styling matching Best Sellers */
+    .showcase-product-card-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    
+    .showcase-product-card {
+      background-color: var(--color-card-bg);
+      border: 1.5px solid var(--color-border-rgba);
+      border-radius: 20px !important;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.01);
+    }
+
+    .showcase-product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.03);
+    }
+
+    .card-image-wrapper {
+      position: relative;
+      aspect-ratio: 1.1;
+      background-color: #ffffff;
+      border-bottom: 1.5px solid var(--color-border-rgba);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover !important;
+      transition: transform 0.4s ease;
+    }
+
+    .showcase-product-card:hover .card-image-wrapper img {
+      transform: scale(1.05);
+    }
+
+    .card-meta-details {
+      padding: 16px;
+    }
+
+    .card-title-price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+
+    .prod-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+
+    .prod-price {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+
+    .prod-tagline {
+      font-size: 0.78rem;
+      color: #777;
+    }
+
+    /* Empty/Error State styling */
+    .product-not-found-card {
+      text-align: center;
+      padding: 80px 20px;
+      background-color: var(--color-card-bg);
+      border: 1.5px solid var(--color-border-rgba);
+      border-radius: 24px !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.01);
+    }
+
+    .not-found-emoji {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .not-found-title {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      color: var(--color-text-main);
+    }
+
+    .not-found-desc {
+      font-size: 0.95rem;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 850px) {
+      .product-details-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 24px;
+      }
+      .related-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-container container">
+      <div class="announcement-social">
+        <a href="https://www.instagram.com/tabbychaser" target="_blank" aria-label="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+      </div>
+      <div class="announcement-text">
+        All the charms will take 4-5 weeks to make before I ship them.
+      </div>
+      <div class="announcement-spacer"></div>
+    </div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="site-header">
+    <div class="header-container container">
+      <a href="index.html" class="brand-logo">
+        <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
+        <span class="logo-text">Tabby Chaser</span>
+      </a>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link outline-pill">Home</a>
+        <a href="shop.html" class="nav-link outline-pill">Shop</a>
+        <a href="custom-pets.html" class="nav-link outline-pill">Custom Orders</a>
+        <a href="policies.html" class="nav-link outline-pill">Policies</a>
+      </nav>
+      <div class="header-actions">
+        <div class="search-box-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" placeholder="Search..." disabled />
+        </div>
+        <button class="cart-pill-btn" id="cartBtn">
+          Cart
+          <span class="cart-badge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Product Details Section -->
+  <main class="product-page-main">
+    <div class="container">
+      
+      <!-- Breadcrumbs -->
+      <div class="breadcrumb-row">
+        <a href="index.html">Home</a> &gt; 
+        <a href="shop.html">Shop</a> &gt; 
+        <span id="breadcrumbCurrent">Product Details</span>
+      </div>
+
+      <!-- Render Area -->
+      <div id="productRenderArea">
+        <!-- Will be loaded dynamically -->
+        <div style="text-align:center; padding: 100px 0; color: #888;">Loading details... 🐾</div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Related Products shelf -->
+  <section class="related-products-section" id="relatedSection" style="display:none;">
+    <div class="container">
+      <h2 class="related-title">You might also love ♡</h2>
+      <div class="related-grid" id="relatedProductsGrid"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-wave-divider" aria-hidden="true">
+      <svg class="footer-wave-svg" viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1440" height="45" fill="var(--color-page-bg)"></rect>
+        <path d="M0,60 C180,10 360,90 540,50 C720,10 900,80 1080,45 C1260,10 1380,70 1440,55 L1440,90 L0,90 Z" fill="var(--color-card-bg)"></path>
+      </svg>
+    </div>
+    <div class="footer-body">
+      <div class="container footer-grid">
+        <div class="footer-brand-column">
+          <div class="footer-brand-logo">
+            <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="footer-logo-img" />
+            <span class="footer-logo-text">Tabby Chaser</span>
+          </div>
+          <p class="footer-brand-tagline">Tiny handcrafted pieces of joy,<br />made with love for you.</p>
+        </div>
+        <div class="footer-links-column">
+          <h4 class="footer-column-title">Quick Links</h4>
+          <ul class="footer-links-list">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="shop.html">Shop Collections</a></li>
+            <li><a href="custom-pets.html">Custom Orders</a></li>
+          </ul>
+        </div>
+        <div class="footer-links-column">
+          <h4 class="footer-column-title">Our Policies</h4>
+          <ul class="footer-links-list">
+            <li><a href="policies.html">Store Policies</a></li>
+            <li><a href="policies.html">Shipping & Returns</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom-copyright">
+        <div class="container copyright-flex">
+          <span>&copy; 2026 Tabby Chaser. Made with love in Bangalore.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JS Scripts -->
+  <script src="products-data.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    let currentQty = 1;
+    let loadedProduct = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Read 'id' from URL query params
+      const urlParams = new URLSearchParams(window.location.search);
+      const prodId = urlParams.get('id');
+
+      if (!prodId) {
+        renderNotFound();
+        return;
+      }
+
+      // 2. Fetch from Database
+      if (typeof PRODUCTS_DATA !== 'undefined') {
+        loadedProduct = PRODUCTS_DATA.find(p => p.id === prodId);
+        
+        if (!loadedProduct) {
+          renderNotFound();
+          return;
+        }
+
+        renderProductDetails(loadedProduct);
+        renderRelatedProducts(loadedProduct);
+      } else {
+        renderNotFound();
+      }
+    });
+
+    function renderNotFound() {
+      const area = document.getElementById('productRenderArea');
+      area.innerHTML = `
+        <div class="product-not-found-card">
+          <span class="not-found-emoji">🐈</span>
+          <h2 class="not-found-title">Oops! Product Not Found</h2>
+          <p class="not-found-desc">We couldn't find the custom accessory you are looking for.</p>
+          <a href="shop.html" class="shop-now-btn">Back to Shop</a>
+        </div>
+      `;
+    }
+
+    function renderProductDetails(prod) {
+      // Update breadcrumbs current item
+      document.getElementById('breadcrumbCurrent').textContent = prod.name;
+      document.title = `${prod.name} – Tabby Chaser`;
+
+      const area = document.getElementById('productRenderArea');
+
+      const isLowStock = prod.stock === 'low-stock';
+      const stockBadgeHtml = isLowStock 
+        ? `<span class="product-stock-badge stock-low">Only a few left!</span>` 
+        : `<span class="product-stock-badge stock-in">In Stock (Sculpted to order)</span>`;
+
+      const detailsListHtml = prod.details && prod.details.length > 0
+        ? prod.details.map(d => `<li class="product-detail-item"><span class="bullet-heart">♡</span> ${d}</li>`).join('')
+        : `<li class="product-detail-item"><span class="bullet-heart">♡</span> Handmade Art</li><li class="product-detail-item"><span class="bullet-heart">♡</span> High Gloss Finish</li>`;
+
+      area.innerHTML = `
+        <div class="product-details-container">
+          
+          <!-- Image Panel -->
+          <div class="product-image-panel">
+            <img src="${prod.image}" alt="${prod.name}" class="product-main-img" />
+          </div>
+
+          <!-- Info Panel -->
+          <div class="product-info-panel">
+            <span class="product-category-badge">${prod.category}</span>
+            <h1 class="product-title">${prod.name}</h1>
+            
+            <div class="product-price-stock-row">
+              <span class="product-price-val">₹${prod.price}</span>
+              ${stockBadgeHtml}
+            </div>
+
+            <p class="product-description">${prod.description}</p>
+
+            <ul class="product-details-list">
+              ${detailsListHtml}
+            </ul>
+
+            <!-- Quantity & Add to Cart -->
+            <div class="product-purchase-controls">
+              <div class="quantity-picker-box">
+                <button class="quantity-picker-btn" onclick="updateQty(-1)">&minus;</button>
+                <span class="quantity-picker-val" id="qtyVal">1</span>
+                <button class="quantity-picker-btn" onclick="updateQty(1)">&plus;</button>
+              </div>
+              <button class="add-to-bag-large-btn" onclick="triggerAddToBag()">
+                Add to Shopping Bag 🛍️
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      `;
+    }
+
+    function updateQty(delta) {
+      currentQty = Math.max(1, currentQty + delta);
+      const qtyVal = document.getElementById('qtyVal');
+      if (qtyVal) qtyVal.textContent = currentQty;
+    }
+
+    function triggerAddToBag() {
+      if (!loadedProduct) return;
+      
+      // Call global app cart function repeatedly for quantity
+      for (let i = 0; i < currentQty; i++) {
+        if (window.addGlobalCartItem) {
+          window.addGlobalCartItem(loadedProduct.name, loadedProduct.price, loadedProduct.image);
+        }
+      }
+    }
+
+    function renderRelatedProducts(curr) {
+      const grid = document.getElementById('relatedProductsGrid');
+      const shelf = document.getElementById('relatedSection');
+      if (!grid || !shelf) return;
+
+      // Filter products from same category, exclude current
+      let matches = PRODUCTS_DATA.filter(p => p.category === curr.category && p.id !== curr.id);
+      
+      // If not enough matches, pad with other products
+      if (matches.length < 3) {
+        const others = PRODUCTS_DATA.filter(p => p.id !== curr.id && !matches.includes(p));
+        matches = matches.concat(others);
+      }
+
+      // Take first 3 related
+      const related = matches.slice(0, 3);
+      if (related.length === 0) return;
+
+      grid.innerHTML = related.map(p => `
+        <a href="product.html?id=${p.id}" class="showcase-product-card-link">
+          <article class="showcase-product-card">
+            <div class="card-image-wrapper">
+              <img src="${p.image}" alt="${p.name}" />
+            </div>
+            <div class="card-meta-details">
+              <div class="card-title-price-row">
+                <span class="prod-title">${p.name}</span>
+                <span class="prod-price">₹${p.price}</span>
+              </div>
+              <span class="prod-tagline">${p.category}</span>
+            </div>
+          </article>
+        </a>
+      `).join('');
+
+      shelf.style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>

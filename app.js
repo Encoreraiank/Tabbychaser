@@ -340,13 +340,8 @@ window.triggerCheckout = function() {
   const cart = window.getCart();
   if (cart.length === 0) return;
 
-  alert(`🛒 Checkout Successful!\n\nYour order has been submitted. Thank you for supporting Tabby Chaser! ♡`);
-  
-  // Enforce first time welcome discount limits by tracking checkout completions!
-  localStorage.setItem('tabby_first_order_completed', 'true');
-  
-  window.saveCart([]);
-  window.toggleCartDrawer(false);
+  // Redirect to checkout.html for shipping info collection and payment
+  window.location.href = 'checkout.html';
 };
 
 // ==========================================================================

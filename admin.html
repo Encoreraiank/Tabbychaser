@@ -3,853 +3,802 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel – Tabby Chaser</title>
+  <title>Admin Dashboard – Tabby Chaser</title>
+  
+  <!-- Inter Font for crisp, simple UI -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --pink: #f47aab;
-      --pink-light: #fce4ec;
-      --dark: #12111a;
-      --sidebar-bg: #1a1827;
-      --sidebar-w: 240px;
-      --font-body: 'Plus Jakarta Sans', sans-serif;
-      --font-display: 'Fredoka', sans-serif;
+      --pink-hover: #e06898;
+      --pink-soft: #fdf0f6;
+      --sidebar-bg: #14131d;
+      --sidebar-w: 250px;
+      --font-family: 'Inter', system-ui, -apple-system, sans-serif;
       --card-bg: #ffffff;
-      --page-bg: #f5f4f8;
-      --border: rgba(0,0,0,0.08);
-      --text: #1a1a2e;
-      --muted: #888;
+      --page-bg: #f7f7fa;
+      --border: #e6e6ec;
+      --text: #1a1a24;
+      --muted: #717182;
       --green: #2e7d32;
-      --orange: #e67e22;
-      --red: #c62828;
-      --blue: #1976d2;
+      --orange: #d97706;
+      --red: #dc2626;
+      --blue: #2563eb;
+      --radius: 12px;
     }
 
-    body { font-family: var(--font-body); background: var(--page-bg); color: var(--text); display: flex; min-height: 100vh; }
+    body { font-family: var(--font-family); background: var(--page-bg); color: var(--text); display: flex; min-height: 100vh; font-size: 0.88rem; line-height: 1.5; }
 
     /* ─── LOGIN GATE ─── */
     #loginGate {
-      position: fixed; inset: 0; background: linear-gradient(135deg, #1a1827, #2d1b4e);
-      display: flex; align-items: center; justify-content: center; z-index: 9999;
+      position: fixed; inset: 0; background: #111019;
+      display: flex; align-items: center; justify-content: center; z-index: 99999;
     }
-    .login-box {
-      background: #ffffff; border-radius: 24px; padding: 44px 40px; max-width: 400px; width: 90%;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.3); text-align: center;
+    .login-card {
+      background: #ffffff; border-radius: 20px; padding: 40px 36px; max-width: 380px; width: 90%;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center;
     }
-    .login-box-logo { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-    .login-box-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 30px; }
-    .login-input {
-      width: 100%; padding: 13px 16px; border: 2px solid #e8e0f0; border-radius: 12px;
-      font-family: var(--font-body); font-size: 0.95rem; outline: none; margin-bottom: 14px;
-      transition: border-color 0.2s;
+    .login-title { font-size: 1.4rem; font-weight: 800; color: var(--text); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .login-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; }
+    .input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: var(--font-family); font-size: 0.88rem; outline: none; transition: border-color 0.2s; background: #fff;
     }
-    .login-input:focus { border-color: var(--pink); }
-    .login-btn {
-      width: 100%; padding: 14px; background: linear-gradient(135deg, var(--pink), #f093b4);
-      border: none; border-radius: 12px; font-family: var(--font-display); font-size: 1rem;
-      font-weight: 700; cursor: pointer; color: var(--text); transition: opacity 0.2s;
+    .input:focus { border-color: var(--pink); }
+    .btn-submit {
+      width: 100%; padding: 12px; background: var(--pink); color: #fff; border: none; border-radius: 10px;
+      font-family: var(--font-family); font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 12px;
     }
-    .login-btn:hover { opacity: 0.9; }
-    .login-error { color: var(--red); font-size: 0.8rem; margin-top: 8px; }
+    .btn-submit:hover { background: var(--pink-hover); }
+    .login-err { color: var(--red); font-size: 0.78rem; margin-top: 10px; font-weight: 600; }
 
     /* ─── SIDEBAR ─── */
     #sidebar {
       width: var(--sidebar-w); background: var(--sidebar-bg); min-height: 100vh;
       display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100;
-      transition: transform 0.3s ease;
+      transition: transform 0.25s ease;
     }
-    .sidebar-logo {
-      padding: 22px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.07);
+    .sidebar-header {
+      padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08);
       display: flex; align-items: center; gap: 10px;
     }
-    .sidebar-logo-icon {
-      width: 36px; height: 36px; background: var(--pink); border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-size: 1rem; font-weight: 800; color: #fff;
+    .brand-avatar {
+      width: 34px; height: 34px; background: var(--pink); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 0.95rem;
     }
-    .sidebar-logo-text { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: #ffffff; }
-    .sidebar-logo-sub { font-size: 0.6rem; color: rgba(255,255,255,0.4); display: block; }
+    .brand-name { font-size: 1rem; font-weight: 700; color: #ffffff; letter-spacing: -0.2px; }
+    .brand-sub { font-size: 0.65rem; color: rgba(255,255,255,0.4); display: block; font-weight: 500; }
 
-    .sidebar-nav { padding: 14px 10px; flex: 1; overflow-y: auto; }
-    .sidebar-section-label {
-      font-size: 0.6rem; font-weight: 800; color: rgba(255,255,255,0.3);
-      text-transform: uppercase; letter-spacing: 0.8px;
-      padding: 12px 10px 6px;
+    .sidebar-nav { padding: 12px 10px; flex: 1; overflow-y: auto; }
+    .nav-group-label {
+      font-size: 0.62rem; font-weight: 800; color: rgba(255,255,255,0.35);
+      text-transform: uppercase; letter-spacing: 0.8px; padding: 14px 10px 6px;
     }
-    .nav-item {
-      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-      border-radius: 10px; cursor: pointer; transition: all 0.18s;
-      font-size: 0.88rem; font-weight: 600; color: rgba(255,255,255,0.55);
+    .nav-btn {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px;
+      border-radius: 8px; cursor: pointer; transition: all 0.15s;
+      font-size: 0.84rem; font-weight: 600; color: rgba(255,255,255,0.65);
       border: none; background: none; width: 100%; text-align: left; margin-bottom: 2px;
     }
-    .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
-    .nav-item.active { background: rgba(244,122,171,0.18); color: var(--pink); }
-    .nav-item-icon { font-size: 1rem; flex-shrink: 0; width: 20px; text-align: center; }
+    .nav-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-btn.active { background: var(--pink); color: #ffffff; font-weight: 700; }
+    .nav-icon { width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0; }
     .nav-badge {
-      margin-left: auto; background: var(--pink); color: #fff; font-size: 0.6rem;
-      font-weight: 800; padding: 2px 6px; border-radius: 50px; min-width: 18px; text-align: center;
+      margin-left: auto; background: rgba(255,255,255,0.2); color: #fff; font-size: 0.65rem;
+      font-weight: 800; padding: 2px 7px; border-radius: 50px;
     }
+    .nav-btn.active .nav-badge { background: #fff; color: var(--pink); }
 
-    .sidebar-footer {
-      padding: 14px 10px; border-top: 1px solid rgba(255,255,255,0.07);
+    .sidebar-footer { padding: 12px 10px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn {
+      display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 8px;
+      cursor: pointer; font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.45);
+      border: none; background: none; width: 100%; transition: all 0.15s;
     }
-    .sidebar-logout-btn {
-      display: flex; align-items: center; gap: 8px; padding: 10px 12px;
-      border-radius: 10px; cursor: pointer; font-size: 0.82rem; font-weight: 600;
-      color: rgba(255,255,255,0.4); border: none; background: none; width: 100%;
-      transition: all 0.18s;
-    }
-    .sidebar-logout-btn:hover { color: #ff6b6b; background: rgba(255,107,107,0.08); }
+    .logout-btn:hover { color: #ff6b6b; background: rgba(255,107,107,0.1); }
 
     /* ─── MAIN CONTENT ─── */
-    #mainContent { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; }
+    #main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
 
     .topbar {
       background: var(--card-bg); border-bottom: 1px solid var(--border);
-      padding: 0 28px; height: 60px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; height: 56px; display: flex; align-items: center; justify-content: space-between;
       position: sticky; top: 0; z-index: 50;
     }
-    .topbar-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .topbar-title { font-size: 1.1rem; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
     .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .admin-badge {
-      background: var(--pink-light); color: #c2185b; font-size: 0.72rem; font-weight: 800;
-      padding: 4px 10px; border-radius: 50px;
-    }
-    .mobile-menu-btn {
-      display: none; background: none; border: none; cursor: pointer; font-size: 1.3rem; padding: 4px;
-    }
+    .role-badge { background: var(--pink-soft); color: var(--pink); font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 50px; }
+    .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 4px; }
 
-    .page-content { padding: 28px; }
+    .page-body { padding: 24px 28px; flex: 1; }
 
     .tab-pane { display: none; }
-    .tab-pane.active { display: block; animation: fadeIn 0.25s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ─── STAT CARDS ─── */
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
     .stat-card {
-      background: var(--card-bg); border-radius: 16px; padding: 20px 18px;
-      border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      background: var(--card-bg); border-radius: var(--radius); padding: 18px;
+      border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
-    .stat-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-    .stat-value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--text); }
-    .stat-sub { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
-    .stat-card.pink { background: linear-gradient(135deg, var(--pink), #f093b4); border-color: transparent; }
-    .stat-card.pink .stat-label, .stat-card.pink .stat-value, .stat-card.pink .stat-sub { color: #fff; }
+    .stat-label { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+    .stat-val { font-size: 1.6rem; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+    .stat-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .stat-card.featured { background: linear-gradient(135deg, var(--pink), #f093b4); border-color: transparent; color: #fff; }
+    .stat-card.featured .stat-label, .stat-card.featured .stat-val, .stat-card.featured .stat-sub { color: #fff; }
 
     /* ─── CARDS & TABLES ─── */
-    .admin-card {
-      background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 24px;
+    .card {
+      background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02); overflow: hidden; margin-bottom: 20px;
     }
     .card-header {
-      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
     }
-    .card-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
     .card-body { padding: 20px; }
 
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #fafafa; padding: 10px 14px; text-align: left; font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
-    td { padding: 12px 14px; border-bottom: 1px solid #f8f8f8; font-size: 0.85rem; vertical-align: middle; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: #f9f9fc; padding: 10px 14px; font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 14px; border-bottom: 1px solid #f2f2f7; font-size: 0.84rem; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #fafafa; }
 
-    .status-badge {
-      display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
+    .badge-status {
+      display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
     }
-    .status-pending { background: #fff3e0; color: #e65100; }
-    .status-processing { background: #e3f2fd; color: #1565c0; }
-    .status-baked { background: #fce4ec; color: #c2185b; }
-    .status-shipped { background: #e8f5e9; color: #2e7d32; }
-    .status-delivered { background: #e8f5e9; color: var(--green); }
-    .status-cancelled { background: #ffebee; color: var(--red); }
-    .status-active { background: #e8f5e9; color: var(--green); }
-    .status-draft { background: #f5f5f5; color: #666; }
-    .status-out_of_stock { background: #ffebee; color: var(--red); }
+    .st-pending { background: #fef3c7; color: #92400e; }
+    .st-confirmed { background: #e0f2fe; color: #075985; }
+    .st-making { background: #fce7f3; color: #9d174d; }
+    .st-packed { background: #ede9fe; color: #5b21b6; }
+    .st-shipped { background: #dcfce7; color: #166534; }
+    .st-delivered { background: #dcfce7; color: var(--green); }
+    .st-cancelled { background: #fee2e2; color: var(--red); }
+    .st-published { background: #dcfce7; color: var(--green); }
+    .st-draft { background: #f3f4f6; color: #4b5563; }
+    .st-archived { background: #fee2e2; color: var(--red); }
 
     /* ─── BUTTONS ─── */
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-family: var(--font-body); font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.18s; }
-    .btn-pink { background: linear-gradient(135deg, var(--pink), #f093b4); color: var(--text); }
-    .btn-pink:hover { opacity: 0.88; }
-    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
-    .btn-outline:hover { background: #f5f5f5; }
-    .btn-red { background: #ffebee; color: var(--red); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-family: var(--font-family); font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none; }
+    .btn-pink { background: var(--pink); color: #fff; }
+    .btn-pink:hover { background: var(--pink-hover); }
+    .btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f9f9fc; }
+    .btn-red { background: #fee2e2; color: var(--red); }
     .btn-red:hover { background: var(--red); color: #fff; }
-    .btn-green { background: #e8f5e9; color: var(--green); }
+    .btn-green { background: #dcfce7; color: var(--green); }
     .btn-green:hover { background: var(--green); color: #fff; }
-    .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
-    .btn-icon { padding: 6px; border-radius: 6px; }
+    .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
 
-    /* ─── FORMS ─── */
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; font-size: 0.78rem; font-weight: 700; color: #555; margin-bottom: 6px; }
+    /* ─── FORM ─── */
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 0.78rem; font-weight: 600; color: #4b5563; margin-bottom: 5px; }
     .form-control {
-      width: 100%; padding: 10px 14px; border: 1.5px solid #e8e0f0; border-radius: 10px;
-      font-family: var(--font-body); font-size: 0.88rem; outline: none; background: #fff;
-      transition: border-color 0.2s; color: var(--text);
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: var(--font-family); font-size: 0.85rem; outline: none; background: #fff; color: var(--text);
     }
     .form-control:focus { border-color: var(--pink); }
-    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
-    /* ─── MODAL ─── */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
-      z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+    /* ─── MODALS ─── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
+      z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px;
     }
-    .modal-overlay.open { display: flex; }
-    .modal-box {
-      background: #fff; border-radius: 20px; width: 100%; max-width: 620px;
-      max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,0.2);
-      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 16px; width: 100%; max-width: 680px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
-    @keyframes modalPop { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
-    .modal-header {
-      padding: 20px 24px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .modal-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
-    .modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted); padding: 2px 6px; border-radius: 6px; }
-    .modal-close:hover { background: #f5f5f5; }
-    .modal-body { padding: 24px; }
-    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-size: 1rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--muted); }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+    /* Modal tabs */
+    .modal-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; }
+    .modal-tab-btn { padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; border: none; background: none; cursor: pointer; color: var(--muted); }
+    .modal-tab-btn.active { background: var(--pink-soft); color: var(--pink); font-weight: 700; }
+
+    /* ─── SEARCH BAR ─── */
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .search-input { flex: 1; min-width: 180px; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; outline: none; font-family: var(--font-family); font-size: 0.85rem; }
 
     /* ─── PRODUCT GRID ─── */
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-    .product-card {
-      background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
-      transition: box-shadow 0.2s;
-    }
-    .product-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-    .product-card-img { width: 100%; height: 150px; object-fit: cover; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
-    .product-card-body { padding: 12px 14px; }
-    .product-card-name { font-weight: 700; font-size: 0.88rem; margin-bottom: 4px; line-height: 1.3; }
-    .product-card-price { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--text); }
-    .product-card-meta { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
-    .product-card-actions { display: flex; gap: 6px; padding: 10px 14px; border-top: 1px solid #f5f5f5; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+    .p-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .p-img { width: 100%; height: 130px; object-fit: cover; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+    .p-body { padding: 10px 12px; }
+    .p-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 2px; }
+    .p-price { font-weight: 800; color: var(--text); font-size: 0.9rem; }
 
     /* ─── UPLOAD ZONE ─── */
-    .upload-zone {
-      border: 2px dashed #e0d6f0; border-radius: 12px; padding: 24px;
-      text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa;
-    }
-    .upload-zone:hover { border-color: var(--pink); background: #fdf0f6; }
-    .upload-zone.drag { border-color: var(--pink); background: #fdf0f6; }
-    .upload-zone-icon { font-size: 2rem; margin-bottom: 8px; }
-    .upload-zone-text { font-size: 0.82rem; color: var(--muted); }
+    .upload-zone { border: 2px dashed #e6e6ec; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; background: #fafafa; }
+    .upload-zone:hover { border-color: var(--pink); background: var(--pink-soft); }
 
-    /* ─── SEARCH / FILTER ─── */
-    .filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-    .filter-input {
-      flex: 1; min-width: 180px; padding: 9px 14px; border: 1.5px solid var(--border);
-      border-radius: 8px; font-family: var(--font-body); font-size: 0.85rem; outline: none;
-    }
-    .filter-input:focus { border-color: var(--pink); }
-    .filter-select {
-      padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 8px;
-      font-family: var(--font-body); font-size: 0.85rem; outline: none; background: #fff; cursor: pointer;
-    }
+    /* ─── TOAST & SPINNER ─── */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.1); border-top-color: var(--pink); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ─── SELECT INPUT ─── */
-    select.form-control { cursor: pointer; }
-
-    /* ─── IMAGE PREVIEW ─── */
-    .img-preview-wrap { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-    .img-preview { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); }
-
-    /* ─── TOGGLE SWITCH ─── */
-    .toggle-wrap { display: flex; align-items: center; gap: 8px; }
-    .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; inset: 0; background: #ccc; border-radius: 50px; cursor: pointer; transition: 0.2s; }
-    .slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.2s; }
-    input:checked + .slider { background: var(--pink); }
-    input:checked + .slider:before { transform: translateX(18px); }
-
-    /* ─── EMPTY STATE ─── */
-    .empty-state { text-align: center; padding: 50px 20px; color: var(--muted); }
-    .empty-state-emoji { font-size: 3rem; margin-bottom: 14px; }
-    .empty-state-text { font-size: 0.9rem; }
-
-    /* ─── ALERT ─── */
-    .alert { padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; display: none; }
-    .alert-success { background: #e8f5e9; color: var(--green); }
-    .alert-error { background: #ffebee; color: var(--red); }
-    .alert.show { display: block; animation: fadeIn 0.25s ease; }
-
-    /* ─── RESPONSIVE ─── */
     @media (max-width: 768px) {
       #sidebar { transform: translateX(-100%); }
       #sidebar.open { transform: translateX(0); }
-      #mainContent { margin-left: 0; }
+      #main { margin-left: 0; }
       .mobile-menu-btn { display: block; }
-      .stat-grid { grid-template-columns: 1fr 1fr; }
-      .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
-      .page-content { padding: 16px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .page-body { padding: 16px; }
     }
-
-    /* ─── SETTINGS SECTION ─── */
-    .settings-section { margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
-    .settings-section:last-child { border-bottom: none; }
-    .settings-section-title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-
-    /* ─── SCROLLBAR ─── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
-
-    /* ─── ORDER DETAIL EXPAND ─── */
-    .expand-row td { padding: 0; }
-    .expand-inner { padding: 14px 20px; background: #fafafa; border-top: 1px solid #f0f0f0; }
-    .expand-items-list { display: flex; flex-direction: column; gap: 6px; }
-    .expand-item { display: flex; gap: 10px; align-items: center; font-size: 0.82rem; }
-    .expand-item img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
-
-    /* ─── COUPON TABLE ─── */
-    .coupon-code { font-family: monospace; background: #f5f4f8; padding: 3px 8px; border-radius: 5px; font-weight: 700; font-size: 0.85rem; }
-
-    .loading-spinner {
-      display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(244,122,171,0.2);
-      border-top-color: var(--pink); border-radius: 50%; animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════ LOGIN GATE ══ -->
+<!-- LOGIN GATE -->
 <div id="loginGate">
-  <div class="login-box">
-    <div class="login-box-logo">🐾 Tabby Chaser</div>
-    <div class="login-box-sub">Admin Panel — Enter your access password</div>
-    <input type="password" id="adminPassInput" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter') window.adminLogin()" />
-    <button class="login-btn" onclick="window.adminLogin()">Enter Dashboard</button>
-    <div class="login-error" id="loginError"></div>
+  <div class="login-card">
+    <div class="login-title">🐾 Tabby Chaser</div>
+    <div class="login-sub">Admin Panel Access</div>
+    <input type="password" id="adminPassInput" class="input" placeholder="Password" onkeydown="if(event.key==='Enter') window.adminLogin()" />
+    <button class="btn-submit" onclick="window.adminLogin()">Login to Dashboard</button>
+    <div class="login-err" id="loginError"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ SIDEBAR ══ -->
+<!-- SIDEBAR -->
 <nav id="sidebar">
-  <div class="sidebar-logo">
-    <div class="sidebar-logo-icon">T</div>
+  <div class="sidebar-header">
+    <div class="brand-avatar">T</div>
     <div>
-      <div class="sidebar-logo-text">Tabby Chaser</div>
-      <span class="sidebar-logo-sub">Admin Panel v2.0</span>
+      <div class="brand-name">Tabby Chaser</div>
+      <span class="brand-sub">Admin Console v3.0</span>
     </div>
   </div>
 
   <div class="sidebar-nav">
-    <div class="sidebar-section-label">Overview</div>
-    <button class="nav-item active" onclick="switchTab('dashboard', this)">
-      <span class="nav-item-icon">📊</span> Dashboard
-    </button>
+    <div class="nav-group-label">Overview</div>
+    <button class="nav-btn active" onclick="switchTab('dashboard', this)"><span class="nav-icon">📊</span> Dashboard</button>
 
-    <div class="sidebar-section-label">Store</div>
-    <button class="nav-item" onclick="switchTab('orders', this)">
-      <span class="nav-item-icon">📦</span> Orders
-      <span class="nav-badge" id="pendingOrdersBadge">0</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('custom', this)">
-      <span class="nav-item-icon">🎨</span> Custom Requests
-      <span class="nav-badge" id="pendingCustomBadge">0</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('products', this)">
-      <span class="nav-item-icon">🧸</span> Products
-    </button>
+    <div class="nav-group-label">Store Operations</div>
+    <button class="nav-btn" onclick="switchTab('orders', this)"><span class="nav-icon">📦</span> Orders <span class="nav-badge" id="badgeOrders">0</span></button>
+    <button class="nav-btn" onclick="switchTab('custom', this)"><span class="nav-icon">🎨</span> Custom Requests <span class="nav-badge" id="badgeCustom">0</span></button>
+    <button class="nav-btn" onclick="switchTab('products', this)"><span class="nav-icon">🧸</span> Products</button>
+    <button class="nav-btn" onclick="switchTab('categories', this)"><span class="nav-icon">🏷️</span> Categories</button>
+    <button class="nav-btn" onclick="switchTab('inventory', this)"><span class="nav-icon">📋</span> Inventory</button>
 
-    <div class="sidebar-section-label">Customers & Finance</div>
-    <button class="nav-item" onclick="switchTab('customers', this)">
-      <span class="nav-item-icon">👥</span> Customers
-    </button>
-    <button class="nav-item" onclick="switchTab('coupons', this)">
-      <span class="nav-item-icon">🏷️</span> Coupons
-    </button>
+    <div class="nav-group-label">Customers & Marketing</div>
+    <button class="nav-btn" onclick="switchTab('customers', this)"><span class="nav-icon">👥</span> Customers</button>
+    <button class="nav-btn" onclick="switchTab('coupons', this)"><span class="nav-icon">🎟️</span> Coupons</button>
+    <button class="nav-btn" onclick="switchTab('reviews', this)"><span class="nav-icon">⭐</span> Reviews</button>
 
-    <div class="sidebar-section-label">Site</div>
-    <button class="nav-item" onclick="switchTab('announcements', this)">
-      <span class="nav-item-icon">📢</span> Announcements
-    </button>
-    <button class="nav-item" onclick="switchTab('settings', this)">
-      <span class="nav-item-icon">⚙️</span> Settings
-    </button>
+    <div class="nav-group-label">Content & Settings</div>
+    <button class="nav-btn" onclick="switchTab('heroManager', this)"><span class="nav-icon">🖼️</span> Hero & Banner</button>
+    <button class="nav-btn" onclick="switchTab('shipping', this)"><span class="nav-icon">🚚</span> Shipping Fees</button>
+    <button class="nav-btn" onclick="switchTab('media', this)"><span class="nav-icon">📁</span> Media Library</button>
+    <button class="nav-btn" onclick="switchTab('siteSettings', this)"><span class="nav-icon">⚙️</span> Store Settings</button>
   </div>
 
   <div class="sidebar-footer">
-    <button class="sidebar-logout-btn" onclick="window.adminLogout()">
-      <span>🔓</span> Logout
-    </button>
+    <button class="logout-btn" onclick="window.adminLogout()">🔒 Logout</button>
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════════════ MAIN ══ -->
-<div id="mainContent">
+<!-- MAIN CONTENT -->
+<div id="main">
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:12px;">
       <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
       <div class="topbar-title" id="topbarTitle">Dashboard</div>
     </div>
     <div class="topbar-right">
-      <span class="admin-badge">🛡️ Admin</span>
+      <span class="role-badge">Admin Mode</span>
     </div>
   </div>
 
-  <div class="page-content">
+  <div class="page-body">
 
-    <!-- ━━━━ DASHBOARD ━━━━ -->
+    <!-- ━━━━ DASHBOARD TAB ━━━━ -->
     <div class="tab-pane active" id="tab-dashboard">
-      <div class="stat-grid" id="dashStatGrid">
-        <div class="stat-card pink">
+      <div class="stat-grid">
+        <div class="stat-card featured">
           <div class="stat-label">Total Revenue</div>
-          <div class="stat-value" id="statRevenue">₹0</div>
-          <div class="stat-sub">All time orders</div>
+          <div class="stat-val" id="dRev">₹0</div>
+          <div class="stat-sub">Lifetime revenue</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Shop Orders</div>
-          <div class="stat-value" id="statOrders">0</div>
-          <div class="stat-sub" id="statOrdersSub">Loading...</div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-val" id="dOrders">0</div>
+          <div class="stat-sub" id="dPending">0 pending</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Custom Requests</div>
-          <div class="stat-value" id="statCustom">0</div>
-          <div class="stat-sub" id="statCustomSub">Loading...</div>
+          <div class="stat-val" id="dCustom">0</div>
+          <div class="stat-sub" id="dCustomPending">0 pending</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Products</div>
-          <div class="stat-value" id="statProducts">0</div>
-          <div class="stat-sub">In catalogue</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Coupons Active</div>
-          <div class="stat-value" id="statCoupons">0</div>
-          <div class="stat-sub">Discount codes</div>
+          <div class="stat-label">Active Products</div>
+          <div class="stat-val" id="dProducts">0</div>
+          <div class="stat-sub" id="dLowStock">0 low stock</div>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="dash-grid">
-        <div class="admin-card">
+      <div class="grid-2">
+        <div class="card">
           <div class="card-header">
-            <div class="card-title">Recent Orders</div>
-            <button class="btn btn-outline btn-sm" onclick="switchTab('orders', document.querySelector('[onclick*=\"orders\"]'))">View All →</button>
+            <div class="card-title">Recent Shop Orders</div>
+            <button class="btn btn-outline btn-sm" onclick="switchTab('orders', document.querySelectorAll('.nav-btn')[1])">View All →</button>
           </div>
-          <div id="dashRecentOrders"><div class="empty-state"><div class="loading-spinner"></div></div></div>
+          <div id="dashOrdersBody"><div style="padding:20px;text-align:center;"><div class="spinner"></div></div></div>
         </div>
-        <div class="admin-card">
+        <div class="card">
           <div class="card-header">
             <div class="card-title">Recent Custom Requests</div>
-            <button class="btn btn-outline btn-sm" onclick="switchTab('custom', document.querySelector('[onclick*=\"custom\"]'))">View All →</button>
+            <button class="btn btn-outline btn-sm" onclick="switchTab('custom', document.querySelectorAll('.nav-btn')[2])">View All →</button>
           </div>
-          <div id="dashRecentCustom"><div class="empty-state"><div class="loading-spinner"></div></div></div>
+          <div id="dashCustomBody"><div style="padding:20px;text-align:center;"><div class="spinner"></div></div></div>
         </div>
       </div>
     </div>
 
-    <!-- ━━━━ ORDERS ━━━━ -->
+    <!-- ━━━━ ORDERS TAB ━━━━ -->
     <div class="tab-pane" id="tab-orders">
-      <div class="filter-row">
-        <input type="text" class="filter-input" id="orderSearch" placeholder="🔍 Search by name, email, order ID..." oninput="filterOrders()" />
-        <select class="filter-select" id="orderStatusFilter" onchange="filterOrders()">
+      <div class="filter-bar">
+        <input type="text" class="search-input" id="searchOrders" placeholder="Search orders by customer, email, ref..." oninput="renderOrders()" />
+        <select class="form-control" id="filterOrderStatus" style="width:160px;" onchange="renderOrders()">
           <option value="">All Statuses</option>
           <option value="pending">Pending</option>
-          <option value="processing">Processing</option>
-          <option value="baked">Baked</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="making">Making</option>
+          <option value="packed">Packed</option>
           <option value="shipped">Shipped</option>
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <button class="btn btn-outline btn-sm" onclick="loadOrders()">↻ Refresh</button>
+        <button class="btn btn-outline" onclick="loadOrders()">↻ Refresh</button>
       </div>
 
-      <div class="admin-card">
-        <div class="card-header">
-          <div class="card-title">All Orders</div>
-          <span id="orderCountLabel" style="font-size:0.78rem;color:var(--muted);"></span>
-        </div>
+      <div class="card">
         <div style="overflow-x:auto;">
           <table>
             <thead>
               <tr>
                 <th>Order Ref</th>
                 <th>Customer</th>
-                <th>Items</th>
                 <th>Total</th>
-                <th>Payment</th>
                 <th>Status</th>
                 <th>Tracking</th>
                 <th>Date</th>
-                <th></th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="ordersTableBody">
-              <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></td></tr>
+              <tr><td colspan="7" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- ━━━━ CUSTOM REQUESTS ━━━━ -->
+    <!-- ━━━━ CUSTOM REQUESTS TAB ━━━━ -->
     <div class="tab-pane" id="tab-custom">
-      <div class="filter-row">
-        <input type="text" class="filter-input" id="customSearch" placeholder="🔍 Search by pet name, email..." oninput="filterCustomOrders()" />
-        <select class="filter-select" id="customStatusFilter" onchange="filterCustomOrders()">
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Design Approved</option>
-          <option value="processing">In Progress</option>
-          <option value="baked">Baked</option>
-          <option value="shipped">Shipped</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <button class="btn btn-outline btn-sm" onclick="loadCustomOrders()">↻ Refresh</button>
-      </div>
-
-      <div class="admin-card">
-        <div class="card-header">
-          <div class="card-title">Custom Clay Requests</div>
-        </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Custom Pet Requests</div></div>
         <div style="overflow-x:auto;">
           <table>
             <thead>
               <tr>
                 <th>Pet Name</th>
-                <th>Type</th>
-                <th>Customer</th>
-                <th>Photos</th>
+                <th>Pet Type</th>
+                <th>Customer Email</th>
                 <th>Total</th>
                 <th>Status</th>
-                <th>Tracking</th>
                 <th>Date</th>
-                <th></th>
+                <th>Notes</th>
               </tr>
             </thead>
             <tbody id="customTableBody">
-              <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></td></tr>
+              <tr><td colspan="7" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- ━━━━ PRODUCTS ━━━━ -->
+    <!-- ━━━━ PRODUCTS TAB ━━━━ -->
     <div class="tab-pane" id="tab-products">
-      <div class="filter-row">
-        <input type="text" class="filter-input" id="productSearch" placeholder="🔍 Search products..." oninput="filterProducts()" />
-        <select class="filter-select" id="productStatusFilter" onchange="filterProducts()">
-          <option value="">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="draft">Draft</option>
-          <option value="out_of_stock">Out of Stock</option>
-        </select>
+      <div class="filter-bar">
+        <input type="text" class="search-input" id="searchProducts" placeholder="Search products..." oninput="renderProducts()" />
         <button class="btn btn-pink" onclick="openProductModal()">+ Add Product</button>
       </div>
-
       <div id="productGrid" class="product-grid">
-        <div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></div>
+        <div style="grid-column:1/-1;text-align:center;padding:30px;"><div class="spinner"></div></div>
       </div>
     </div>
 
-    <!-- ━━━━ CUSTOMERS ━━━━ -->
-    <div class="tab-pane" id="tab-customers">
-      <div class="filter-row">
-        <input type="text" class="filter-input" id="customerSearch" placeholder="🔍 Search customers..." oninput="filterCustomers()" />
-        <button class="btn btn-outline btn-sm" onclick="loadCustomers()">↻ Refresh</button>
+    <!-- ━━━━ CATEGORIES TAB ━━━━ -->
+    <div class="tab-pane" id="tab-categories">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <button class="btn btn-pink" onclick="openCategoryModal()">+ Add Category</button>
       </div>
-      <div class="admin-card">
-        <div class="card-header">
-          <div class="card-title">Customers</div>
-          <span id="customerCountLabel" style="font-size:0.78rem;color:var(--muted);"></span>
-        </div>
+      <div class="card">
         <div style="overflow-x:auto;">
           <table>
             <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Instagram</th>
-                <th>Orders</th>
-                <th>Total Spent</th>
-                <th>Last Order</th>
-              </tr>
+              <tr><th>Name</th><th>Slug</th><th>Description</th><th>Sort Order</th><th>Visible</th><th>Actions</th></tr>
             </thead>
-            <tbody id="customersTableBody">
-              <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></td></tr>
+            <tbody id="categoriesTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- ━━━━ COUPONS ━━━━ -->
+    <!-- ━━━━ INVENTORY TAB ━━━━ -->
+    <div class="tab-pane" id="tab-inventory">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Low & Out of Stock Products</div></div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>Product</th><th>Category</th><th>Stock</th><th>Status</th><th>Update Stock</th></tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ CUSTOMERS TAB ━━━━ -->
+    <div class="tab-pane" id="tab-customers">
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Email</th><th>Phone</th><th>Instagram</th><th>Orders</th><th>Lifetime Spent</th></tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ COUPONS TAB ━━━━ -->
     <div class="tab-pane" id="tab-coupons">
       <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
         <button class="btn btn-pink" onclick="openCouponModal()">+ Create Coupon</button>
       </div>
-      <div class="admin-card">
-        <div class="card-header"><div class="card-title">Discount Coupons</div></div>
+      <div class="card">
         <div style="overflow-x:auto;">
           <table>
             <thead>
-              <tr><th>Code</th><th>Type</th><th>Value</th><th>Used / Limit</th><th>Expiry</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Expiry</th><th>Active</th><th>Actions</th></tr>
             </thead>
             <tbody id="couponsTableBody">
-              <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);"><div class="loading-spinner"></div></td></tr>
+              <tr><td colspan="7" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- ━━━━ ANNOUNCEMENTS ━━━━ -->
-    <div class="tab-pane" id="tab-announcements">
-      <div class="admin-card">
-        <div class="card-header"><div class="card-title">📢 Announcement Bar</div></div>
+    <!-- ━━━━ REVIEWS TAB ━━━━ -->
+    <div class="tab-pane" id="tab-reviews">
+      <div class="card">
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr><th>Customer</th><th>Rating</th><th>Review</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="reviewsTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ HERO MANAGER TAB ━━━━ -->
+    <div class="tab-pane" id="tab-heroManager">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Homepage Banner & Marquee</div></div>
         <div class="card-body">
-          <div class="alert alert-success" id="annAlert"></div>
           <div class="form-group">
-            <label class="form-label">Announcement Text</label>
-            <textarea id="annText" class="form-control" rows="3" placeholder="e.g. 🚚 Free shipping on orders above ₹2,000 | Handmade with love in Bangalore 🐾"></textarea>
-            <p style="font-size:0.72rem;color:var(--muted);margin-top:6px;">Use | to separate multiple messages. Emojis are supported!</p>
+            <label class="form-label">Announcement Marquee Text</label>
+            <input type="text" id="siteMarquee" class="form-control" placeholder="🚚 Free shipping on orders above ₹2,000 | Handmade with love in Bangalore" />
           </div>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Free Shipping Threshold (₹)</label>
-              <input type="number" id="annShippingThreshold" class="form-control" placeholder="2000" />
-            </div>
+          <div class="form-group">
+            <label class="form-label">Hero Banner Headline</label>
+            <input type="text" id="siteHeroTitle" class="form-control" placeholder="Handmade Polymer Clay Charms" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hero Subheading</label>
+            <textarea id="siteHeroSub" class="form-control" rows="2" placeholder="Each piece is sculpted and painted with love by one sleepy cat"></textarea>
+          </div>
+          <button class="btn btn-pink" onclick="saveSiteSettings()">💾 Save Hero Content</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ SHIPPING TAB ━━━━ -->
+    <div class="tab-pane" id="tab-shipping">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Shipping Settings</div></div>
+        <div class="card-body">
+          <div class="grid-2">
             <div class="form-group">
               <label class="form-label">Standard Shipping Fee (₹)</label>
-              <input type="number" id="annShippingFee" class="form-control" placeholder="59" />
+              <input type="number" id="shipFee" class="form-control" placeholder="59" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Free Shipping Minimum Threshold (₹)</label>
+              <input type="number" id="shipFreeThreshold" class="form-control" placeholder="2000" />
             </div>
           </div>
-          <div class="form-grid-2">
+          <button class="btn btn-pink" onclick="saveSiteSettings()">💾 Save Shipping Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ MEDIA TAB ━━━━ -->
+    <div class="tab-pane" id="tab-media">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Cloudinary Upload Config</div></div>
+        <div class="card-body">
+          <div class="grid-2">
             <div class="form-group">
-              <label class="form-label">Instagram URL</label>
-              <input type="url" id="annInstagram" class="form-control" placeholder="https://www.instagram.com/tabbychaser" />
+              <label class="form-label">Cloud Name</label>
+              <input type="text" id="cloudName" class="form-control" placeholder="rjjympjfdmvjuuovidtc" />
             </div>
+            <div class="form-group">
+              <label class="form-label">Upload Preset (Unsigned)</label>
+              <input type="text" id="cloudPreset" class="form-control" placeholder="tabby_unsigned_preset" />
+            </div>
+          </div>
+          <button class="btn btn-pink" onclick="saveCloudinary()">Save Cloudinary Config</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━━━ STORE SETTINGS TAB ━━━━ -->
+    <div class="tab-pane" id="tab-siteSettings">
+      <div class="card">
+        <div class="card-header"><div class="card-title">General Store Settings</div></div>
+        <div class="card-body">
+          <div class="grid-2">
             <div class="form-group">
               <label class="form-label">Store Email</label>
-              <input type="email" id="annEmail" class="form-control" placeholder="tabbychaser2@gmail.com" />
-            </div>
-          </div>
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label">Business Name</label>
-              <input type="text" id="annBizName" class="form-control" placeholder="Tabby Chaser" />
+              <input type="email" id="storeEmail" class="form-control" placeholder="tabbychaser2@gmail.com" />
             </div>
             <div class="form-group">
-              <label class="form-label">Business Tagline</label>
-              <input type="text" id="annTagline" class="form-control" placeholder="Just me, some clay and a little paint." />
+              <label class="form-label">Instagram Handle</label>
+              <input type="text" id="storeInsta" class="form-control" placeholder="@tabbychaser" />
             </div>
           </div>
-          <button class="btn btn-pink" onclick="saveAnnouncements()">💾 Save Settings</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ━━━━ SETTINGS ━━━━ -->
-    <div class="tab-pane" id="tab-settings">
-      <div class="admin-card">
-        <div class="card-body">
-          <div class="alert alert-success" id="settingsAlert"></div>
-
-          <div class="settings-section">
-            <div class="settings-section-title">🔑 Change Admin Password</div>
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label class="form-label">New Password</label>
-                <input type="password" id="newAdminPass" class="form-control" placeholder="Min 8 characters" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Confirm New Password</label>
-                <input type="password" id="confirmAdminPass" class="form-control" placeholder="Repeat password" />
-              </div>
-            </div>
-            <button class="btn btn-pink" onclick="changeAdminPassword()">Update Password</button>
-          </div>
-
-          <div class="settings-section">
-            <div class="settings-section-title">☁️ Cloudinary Settings</div>
-            <p style="font-size:0.82rem;color:var(--muted);margin-bottom:16px;">These are used for product image uploads in the admin panel.</p>
-            <div class="form-grid-2">
-              <div class="form-group">
-                <label class="form-label">Cloud Name</label>
-                <input type="text" id="cloudName" class="form-control" placeholder="your-cloud-name" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Upload Preset</label>
-                <input type="text" id="cloudPreset" class="form-control" placeholder="tabby_unsigned_preset" />
-              </div>
-            </div>
-            <button class="btn btn-pink" onclick="saveCloudinarySettings()">Save Cloudinary Settings</button>
-          </div>
-
-          <div class="settings-section">
-            <div class="settings-section-title">ℹ️ Panel Info</div>
-            <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;">
-              Admin Panel v2.0 · Tabby Chaser<br/>
-              Built with Supabase + Cloudinary<br/>
-              All changes are saved instantly to your database.
-            </p>
+          <div class="form-group" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
+            <label class="form-label">Admin Password Change</label>
+            <input type="password" id="newAdminPass" class="form-control" placeholder="New Password" style="max-width:300px;margin-bottom:8px;" />
+            <button class="btn btn-outline" onclick="changeAdminPass()">Update Password</button>
           </div>
         </div>
       </div>
     </div>
 
-  </div><!-- /page-content -->
-</div><!-- /mainContent -->
+  </div><!-- /page-body -->
+</div><!-- /main -->
 
-<!-- ═══════════════ PRODUCT MODAL ═══════════════ -->
-<div class="modal-overlay" id="productModal">
-  <div class="modal-box">
+<!-- PRODUCT MODAL -->
+<div class="modal-backdrop" id="productModal">
+  <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="productModalTitle">Add Product</div>
+      <div class="modal-title" id="pModalTitle">Add Product</div>
       <button class="modal-close" onclick="closeProductModal()">×</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="editProductId" />
-      <div class="form-group">
-        <label class="form-label">Product Name *</label>
-        <input type="text" id="pName" class="form-control" placeholder="e.g. Ghostly Skull Charm" />
+      <input type="hidden" id="pId" />
+      <div class="modal-tabs">
+        <button class="modal-tab-btn active" onclick="switchProductTab('pTabBasic', this)">Basic Info</button>
+        <button class="modal-tab-btn" onclick="switchProductTab('pTabPricing', this)">Pricing & Stock</button>
+        <button class="modal-tab-btn" onclick="switchProductTab('pTabDetails', this)">Craft Details</button>
+        <button class="modal-tab-btn" onclick="switchProductTab('pTabSEO', this)">SEO & Badge</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea id="pDesc" class="form-control" rows="3" placeholder="Describe the product..."></textarea>
-      </div>
-      <div class="form-grid-3">
+
+      <!-- TAB 1: BASIC -->
+      <div id="pTabBasic">
         <div class="form-group">
-          <label class="form-label">Price (₹) *</label>
-          <input type="number" id="pPrice" class="form-control" placeholder="199" />
+          <label class="form-label">Product Name *</label>
+          <input type="text" id="pName" class="form-control" placeholder="Ghostly Skull Charm" />
         </div>
         <div class="form-group">
-          <label class="form-label">Original Price (₹)</label>
-          <input type="number" id="pOriginalPrice" class="form-control" placeholder="250" />
+          <label class="form-label">Description</label>
+          <textarea id="pDesc" class="form-control" rows="3" placeholder="Full product description..."></textarea>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="pCategory" class="form-control"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="pStatus" class="form-control">
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Stock *</label>
-          <input type="number" id="pStock" class="form-control" placeholder="10" />
+          <label class="form-label">Images</label>
+          <div class="upload-zone" onclick="document.getElementById('imgUploadInput').click()">
+            📸 Click to upload images via Cloudinary
+          </div>
+          <input type="file" id="imgUploadInput" multiple accept="image/*" style="display:none;" onchange="uploadProductImages(this.files)" />
+          <div id="pImgPreviews" style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;"></div>
         </div>
       </div>
-      <div class="form-grid-2">
+
+      <!-- TAB 2: PRICING -->
+      <div id="pTabPricing" style="display:none;">
+        <div class="grid-3">
+          <div class="form-group">
+            <label class="form-label">Price (₹) *</label>
+            <input type="number" id="pPrice" class="form-control" placeholder="199" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Compare Price (₹)</label>
+            <input type="number" id="pComparePrice" class="form-control" placeholder="250" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stock Quantity *</label>
+            <input type="number" id="pStock" class="form-control" placeholder="10" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">SKU</label>
+            <input type="text" id="pSku" class="form-control" placeholder="TC-GHOST-01" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tags (comma separated)</label>
+            <input type="text" id="pTags" class="form-control" placeholder="cat, charm, handmade" />
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: DETAILS -->
+      <div id="pTabDetails" style="display:none;">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Handmade Duration</label>
+            <input type="text" id="pDuration" class="form-control" placeholder="4-5 weeks" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Materials Used</label>
+            <input type="text" id="pMaterials" class="form-control" placeholder="Polymer clay, varnish, alloy ring" />
+          </div>
+        </div>
         <div class="form-group">
-          <label class="form-label">Category</label>
-          <select id="pCategory" class="form-control">
-            <option value="">Select category...</option>
-            <option value="charms">Charms</option>
-            <option value="keychains">Keychains</option>
-            <option value="stickers">Stickers</option>
-            <option value="worry-stones">Worry Stones</option>
-            <option value="sets">Sets & Bundles</option>
-            <option value="custom">Custom</option>
-            <option value="other">Other</option>
+          <label class="form-label">Care Instructions</label>
+          <input type="text" id="pCare" class="form-control" placeholder="Keep away from water. Handle gently." />
+        </div>
+      </div>
+
+      <!-- TAB 4: SEO -->
+      <div id="pTabSEO" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Product Badge</label>
+          <select id="pBadge" class="form-control">
+            <option value="">None</option>
+            <option value="Bestseller">Bestseller</option>
+            <option value="Featured">Featured</option>
+            <option value="New Arrival">New Arrival</option>
+            <option value="Limited Edition">Limited Edition</option>
+            <option value="Only Few Left">Only Few Left</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Status</label>
-          <select id="pStatus" class="form-control">
-            <option value="active">Active</option>
-            <option value="draft">Draft</option>
-            <option value="out_of_stock">Out of Stock</option>
-          </select>
+          <label class="form-label">SEO Title</label>
+          <input type="text" id="pSeoTitle" class="form-control" placeholder="Ghostly Skull Charm | Tabby Chaser" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">SEO Description</label>
+          <textarea id="pSeoDesc" class="form-control" rows="2" placeholder="Handmade cute polymer clay charm..."></textarea>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Tags (comma separated)</label>
-        <input type="text" id="pTags" class="form-control" placeholder="cat, handmade, clay, cute" />
-      </div>
-      <div class="form-group">
-        <div class="toggle-wrap" style="margin-bottom:8px;">
-          <label class="toggle">
-            <input type="checkbox" id="pFeatured" />
-            <span class="slider"></span>
-          </label>
-          <label class="form-label" style="margin:0;">Featured Product (shown on homepage)</label>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Product Images</label>
-        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imageFileInput').click()">
-          <div class="upload-zone-icon">📸</div>
-          <div class="upload-zone-text">Click to upload images (or drag & drop)<br/><small>JPG, PNG, WEBP — up to 5 images</small></div>
-        </div>
-        <input type="file" id="imageFileInput" accept="image/*" multiple style="display:none" onchange="handleImageUpload(this.files)" />
-        <div class="img-preview-wrap" id="imagePreviewWrap"></div>
-        <div id="uploadStatus" style="font-size:0.75rem;color:var(--muted);margin-top:6px;"></div>
-      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
-      <button class="btn btn-pink" onclick="saveProduct()" id="saveProductBtn">💾 Save Product</button>
+      <button class="btn btn-pink" onclick="saveProduct()">💾 Save Product</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════ COUPON MODAL ═══════════════ -->
-<div class="modal-overlay" id="couponModal">
-  <div class="modal-box" style="max-width:480px;">
+<!-- CATEGORY MODAL -->
+<div class="modal-backdrop" id="catModal">
+  <div class="modal" style="max-width:450px;">
+    <div class="modal-header">
+      <div class="modal-title">Add Category</div>
+      <button class="modal-close" onclick="document.getElementById('catModal').classList.remove('open')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Category Name *</label>
+        <input type="text" id="catName" class="form-control" placeholder="Keychains" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="catDesc" class="form-control" rows="2" placeholder="Cute clay keychains"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sort Order</label>
+        <input type="number" id="catSort" class="form-control" value="0" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-pink" onclick="saveCategory()">Save Category</button>
+    </div>
+  </div>
+</div>
+
+<!-- COUPON MODAL -->
+<div class="modal-backdrop" id="couponModal">
+  <div class="modal" style="max-width:450px;">
     <div class="modal-header">
       <div class="modal-title">Create Coupon</div>
-      <button class="modal-close" onclick="closeCouponModal()">×</button>
+      <button class="modal-close" onclick="document.getElementById('couponModal').classList.remove('open')">×</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">Coupon Code *</label>
-        <input type="text" id="cCode" class="form-control" placeholder="e.g. TABBY20" style="text-transform:uppercase;" />
+        <input type="text" id="coupCode" class="form-control" placeholder="TABBY10" style="text-transform:uppercase;" />
       </div>
-      <div class="form-grid-2">
+      <div class="grid-2">
         <div class="form-group">
-          <label class="form-label">Discount Type *</label>
-          <select id="cType" class="form-control">
-            <option value="percent">Percentage (%)</option>
-            <option value="flat">Flat Amount (₹)</option>
+          <label class="form-label">Type</label>
+          <select id="coupType" class="form-control">
+            <option value="percent">Percent (%)</option>
+            <option value="flat">Flat (₹)</option>
+            <option value="free_shipping">Free Shipping</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Value *</label>
-          <input type="number" id="cValue" class="form-control" placeholder="10" />
+          <label class="form-label">Value</label>
+          <input type="number" id="coupVal" class="form-control" placeholder="10" />
         </div>
       </div>
-      <div class="form-grid-2">
-        <div class="form-group">
-          <label class="form-label">Usage Limit (0 = unlimited)</label>
-          <input type="number" id="cLimit" class="form-control" placeholder="0" value="0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Expiry Date</label>
-          <input type="date" id="cExpiry" class="form-control" />
-        </div>
+      <div class="form-group">
+        <label class="form-label">Min Order Value (₹)</label>
+        <input type="number" id="coupMin" class="form-control" placeholder="0" />
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeCouponModal()">Cancel</button>
-      <button class="btn btn-pink" onclick="saveCoupon()">💾 Create Coupon</button>
+      <button class="btn btn-pink" onclick="saveCoupon()">Create Coupon</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script>
-  // ═══════════════════════════════════════════
-  // STATE
-  // ═══════════════════════════════════════════
+  // STATE & SECRETS
   const ADMIN_PASS_KEY = 'tabby_admin_pass';
   const SESSION_KEY = 'tabby_admin_session';
   const DEFAULT_PASS = 'tabby2026';
 
-  let allOrders = [];
-  let allCustomOrders = [];
-  let allProducts = [];
-  let allCustomers = [];
-  let allCoupons = [];
-  let uploadedImageUrls = [];
+  let allOrders = [], allCustom = [], allProducts = [], allCategories = [], allCustomers = [], allCoupons = [], allReviews = [];
+  let currentProductImgs = [];
 
-  // ═══════════════════════════════════════════
   // AUTH
-  // ═══════════════════════════════════════════
   function adminLogin() {
     const pass = document.getElementById('adminPassInput').value;
     const stored = localStorage.getItem(ADMIN_PASS_KEY) || DEFAULT_PASS;
@@ -858,9 +807,7 @@
       document.getElementById('loginGate').style.display = 'none';
       initDashboard();
     } else {
-      const err = document.getElementById('loginError');
-      err.textContent = '❌ Wrong password. Try again. (Default: tabby2026)';
-      setTimeout(() => { err.textContent = ''; }, 4000);
+      document.getElementById('loginError').textContent = '❌ Invalid Password';
     }
   }
   window.adminLogin = adminLogin;
@@ -868,696 +815,488 @@
   function adminLogout() {
     sessionStorage.removeItem(SESSION_KEY);
     document.getElementById('loginGate').style.display = 'flex';
-    document.getElementById('adminPassInput').value = '';
   }
   window.adminLogout = adminLogout;
 
-  // Check session on load
+  // INIT
   window.addEventListener('DOMContentLoaded', () => {
-    // Password reset via URL: /admin.html?reset=1
-    if (new URLSearchParams(location.search).get('reset') === '1') {
-      localStorage.removeItem(ADMIN_PASS_KEY);
-      sessionStorage.removeItem(SESSION_KEY);
-      history.replaceState(null, '', location.pathname);
-      alert('Password reset! Default password is: tabby2026');
-    }
-
     if (sessionStorage.getItem(SESSION_KEY) === 'true') {
       document.getElementById('loginGate').style.display = 'none';
       initDashboard();
     }
-
-    // Preload Cloudinary settings into inputs
-    try {
-      document.getElementById('cloudName').value = localStorage.getItem('tabby_cloudinary_name') || '';
-      document.getElementById('cloudPreset').value = localStorage.getItem('tabby_cloudinary_preset') || '';
-    } catch(e) {}
-
-    // Drag & drop for upload zone
-    try {
-      const zone = document.getElementById('uploadZone');
-      if (zone) {
-        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
-        zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-        zone.addEventListener('drop', e => {
-          e.preventDefault(); zone.classList.remove('drag');
-          handleImageUpload(e.dataTransfer.files);
-        });
-      }
-    } catch(e) {}
   });
 
-  // ═══════════════════════════════════════════
-  // INIT
-  // ═══════════════════════════════════════════
   async function initDashboard() {
+    await loadCategories();
     await Promise.all([
-      loadDashboard(),
       loadOrders(),
       loadCustomOrders(),
       loadProducts(),
       loadCustomers(),
       loadCoupons(),
+      loadReviews(),
       loadSiteSettings()
     ]);
   }
 
-  // ═══════════════════════════════════════════
   // NAVIGATION
-  // ═══════════════════════════════════════════
-  const TAB_TITLES = {
-    dashboard: 'Dashboard', orders: 'Orders', custom: 'Custom Requests',
-    products: 'Products', customers: 'Customers', coupons: 'Coupons',
-    announcements: 'Announcements', settings: 'Settings'
-  };
-
   function switchTab(id, btn) {
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + id)?.classList.add('active');
     if (btn) btn.classList.add('active');
-    document.getElementById('topbarTitle').textContent = TAB_TITLES[id] || id;
+    document.getElementById('topbarTitle').textContent = btn.innerText.replace(/[^\w\s&]/gi, '').trim();
     document.getElementById('sidebar').classList.remove('open');
   }
   window.switchTab = switchTab;
 
-  // ═══════════════════════════════════════════
   // SUPABASE HELPER
-  // ═══════════════════════════════════════════
   async function db() {
-    let tries = 0;
-    while (!window.supabaseClient && tries < 20) { await sleep(300); tries++; }
+    let t = 0;
+    while (!window.supabaseClient && t < 15) { await new Promise(r => setTimeout(r, 200)); t++; }
     return window.supabaseClient;
   }
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const fmtINR = n => '₹' + (n || 0).toLocaleString('en-IN');
 
-  function fmtDate(iso) {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-  }
-  function fmtINR(n) { return '₹' + (n || 0).toLocaleString('en-IN'); }
-
-  // ═══════════════════════════════════════════
-  // DASHBOARD
-  // ═══════════════════════════════════════════
-  async function loadDashboard() {
-    const client = await db();
-    if (!client) return;
-
-    const [{ data: orders }, { data: custom }, { data: products }, { data: coupons }] = await Promise.all([
-      client.from('orders').select('*').order('created_at', { ascending: false }),
-      client.from('custom_orders').select('*').order('created_at', { ascending: false }),
-      client.from('products').select('id, status'),
-      client.from('coupons').select('id').eq('active', true)
-    ]);
-
-    const revenue = (orders || []).reduce((s, o) => s + (o.total || 0), 0);
-    const pending = (orders || []).filter(o => o.status === 'pending').length;
-    const pendingCustom = (custom || []).filter(o => o.status === 'pending').length;
-
-    document.getElementById('statRevenue').textContent = fmtINR(revenue);
-    document.getElementById('statOrders').textContent = (orders || []).length;
-    document.getElementById('statOrdersSub').textContent = `${pending} pending`;
-    document.getElementById('statCustom').textContent = (custom || []).length;
-    document.getElementById('statCustomSub').textContent = `${pendingCustom} pending`;
-    document.getElementById('statProducts').textContent = (products || []).length;
-    document.getElementById('statCoupons').textContent = (coupons || []).length;
-
-    // Badges
-    document.getElementById('pendingOrdersBadge').textContent = pending;
-    document.getElementById('pendingCustomBadge').textContent = pendingCustom;
-
-    // Recent orders table
-    const recentOrders = (orders || []).slice(0, 5);
-    document.getElementById('dashRecentOrders').innerHTML = recentOrders.length ? `
-      <table>
-        <thead><tr><th>Ref</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
-        <tbody>${recentOrders.map(o => `
-          <tr>
-            <td style="font-weight:700;">#${o.order_reference}</td>
-            <td>${o.name || '—'}</td>
-            <td>${fmtINR(o.total)}</td>
-            <td><span class="status-badge status-${o.status}">${o.status}</span></td>
-          </tr>`).join('')}</tbody>
-      </table>` : `<div class="empty-state"><div class="empty-state-emoji">📭</div><div class="empty-state-text">No orders yet</div></div>`;
-
-    const recentCustom = (custom || []).slice(0, 5);
-    document.getElementById('dashRecentCustom').innerHTML = recentCustom.length ? `
-      <table>
-        <thead><tr><th>Pet</th><th>Email</th><th>Total</th><th>Status</th></tr></thead>
-        <tbody>${recentCustom.map(o => `
-          <tr>
-            <td style="font-weight:700;">${o.pet_name}</td>
-            <td>${o.email}</td>
-            <td>${fmtINR(o.total)}</td>
-            <td><span class="status-badge status-${o.status}">${o.status}</span></td>
-          </tr>`).join('')}</tbody>
-      </table>` : `<div class="empty-state"><div class="empty-state-emoji">🎨</div><div class="empty-state-text">No custom requests yet</div></div>`;
-  }
-
-  // ═══════════════════════════════════════════
-  // ORDERS
-  // ═══════════════════════════════════════════
+  // 1. DASHBOARD & ORDERS
   async function loadOrders() {
     const client = await db(); if (!client) return;
-    const { data, error } = await client.from('orders').select('*').order('created_at', { ascending: false });
-    if (error) { console.error(error); return; }
+    const { data } = await client.from('orders').select('*').order('created_at', { ascending: false });
     allOrders = data || [];
-    renderOrders(allOrders);
+    renderOrders();
+    updateDashboardStats();
   }
 
-  function renderOrders(orders) {
-    document.getElementById('orderCountLabel').textContent = `${orders.length} orders`;
-    const tbody = document.getElementById('ordersTableBody');
-    if (!orders.length) {
-      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-emoji">📭</div><div class="empty-state-text">No orders found</div></div></td></tr>`;
-      return;
-    }
-    tbody.innerHTML = orders.map(o => {
-      const itemCount = Array.isArray(o.items) ? o.items.length : (o.items ? JSON.parse(o.items).length : 0);
-      return `
-        <tr>
-          <td style="font-weight:700;white-space:nowrap;">#${o.order_reference}</td>
-          <td>
-            <div style="font-weight:600;">${o.name || '—'}</div>
-            <div style="font-size:0.72rem;color:var(--muted);">${o.email}</div>
-            ${o.instagram ? `<div style="font-size:0.68rem;color:var(--pink);">${o.instagram}</div>` : ''}
-          </td>
-          <td>${itemCount} item${itemCount !== 1 ? 's' : ''}</td>
-          <td style="font-weight:700;">${fmtINR(o.total)}</td>
-          <td style="text-transform:uppercase;font-size:0.75rem;">${o.payment_method || '—'}</td>
-          <td>
-            <select class="filter-select" style="font-size:0.75rem;padding:4px 8px;" onchange="updateOrderStatus('${o.id}', this.value)">
-              ${['pending','processing','baked','shipped','delivered','cancelled'].map(s =>
-                `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
-              ).join('')}
-            </select>
-          </td>
-          <td>
-            <input type="text" placeholder="Tracking ID" value="${o.tracking_id || ''}"
-              onblur="updateTrackingId('${o.id}', this.value)"
-              style="border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:0.75px;width:110px;font-family:var(--font-body);outline:none;font-size:0.75rem;" />
-          </td>
-          <td style="white-space:nowrap;font-size:0.75rem;">${fmtDate(o.created_at)}</td>
-          <td>
-            <button class="btn btn-outline btn-sm btn-icon" title="View Details" onclick="toggleOrderExpand('${o.id}', this, ${JSON.stringify(JSON.stringify(o.items || []))})">👁</button>
-          </td>
-        </tr>
-        <tr class="expand-row" id="expand-${o.id}" style="display:none;">
-          <td colspan="9">
-            <div class="expand-inner">
-              <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:8px;">ORDER ITEMS</div>
-              <div class="expand-items-list" id="expand-items-${o.id}"></div>
-              ${o.notes ? `<div style="margin-top:10px;font-size:0.78rem;"><strong>Notes:</strong> ${o.notes}</div>` : ''}
-              <div style="margin-top:10px;font-size:0.78rem;color:var(--muted);">📍 ${o.address}</div>
-            </div>
-          </td>
-        </tr>`;
-    }).join('');
-  }
+  function renderOrders() {
+    const query = (document.getElementById('searchOrders')?.value || '').toLowerCase();
+    const statusFilter = document.getElementById('filterOrderStatus')?.value || '';
+    const filtered = allOrders.filter(o =>
+      (!query || o.order_reference.toLowerCase().includes(query) || o.name.toLowerCase().includes(query)) &&
+      (!statusFilter || o.status === statusFilter)
+    );
 
-  function toggleOrderExpand(id, btn, itemsJson) {
-    const row = document.getElementById('expand-' + id);
-    const visible = row.style.display !== 'none';
-    row.style.display = visible ? 'none' : 'table-row';
-    btn.textContent = visible ? '👁' : '▲';
-    if (!visible) {
-      let items = [];
-      try { items = JSON.parse(itemsJson); } catch(e) {}
-      document.getElementById('expand-items-' + id).innerHTML = items.map(item =>
-        `<div class="expand-item">
-          <img src="${item.img || 'store-logo-c471e30d.webp'}" alt="${item.name}" />
-          <div><div style="font-weight:600;">${item.name}</div><div style="font-size:0.72rem;color:var(--muted);">Qty: ${item.quantity} × ${fmtINR(item.price)}</div></div>
-          <div style="margin-left:auto;font-weight:700;">${fmtINR(item.price * item.quantity)}</div>
-        </div>`).join('') || '<div style="color:var(--muted);font-size:0.82rem;">No items</div>';
-    }
-  }
+    document.getElementById('badgeOrders').textContent = allOrders.filter(o => o.status === 'pending').length;
 
-  async function updateOrderStatus(id, status) {
-    const client = await db(); if (!client) return;
-    await client.from('orders').update({ status }).eq('id', id);
-    showToast('Order status updated!');
-    loadDashboard();
-  }
-
-  async function updateTrackingId(id, tracking_id) {
-    const client = await db(); if (!client) return;
-    await client.from('orders').update({ tracking_id }).eq('id', id);
-    if (tracking_id) showToast('Tracking ID saved!');
-  }
-
-  function filterOrders() {
-    const q = document.getElementById('orderSearch').value.toLowerCase();
-    const s = document.getElementById('orderStatusFilter').value;
-    renderOrders(allOrders.filter(o =>
-      (!q || (o.name||'').toLowerCase().includes(q) || (o.email||'').toLowerCase().includes(q) || (o.order_reference||'').toLowerCase().includes(q)) &&
-      (!s || o.status === s)
-    ));
-  }
-
-  // ═══════════════════════════════════════════
-  // CUSTOM ORDERS
-  // ═══════════════════════════════════════════
-  async function loadCustomOrders() {
-    const client = await db(); if (!client) return;
-    const { data } = await client.from('custom_orders').select('*').order('created_at', { ascending: false });
-    allCustomOrders = data || [];
-    renderCustomOrders(allCustomOrders);
-  }
-
-  function renderCustomOrders(list) {
-    const tbody = document.getElementById('customTableBody');
-    if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-emoji">🎨</div><div class="empty-state-text">No custom requests yet</div></div></td></tr>`;
-      return;
-    }
-    tbody.innerHTML = list.map(o => `
+    document.getElementById('ordersTableBody').innerHTML = filtered.length ? filtered.map(o => `
       <tr>
-        <td style="font-weight:700;">${o.pet_name}</td>
-        <td>${o.pet_type || '—'}</td>
+        <td style="font-weight:700;">#${o.order_reference}</td>
         <td>
-          <div style="font-weight:600;">${o.email}</div>
-        </td>
-        <td>
-          ${(o.special_notes || '').includes('http') ?
-            o.special_notes.match(/(https?:\/\/[^\s,]+)/g)?.slice(0,3).map(url =>
-              `<a href="${url}" target="_blank"><img src="${url}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid #eee;" /></a>`
-            ).join('') || '—' : '—'}
+          <div style="font-weight:600;">${o.name}</div>
+          <div style="font-size:0.72rem;color:var(--muted);">${o.email}</div>
         </td>
         <td style="font-weight:700;">${fmtINR(o.total)}</td>
         <td>
-          <select class="filter-select" style="font-size:0.75rem;padding:4px 8px;" onchange="updateCustomStatus('${o.id}', this.value)">
-            ${['pending','approved','processing','baked','shipped','cancelled'].map(s =>
+          <select class="form-control" style="font-size:0.75rem;padding:3px 6px;" onchange="updateOrderStatus('${o.id}', this.value)">
+            ${['pending','confirmed','making','packed','shipped','delivered','cancelled'].map(s =>
               `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
             ).join('')}
           </select>
         </td>
         <td>
-          <input type="text" placeholder="Tracking ID" value="${o.tracking_id || ''}"
-            onblur="updateCustomTracking('${o.id}', this.value)"
-            style="border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;width:110px;font-family:var(--font-body);outline:none;font-size:0.75rem;" />
+          <input type="text" class="form-control" placeholder="Tracking #" value="${o.tracking_id || ''}" style="font-size:0.75rem;padding:3px 6px;" onblur="updateTracking('${o.id}', this.value)" />
         </td>
-        <td style="white-space:nowrap;font-size:0.75rem;">${fmtDate(o.created_at)}</td>
-        <td>
-          ${o.special_notes ? `<button class="btn btn-outline btn-sm" onclick="alert('${(o.special_notes||'').replace(/'/g,'`')}')">📝 Notes</button>` : ''}
-        </td>
-      </tr>`).join('');
+        <td style="font-size:0.75rem;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
+        <td><button class="btn btn-outline btn-sm" onclick="printInvoice('${o.id}')">🧾 Invoice</button></td>
+      </tr>
+    `).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;">No orders found</td></tr>`;
   }
 
-  async function updateCustomStatus(id, status) {
+  async function updateOrderStatus(id, status) {
+    const client = await db();
+    await client.from('orders').update({ status }).eq('id', id);
+    loadOrders();
+  }
+
+  async function updateTracking(id, tracking_id) {
+    const client = await db();
+    await client.from('orders').update({ tracking_id }).eq('id', id);
+  }
+
+  // 2. CUSTOM ORDERS
+  async function loadCustomOrders() {
     const client = await db(); if (!client) return;
-    await client.from('custom_orders').update({ status }).eq('id', id);
-    showToast('Custom order status updated!');
-    loadDashboard();
+    const { data } = await client.from('custom_orders').select('*').order('created_at', { ascending: false });
+    allCustom = data || [];
+    document.getElementById('badgeCustom').textContent = allCustom.filter(o => o.status === 'pending').length;
+    document.getElementById('customTableBody').innerHTML = allCustom.length ? allCustom.map(o => `
+      <tr>
+        <td style="font-weight:700;">${o.pet_name}</td>
+        <td>${o.pet_type}</td>
+        <td>${o.email}</td>
+        <td style="font-weight:700;">${fmtINR(o.total)}</td>
+        <td><span class="badge-status st-${o.status}">${o.status}</span></td>
+        <td style="font-size:0.75rem;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
+        <td>${o.special_notes ? `<button class="btn btn-outline btn-sm" onclick="alert('${(o.special_notes||'').replace(/'/g,'`')}')">Notes</button>` : '—'}</td>
+      </tr>
+    `).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;">No custom requests</td></tr>`;
   }
 
-  async function updateCustomTracking(id, tracking_id) {
-    const client = await db(); if (!client) return;
-    await client.from('custom_orders').update({ tracking_id }).eq('id', id);
-    if (tracking_id) showToast('Tracking ID saved!');
-  }
-
-  function filterCustomOrders() {
-    const q = document.getElementById('customSearch').value.toLowerCase();
-    const s = document.getElementById('customStatusFilter').value;
-    renderCustomOrders(allCustomOrders.filter(o =>
-      (!q || (o.pet_name||'').toLowerCase().includes(q) || (o.email||'').toLowerCase().includes(q)) &&
-      (!s || o.status === s)
-    ));
-  }
-
-  // ═══════════════════════════════════════════
-  // PRODUCTS
-  // ═══════════════════════════════════════════
+  // 3. PRODUCTS
   async function loadProducts() {
     const client = await db(); if (!client) return;
     const { data } = await client.from('products').select('*').order('created_at', { ascending: false });
     allProducts = data || [];
-    renderProducts(allProducts);
+    renderProducts();
+    renderInventory();
+    updateDashboardStats();
   }
 
-  function renderProducts(list) {
-    const grid = document.getElementById('productGrid');
-    if (!list.length) {
-      grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state"><div class="empty-state-emoji">🧸</div><div class="empty-state-text">No products yet. Click "Add Product" to get started!</div></div></div>`;
-      return;
-    }
-    grid.innerHTML = list.map(p => {
-      const img = (p.images && p.images[0]) ? p.images[0] : null;
-      return `
-        <div class="product-card">
-          <div class="product-card-img">
-            ${img ? `<img src="${img}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;" />` : '🧸'}
+  function renderProducts() {
+    const query = (document.getElementById('searchProducts')?.value || '').toLowerCase();
+    const filtered = allProducts.filter(p => !query || p.name.toLowerCase().includes(query));
+    document.getElementById('productGrid').innerHTML = filtered.length ? filtered.map(p => `
+      <div class="p-card">
+        <div class="p-img">${(p.images && p.images[0]) ? `<img src="${p.images[0]}" style="width:100%;height:100%;object-fit:cover;" />` : '🧸'}</div>
+        <div class="p-body">
+          <div class="p-title">${p.name}</div>
+          <div class="p-price">${fmtINR(p.price)}</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:4px;">Stock: ${p.stock} · <span class="badge-status st-${p.status}">${p.status}</span></div>
+          <div style="display:flex;gap:6px;margin-top:8px;">
+            <button class="btn btn-outline btn-sm" style="flex:1;" onclick='openProductModal(${JSON.stringify(p)})'>Edit</button>
+            <button class="btn btn-red btn-sm" onclick="deleteProduct('${p.id}')">🗑</button>
           </div>
-          <div class="product-card-body">
-            <div class="product-card-name">${p.name}</div>
-            <div class="product-card-price">${fmtINR(p.price)}</div>
-            <div class="product-card-meta">Stock: ${p.stock ?? '—'} · <span class="status-badge status-${p.status}">${p.status}</span></div>
-          </div>
-          <div class="product-card-actions">
-            <button class="btn btn-outline btn-sm" onclick='openProductModal(${JSON.stringify(p)})'>✏️ Edit</button>
-            <button class="btn btn-red btn-sm" onclick="deleteProduct('${p.id}', '${p.name.replace(/'/g,'`')}')">🗑</button>
-          </div>
-        </div>`;
-    }).join('');
+        </div>
+      </div>
+    `).join('') : `<div style="grid-column:1/-1;text-align:center;padding:30px;">No products found</div>`;
   }
 
-  function filterProducts() {
-    const q = document.getElementById('productSearch').value.toLowerCase();
-    const s = document.getElementById('productStatusFilter').value;
-    renderProducts(allProducts.filter(p =>
-      (!q || (p.name||'').toLowerCase().includes(q)) &&
-      (!s || p.status === s)
-    ));
-  }
-
-  function openProductModal(product = null) {
-    uploadedImageUrls = [];
-    document.getElementById('imagePreviewWrap').innerHTML = '';
-    document.getElementById('uploadStatus').textContent = '';
-    document.getElementById('productModalTitle').textContent = product ? 'Edit Product' : 'Add Product';
-    document.getElementById('editProductId').value = product?.id || '';
-    document.getElementById('pName').value = product?.name || '';
-    document.getElementById('pDesc').value = product?.description || '';
-    document.getElementById('pPrice').value = product?.price || '';
-    document.getElementById('pOriginalPrice').value = product?.original_price || '';
-    document.getElementById('pStock').value = product?.stock ?? '';
-    document.getElementById('pCategory').value = product?.category || '';
-    document.getElementById('pStatus').value = product?.status || 'active';
-    document.getElementById('pTags').value = (product?.tags || []).join(', ');
-    document.getElementById('pFeatured').checked = product?.featured || false;
-
-    if (product?.images?.length) {
-      uploadedImageUrls = [...product.images];
-      document.getElementById('imagePreviewWrap').innerHTML = product.images.map(url =>
-        `<img src="${url}" class="img-preview" />`).join('');
-    }
-
+  function openProductModal(p = null) {
+    currentProductImgs = p?.images || [];
+    document.getElementById('pModalTitle').textContent = p ? 'Edit Product' : 'Add Product';
+    document.getElementById('pId').value = p?.id || '';
+    document.getElementById('pName').value = p?.name || '';
+    document.getElementById('pDesc').value = p?.description || '';
+    document.getElementById('pPrice').value = p?.price || '';
+    document.getElementById('pComparePrice').value = p?.compare_price || '';
+    document.getElementById('pStock').value = p?.stock ?? 10;
+    document.getElementById('pCategory').value = p?.category || (allCategories[0]?.name || '');
+    document.getElementById('pStatus').value = p?.status || 'published';
+    document.getElementById('pBadge').value = p?.badge || '';
+    document.getElementById('pSku').value = p?.sku || '';
+    document.getElementById('pDuration').value = p?.handmade_duration || '4-5 weeks';
+    document.getElementById('pMaterials').value = p?.materials || '';
+    document.getElementById('pCare').value = p?.care_instructions || '';
+    document.getElementById('pSeoTitle').value = p?.seo_title || '';
+    document.getElementById('pSeoDesc').value = p?.seo_description || '';
+    renderProductPreviews();
     document.getElementById('productModal').classList.add('open');
   }
 
-  function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }
+  function switchProductTab(tabId, btn) {
+    ['pTabBasic','pTabPricing','pTabDetails','pTabSEO'].forEach(id => document.getElementById(id).style.display = 'none');
+    document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).style.display = 'block';
+    btn.classList.add('active');
+  }
 
-  async function handleImageUpload(files) {
-    if (!files?.length) return;
-    const cloudName = window.cloudinaryConfig?.cloudName;
-    const preset = window.cloudinaryConfig?.uploadPreset;
-    if (!cloudName || !preset) { alert('Cloudinary not configured. Go to Settings.'); return; }
+  function renderProductPreviews() {
+    document.getElementById('pImgPreviews').innerHTML = currentProductImgs.map((url, i) => `
+      <div style="position:relative;width:50px;height:50px;">
+        <img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />
+        <span onclick="currentProductImgs.splice(${i},1);renderProductPreviews();" style="position:absolute;top:-4px;right:-4px;background:#000;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;">×</span>
+      </div>
+    `).join('');
+  }
 
-    const status = document.getElementById('uploadStatus');
-    const preview = document.getElementById('imagePreviewWrap');
-    status.textContent = `Uploading ${files.length} image(s)...`;
-
-    for (const file of Array.from(files).slice(0, 5)) {
+  async function uploadProductImages(files) {
+    const name = localStorage.getItem('tabby_cloudinary_name') || 'rjjympjfdmvjuuovidtc';
+    const preset = localStorage.getItem('tabby_cloudinary_preset') || 'tabby_unsigned_preset';
+    for (const f of Array.from(files)) {
       const fd = new FormData();
-      fd.append('file', file);
+      fd.append('file', f);
       fd.append('upload_preset', preset);
-      try {
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: fd });
-        const data = await res.json();
-        if (data.secure_url) {
-          uploadedImageUrls.push(data.secure_url);
-          const img = document.createElement('img');
-          img.src = data.secure_url;
-          img.className = 'img-preview';
-          preview.appendChild(img);
-        }
-      } catch (e) { console.error('Upload failed:', e); }
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${name}/image/upload`, { method:'POST', body:fd });
+      const data = await res.json();
+      if (data.secure_url) currentProductImgs.push(data.secure_url);
     }
-    status.textContent = `✅ ${uploadedImageUrls.length} image(s) ready.`;
+    renderProductPreviews();
   }
 
   async function saveProduct() {
-    const id = document.getElementById('editProductId').value;
+    const id = document.getElementById('pId').value;
     const name = document.getElementById('pName').value.trim();
     const price = parseFloat(document.getElementById('pPrice').value);
     if (!name || isNaN(price)) { alert('Name and Price are required.'); return; }
 
-    const btn = document.getElementById('saveProductBtn');
-    btn.disabled = true; btn.innerHTML = '<div class="loading-spinner"></div> Saving...';
-
     const payload = {
-      name,
+      name, price,
       description: document.getElementById('pDesc').value.trim(),
-      price,
-      original_price: parseFloat(document.getElementById('pOriginalPrice').value) || null,
+      compare_price: parseFloat(document.getElementById('pComparePrice').value) || null,
       stock: parseInt(document.getElementById('pStock').value) || 0,
       category: document.getElementById('pCategory').value,
       status: document.getElementById('pStatus').value,
-      tags: document.getElementById('pTags').value.split(',').map(t => t.trim()).filter(Boolean),
-      featured: document.getElementById('pFeatured').checked,
-      images: uploadedImageUrls,
+      badge: document.getElementById('pBadge').value,
+      sku: document.getElementById('pSku').value.trim(),
+      handmade_duration: document.getElementById('pDuration').value.trim(),
+      materials: document.getElementById('pMaterials').value.trim(),
+      care_instructions: document.getElementById('pCare').value.trim(),
+      seo_title: document.getElementById('pSeoTitle').value.trim(),
+      seo_description: document.getElementById('pSeoDesc').value.trim(),
+      images: currentProductImgs,
       updated_at: new Date().toISOString()
     };
 
     const client = await db();
-    let error;
-    if (id) {
-      ({ error } = await client.from('products').update(payload).eq('id', id));
-    } else {
-      ({ error } = await client.from('products').insert(payload));
-    }
+    if (id) await client.from('products').update(payload).eq('id', id);
+    else await client.from('products').insert(payload);
 
-    btn.disabled = false; btn.innerHTML = '💾 Save Product';
-
-    if (error) { alert('Error: ' + error.message); return; }
-    closeProductModal();
-    showToast(id ? 'Product updated!' : 'Product added!');
-    await loadProducts();
-  }
-
-  async function deleteProduct(id, name) {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    const client = await db();
-    await client.from('products').delete().eq('id', id);
-    showToast('Product deleted.');
+    document.getElementById('productModal').classList.remove('open');
     loadProducts();
   }
 
-  // ═══════════════════════════════════════════
-  // CUSTOMERS
-  // ═══════════════════════════════════════════
+  async function deleteProduct(id) {
+    if (!confirm('Delete this product?')) return;
+    const client = await db();
+    await client.from('products').delete().eq('id', id);
+    loadProducts();
+  }
+
+  function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }
+
+  // 4. CATEGORIES
+  async function loadCategories() {
+    const client = await db(); if (!client) return;
+    const { data } = await client.from('categories').select('*').order('sort_order', { ascending: true });
+    allCategories = data || [];
+    
+    // Populate Category dropdowns
+    const select = document.getElementById('pCategory');
+    if (select) select.innerHTML = allCategories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+
+    document.getElementById('categoriesTableBody').innerHTML = allCategories.length ? allCategories.map(c => `
+      <tr>
+        <td style="font-weight:700;">${c.name}</td>
+        <td>${c.slug}</td>
+        <td>${c.description || '—'}</td>
+        <td>${c.sort_order}</td>
+        <td>${c.visible ? '✅' : '❌'}</td>
+        <td><button class="btn btn-red btn-sm" onclick="deleteCategory('${c.id}')">Delete</button></td>
+      </tr>
+    `).join('') : `<tr><td colspan="6" style="text-align:center;padding:20px;">No categories</td></tr>`;
+  }
+
+  function openCategoryModal() { document.getElementById('catModal').classList.add('open'); }
+
+  async function saveCategory() {
+    const name = document.getElementById('catName').value.trim();
+    if (!name) return;
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const client = await db();
+    await client.from('categories').insert({
+      name, slug,
+      description: document.getElementById('catDesc').value.trim(),
+      sort_order: parseInt(document.getElementById('catSort').value) || 0
+    });
+    document.getElementById('catModal').classList.remove('open');
+    loadCategories();
+  }
+
+  async function deleteCategory(id) {
+    const client = await db();
+    await client.from('categories').delete().eq('id', id);
+    loadCategories();
+  }
+
+  // 5. INVENTORY
+  function renderInventory() {
+    const low = allProducts.filter(p => p.stock <= 5);
+    document.getElementById('inventoryTableBody').innerHTML = low.length ? low.map(p => `
+      <tr>
+        <td style="font-weight:700;">${p.name}</td>
+        <td>${p.category || '—'}</td>
+        <td style="font-weight:800;color:${p.stock===0?'var(--red)':'var(--orange)'};">${p.stock}</td>
+        <td><span class="badge-status st-${p.status}">${p.status}</span></td>
+        <td>
+          <input type="number" value="${p.stock}" style="width:70px;" class="form-control" onchange="updateStock('${p.id}', this.value)" />
+        </td>
+      </tr>
+    `).join('') : `<tr><td colspan="5" style="text-align:center;padding:20px;">All stock levels are good! 🌟</td></tr>`;
+  }
+
+  async function updateStock(id, stock) {
+    const client = await db();
+    await client.from('products').update({ stock: parseInt(stock)||0 }).eq('id', id);
+    loadProducts();
+  }
+
+  // 6. CUSTOMERS
   async function loadCustomers() {
     const client = await db(); if (!client) return;
-    const { data: orders } = await client.from('orders').select('email, name, phone, instagram, total, created_at').order('created_at', { ascending: false });
-    const { data: custom } = await client.from('custom_orders').select('email, total, created_at');
-
-    // Merge & deduplicate by email
+    const { data } = await client.from('orders').select('name, email, phone, instagram, total');
     const map = {};
-    (orders || []).forEach(o => {
-      if (!map[o.email]) map[o.email] = { name: o.name, phone: o.phone, instagram: o.instagram, orders: 0, spent: 0, last: o.created_at };
-      map[o.email].orders++;
-      map[o.email].spent += o.total || 0;
-      if (o.created_at > map[o.email].last) map[o.email].last = o.created_at;
+    (data || []).forEach(o => {
+      if (!map[o.email]) map[o.email] = { name: o.name, phone: o.phone, instagram: o.instagram, count: 0, spent: 0 };
+      map[o.email].count++;
+      map[o.email].spent += o.total;
     });
-    (custom || []).forEach(o => {
-      if (!map[o.email]) map[o.email] = { name: o.email.split('@')[0], phone: '—', instagram: null, orders: 0, spent: 0, last: o.created_at };
-      map[o.email].orders++;
-      map[o.email].spent += o.total || 0;
-    });
-
-    allCustomers = Object.entries(map).map(([email, d]) => ({ email, ...d })).sort((a, b) => b.spent - a.spent);
-    renderCustomers(allCustomers);
-  }
-
-  function renderCustomers(list) {
-    document.getElementById('customerCountLabel').textContent = `${list.length} customers`;
-    const tbody = document.getElementById('customersTableBody');
-    if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-emoji">👥</div><div class="empty-state-text">No customers yet</div></div></td></tr>`;
-      return;
-    }
-    tbody.innerHTML = list.map(c => `
+    allCustomers = Object.entries(map).map(([email, d]) => ({ email, ...d }));
+    document.getElementById('customersTableBody').innerHTML = allCustomers.length ? allCustomers.map(c => `
       <tr>
-        <td style="font-weight:700;">${c.name || '—'}</td>
+        <td style="font-weight:700;">${c.name}</td>
         <td>${c.email}</td>
         <td>${c.phone || '—'}</td>
-        <td>${c.instagram ? `<span style="color:var(--pink);font-weight:700;">${c.instagram}</span>` : '—'}</td>
-        <td>${c.orders}</td>
+        <td>${c.instagram || '—'}</td>
+        <td>${c.count}</td>
         <td style="font-weight:700;">${fmtINR(c.spent)}</td>
-        <td style="font-size:0.75rem;">${fmtDate(c.last)}</td>
-      </tr>`).join('');
+      </tr>
+    `).join('') : `<tr><td colspan="6" style="text-align:center;padding:20px;">No customers yet</td></tr>`;
   }
 
-  function filterCustomers() {
-    const q = document.getElementById('customerSearch').value.toLowerCase();
-    renderCustomers(allCustomers.filter(c =>
-      (c.name||'').toLowerCase().includes(q) || c.email.toLowerCase().includes(q)
-    ));
-  }
-
-  // ═══════════════════════════════════════════
-  // COUPONS
-  // ═══════════════════════════════════════════
+  // 7. COUPONS
   async function loadCoupons() {
     const client = await db(); if (!client) return;
-    const { data } = await client.from('coupons').select('*').order('created_at', { ascending: false });
+    const { data } = await client.from('coupons').select('*');
     allCoupons = data || [];
-    renderCoupons(allCoupons);
-  }
-
-  function renderCoupons(list) {
-    const tbody = document.getElementById('couponsTableBody');
-    if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-emoji">🏷️</div><div class="empty-state-text">No coupons yet. Create one!</div></div></td></tr>`;
-      return;
-    }
-    tbody.innerHTML = list.map(c => `
+    document.getElementById('couponsTableBody').innerHTML = allCoupons.length ? allCoupons.map(c => `
       <tr>
-        <td><span class="coupon-code">${c.code}</span></td>
-        <td>${c.type === 'percent' ? '% Off' : '₹ Flat'}</td>
-        <td style="font-weight:700;">${c.type === 'percent' ? c.value + '%' : fmtINR(c.value)}</td>
-        <td>${c.used_count} / ${c.usage_limit || '∞'}</td>
-        <td>${c.expiry ? fmtDate(c.expiry) : '—'}</td>
-        <td>
-          <label class="toggle">
-            <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCoupon('${c.id}', this.checked)" />
-            <span class="slider"></span>
-          </label>
-        </td>
-        <td>
-          <button class="btn btn-red btn-sm btn-icon" onclick="deleteCoupon('${c.id}', '${c.code}')">🗑</button>
-        </td>
-      </tr>`).join('');
+        <td style="font-weight:700;font-family:monospace;">${c.code}</td>
+        <td>${c.type}</td>
+        <td style="font-weight:700;">${c.type==='percent'?c.value+'%':fmtINR(c.value)}</td>
+        <td>${fmtINR(c.min_order_value)}</td>
+        <td>${c.expiry || '—'}</td>
+        <td>${c.active ? '✅' : '❌'}</td>
+        <td><button class="btn btn-red btn-sm" onclick="deleteCoupon('${c.id}')">Delete</button></td>
+      </tr>
+    `).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;">No coupons</td></tr>`;
   }
 
   function openCouponModal() { document.getElementById('couponModal').classList.add('open'); }
-  function closeCouponModal() { document.getElementById('couponModal').classList.remove('open'); }
 
   async function saveCoupon() {
-    const code = document.getElementById('cCode').value.trim().toUpperCase();
-    const type = document.getElementById('cType').value;
-    const value = parseFloat(document.getElementById('cValue').value);
-    if (!code || isNaN(value)) { alert('Code and Value are required.'); return; }
-
-    const payload = {
-      code, type, value,
-      usage_limit: parseInt(document.getElementById('cLimit').value) || 0,
-      expiry: document.getElementById('cExpiry').value || null,
-      active: true
-    };
-
+    const code = document.getElementById('coupCode').value.trim().toUpperCase();
+    if (!code) return;
     const client = await db();
-    const { error } = await client.from('coupons').insert(payload);
-    if (error) { alert('Error: ' + error.message); return; }
-    closeCouponModal();
-    ['cCode','cValue'].forEach(id => document.getElementById(id).value = '');
-    showToast('Coupon created!');
+    await client.from('coupons').insert({
+      code,
+      type: document.getElementById('coupType').value,
+      value: parseFloat(document.getElementById('coupVal').value)||0,
+      min_order_value: parseFloat(document.getElementById('coupMin').value)||0
+    });
+    document.getElementById('couponModal').classList.remove('open');
     loadCoupons();
   }
 
-  async function toggleCoupon(id, active) {
-    const client = await db();
-    await client.from('coupons').update({ active }).eq('id', id);
-    showToast(active ? 'Coupon activated.' : 'Coupon deactivated.');
-  }
-
-  async function deleteCoupon(id, code) {
-    if (!confirm(`Delete coupon "${code}"?`)) return;
+  async function deleteCoupon(id) {
     const client = await db();
     await client.from('coupons').delete().eq('id', id);
-    showToast('Coupon deleted.');
     loadCoupons();
   }
 
-  // ═══════════════════════════════════════════
-  // ANNOUNCEMENTS / SITE SETTINGS
-  // ═══════════════════════════════════════════
+  // 8. REVIEWS
+  async function loadReviews() {
+    const client = await db(); if (!client) return;
+    const { data } = await client.from('reviews').select('*');
+    allReviews = data || [];
+    document.getElementById('reviewsTableBody').innerHTML = allReviews.length ? allReviews.map(r => `
+      <tr>
+        <td style="font-weight:700;">${r.customer_name}</td>
+        <td>${'⭐'.repeat(r.rating)}</td>
+        <td>${r.body}</td>
+        <td><span class="badge-status st-${r.status}">${r.status}</span></td>
+        <td>
+          <button class="btn btn-green btn-sm" onclick="updateReviewStatus('${r.id}','approved')">Approve</button>
+          <button class="btn btn-red btn-sm" onclick="updateReviewStatus('${r.id}','hidden')">Hide</button>
+        </td>
+      </tr>
+    `).join('') : `<tr><td colspan="5" style="text-align:center;padding:20px;">No customer reviews yet</td></tr>`;
+  }
+
+  async function updateReviewStatus(id, status) {
+    const client = await db();
+    await client.from('reviews').update({ status }).eq('id', id);
+    loadReviews();
+  }
+
+  // 9. SITE SETTINGS & HERO
   async function loadSiteSettings() {
     const client = await db(); if (!client) return;
     const { data } = await client.from('site_settings').select('*');
-    if (!data) return;
-    const s = {};
-    data.forEach(row => { s[row.key] = row.value; });
+    const s = {}; (data || []).forEach(row => s[row.key] = row.value);
 
-    document.getElementById('annText').value = s.announcement_text || '';
-    document.getElementById('annShippingThreshold').value = s.free_shipping_threshold || '';
-    document.getElementById('annShippingFee').value = s.standard_shipping_fee || '';
-    document.getElementById('annInstagram').value = s.instagram_url || '';
-    document.getElementById('annEmail').value = s.store_email || '';
-    document.getElementById('annBizName').value = s.business_name || '';
-    document.getElementById('annTagline').value = s.business_tagline || '';
+    document.getElementById('siteMarquee').value = s.announcement_text || '';
+    document.getElementById('siteHeroTitle').value = s.hero_title || '';
+    document.getElementById('siteHeroSub').value = s.hero_sub || '';
+    document.getElementById('shipFee').value = s.standard_shipping_fee || '59';
+    document.getElementById('shipFreeThreshold').value = s.free_shipping_threshold || '2000';
+    document.getElementById('storeEmail').value = s.store_email || 'tabbychaser2@gmail.com';
+    document.getElementById('storeInsta').value = s.instagram_url || '@tabbychaser';
   }
 
-  async function saveAnnouncements() {
-    const client = await db(); if (!client) return;
+  async function saveSiteSettings() {
+    const client = await db();
     const settings = [
-      { key: 'announcement_text', value: document.getElementById('annText').value.trim() },
-      { key: 'free_shipping_threshold', value: document.getElementById('annShippingThreshold').value.trim() },
-      { key: 'standard_shipping_fee', value: document.getElementById('annShippingFee').value.trim() },
-      { key: 'instagram_url', value: document.getElementById('annInstagram').value.trim() },
-      { key: 'store_email', value: document.getElementById('annEmail').value.trim() },
-      { key: 'business_name', value: document.getElementById('annBizName').value.trim() },
-      { key: 'business_tagline', value: document.getElementById('annTagline').value.trim() },
+      { key:'announcement_text', value: document.getElementById('siteMarquee').value },
+      { key:'hero_title', value: document.getElementById('siteHeroTitle').value },
+      { key:'hero_sub', value: document.getElementById('siteHeroSub').value },
+      { key:'standard_shipping_fee', value: document.getElementById('shipFee').value },
+      { key:'free_shipping_threshold', value: document.getElementById('shipFreeThreshold').value }
     ];
-
-    for (const s of settings) {
-      await client.from('site_settings').upsert({ key: s.key, value: s.value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    for (const item of settings) {
+      await client.from('site_settings').upsert({ key: item.key, value: item.value }, { onConflict: 'key' });
     }
-    showAlert('annAlert', '✅ Settings saved successfully!', 'success');
+    alert('Settings Saved Successfully! ✨');
   }
 
-  // ═══════════════════════════════════════════
-  // SETTINGS
-  // ═══════════════════════════════════════════
-  function changeAdminPassword() {
-    const np = document.getElementById('newAdminPass').value;
-    const cp = document.getElementById('confirmAdminPass').value;
-    if (!np || np.length < 8) { alert('Password must be at least 8 characters.'); return; }
-    if (np !== cp) { alert('Passwords do not match.'); return; }
-    localStorage.setItem(ADMIN_PASS_KEY, np);
-    document.getElementById('newAdminPass').value = '';
-    document.getElementById('confirmAdminPass').value = '';
-    showAlert('settingsAlert', '✅ Admin password updated!', 'success');
+  function saveCloudinary() {
+    localStorage.setItem('tabby_cloudinary_name', document.getElementById('cloudName').value);
+    localStorage.setItem('tabby_cloudinary_preset', document.getElementById('cloudPreset').value);
+    alert('Cloudinary Config Saved!');
   }
 
-  function saveCloudinarySettings() {
-    const name = document.getElementById('cloudName').value.trim();
-    const preset = document.getElementById('cloudPreset').value.trim();
-    if (!name || !preset) { alert('Both fields are required.'); return; }
-    localStorage.setItem('tabby_cloudinary_name', name);
-    localStorage.setItem('tabby_cloudinary_preset', preset);
-    if (window.cloudinaryConfig) { window.cloudinaryConfig.cloudName = name; window.cloudinaryConfig.uploadPreset = preset; }
-    showAlert('settingsAlert', '✅ Cloudinary settings saved!', 'success');
+  function changeAdminPass() {
+    const p = document.getElementById('newAdminPass').value;
+    if (p) { localStorage.setItem(ADMIN_PASS_KEY, p); alert('Password updated successfully!'); }
   }
 
-  // ═══════════════════════════════════════════
-  // UI HELPERS
-  // ═══════════════════════════════════════════
-  function showAlert(id, msg, type = 'success') {
-    const el = document.getElementById(id);
-    el.textContent = msg;
-    el.className = `alert alert-${type} show`;
-    setTimeout(() => { el.classList.remove('show'); }, 3500);
+  // STATS UPDATE
+  function updateDashboardStats() {
+    const rev = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    document.getElementById('dRev').textContent = fmtINR(rev);
+    document.getElementById('dOrders').textContent = allOrders.length;
+    document.getElementById('dPending').textContent = `${allOrders.filter(o => o.status === 'pending').length} pending`;
+    document.getElementById('dCustom').textContent = allCustom.length;
+    document.getElementById('dCustomPending').textContent = `${allCustom.filter(o => o.status === 'pending').length} pending`;
+    document.getElementById('dProducts').textContent = allProducts.length;
+    document.getElementById('dLowStock').textContent = `${allProducts.filter(p => p.stock <= 5).length} low stock`;
+
+    // Render recent dashboards
+    document.getElementById('dashOrdersBody').innerHTML = allOrders.slice(0,5).map(o => `
+      <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div><strong>#${o.order_reference}</strong> · ${o.name}</div>
+        <div><strong>${fmtINR(o.total)}</strong> <span class="badge-status st-${o.status}">${o.status}</span></div>
+      </div>
+    `).join('') || '<div style="padding:14px;">No recent orders</div>';
+
+    document.getElementById('dashCustomBody').innerHTML = allCustom.slice(0,5).map(o => `
+      <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div><strong>${o.pet_name}</strong> (${o.pet_type})</div>
+        <div><strong>${fmtINR(o.total)}</strong> <span class="badge-status st-${o.status}">${o.status}</span></div>
+      </div>
+    `).join('') || '<div style="padding:14px;">No recent custom requests</div>';
   }
 
-  let toastTimer;
-  function showToast(msg) {
-    clearTimeout(toastTimer);
-    let toast = document.getElementById('adminToast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'adminToast';
-      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1a1827;color:#fff;padding:12px 20px;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:9000;box-shadow:0 8px 24px rgba(0,0,0,0.2);transition:opacity 0.3s;';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = msg;
-    toast.style.opacity = '1';
-    toastTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2800);
+  function printInvoice(id) {
+    const order = allOrders.find(o => o.id === id);
+    if (!order) return;
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <html><head><title>Invoice #${order.order_reference}</title>
+      <style>body{font-family:sans-serif;padding:30px;} table{width:100%;border-collapse:collapse;margin-top:20px;} th,td{border:1px solid #ddd;padding:8px;text-align:left;}</style>
+      </head><body>
+      <h2>Tabby Chaser Invoice</h2>
+      <p>Order Reference: <strong>#${order.order_reference}</strong></p>
+      <p>Customer: ${order.name} (${order.email})</p>
+      <p>Address: ${order.address}</p>
+      <table><thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead><tbody>
+      ${(typeof order.items === 'string' ? JSON.parse(order.items) : order.items).map(i => `<tr><td>${i.name}</td><td>${i.quantity}</td><td>₹${i.price*i.quantity}</td></tr>`).join('')}
+      </tbody></table>
+      <h3>Total Paid: ₹${order.total}</h3>
+      </body></html>
+    `);
+    win.print();
   }
-
-  // Close modals on overlay click
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-  });
-
-  // Responsive: collapse sidebar on mobile when content clicked
-  document.getElementById('mainContent').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.remove('open');
-  });
 </script>
 
-<!-- External scripts loaded AFTER admin logic so errors here don't break login -->
 <script src="supabase-config.js"></script>
 <script src="cloudinary-config.js"></script>
 </body>

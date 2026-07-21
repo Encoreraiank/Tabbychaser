@@ -129,8 +129,8 @@ function showToast(message) {
   }, 2800);
 }
 
-// ---- INIT ----
-document.addEventListener('DOMContentLoaded', () => {
+// ---- INIT & DYNAMIC SUPABASE STOREFRONT LOADER ----
+document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const searchParam = urlParams.get('search');
   const searchInput = document.getElementById('shopSearchInput');
@@ -138,4 +138,62 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.value = decodeURIComponent(searchParam);
   }
   filterProducts();
+
+  // Try fetching products from Supabase DB live
+  let tries = 0;
+  while (!window.supabaseClient && tries < 10) {
+    await new Promise(r => setTimeout(r, 200));
+    tries++;
+  }
+
+  if (window.supabaseClient) {
+    try {
+      const { data: dbProducts } = await window.supabaseClient.from('products').select('*').eq('status', 'published');
+      if (dbProducts && dbProducts.length > 0) {
+        renderDynamicProducts(dbProducts);
+      }
+    } catch (err) {
+      console.warn('Fallback to static products:', err);
+    }
+  }
 });
+
+function renderDynamicProducts(products) {
+  const grid = document.getElementById('productsGrid');
+  if (!grid) return;
+
+  grid.innerHTML = products.map(p => {
+    const img = (p.images && p.images[0]) ? p.images[0] : 'https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp';
+    const catSlug = (p.category || 'charms').toLowerCase().replace(/\s+/g, '-');
+    const stockStatus = p.stock > 3 ? 'in-stock' : (p.stock > 0 ? 'low-stock' : 'out-of-stock');
+    const badgeHtml = p.badge ? `<span class="badge badge-best">${p.badge}</span>` : '';
+
+    return `
+      <div class="shop-card" data-cat="${catSlug}" data-price="${p.price}" data-stock="${stockStatus}" data-name="${p.name.replace(/"/g, '&quot;')}">
+        <a href="product.html?id=${p.id || ''}" class="shop-card-link">
+          <div class="shop-card-img-wrap">
+            ${badgeHtml}
+            <img src="${img}" alt="${p.name}" class="shop-card-img" loading="lazy" />
+            <div class="shop-card-hover-overlay">
+              <span class="quick-view-btn">View Details 🔍</span>
+            </div>
+          </div>
+          <div class="shop-card-meta">
+            <span class="shop-card-cat">${p.category || 'Handmade'}</span>
+            <h3 class="shop-card-title">${p.name}</h3>
+            <div class="shop-card-price-row">
+              <span class="price-current">₹${p.price}</span>
+              ${p.compare_price ? `<span class="price-original">₹${p.compare_price}</span>` : ''}
+            </div>
+          </div>
+        </a>
+        <button class="add-to-cart-btn" onclick="addToCart('${p.name.replace(/'/g, "\\'")}', ${p.price})">
+          🛒 Add to Bag
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  filterProducts();
+}
+

@@ -832,15 +832,13 @@
 </div>
 
 <!-- ═══════════════ SCRIPTS ═══════════════ -->
-<script src="supabase-config.js"></script>
-<script src="cloudinary-config.js"></script>
 <script>
   // ═══════════════════════════════════════════
   // STATE
   // ═══════════════════════════════════════════
   const ADMIN_PASS_KEY = 'tabby_admin_pass';
   const SESSION_KEY = 'tabby_admin_session';
-  const DEFAULT_PASS = 'TabbyChaserAdmin@2026';
+  const DEFAULT_PASS = 'tabby2026';
 
   let allOrders = [];
   let allCustomOrders = [];
@@ -861,36 +859,52 @@
       initDashboard();
     } else {
       const err = document.getElementById('loginError');
-      err.textContent = '❌ Wrong password. Try again.';
-      setTimeout(() => { err.textContent = ''; }, 3000);
+      err.textContent = '❌ Wrong password. Try again. (Default: tabby2026)';
+      setTimeout(() => { err.textContent = ''; }, 4000);
     }
   }
+  window.adminLogin = adminLogin;
 
   function adminLogout() {
     sessionStorage.removeItem(SESSION_KEY);
     document.getElementById('loginGate').style.display = 'flex';
     document.getElementById('adminPassInput').value = '';
   }
+  window.adminLogout = adminLogout;
 
   // Check session on load
   window.addEventListener('DOMContentLoaded', () => {
+    // Password reset via URL: /admin.html?reset=1
+    if (new URLSearchParams(location.search).get('reset') === '1') {
+      localStorage.removeItem(ADMIN_PASS_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      history.replaceState(null, '', location.pathname);
+      alert('Password reset! Default password is: tabby2026');
+    }
+
     if (sessionStorage.getItem(SESSION_KEY) === 'true') {
       document.getElementById('loginGate').style.display = 'none';
       initDashboard();
     }
 
     // Preload Cloudinary settings into inputs
-    document.getElementById('cloudName').value = localStorage.getItem('tabby_cloudinary_name') || '';
-    document.getElementById('cloudPreset').value = localStorage.getItem('tabby_cloudinary_preset') || '';
+    try {
+      document.getElementById('cloudName').value = localStorage.getItem('tabby_cloudinary_name') || '';
+      document.getElementById('cloudPreset').value = localStorage.getItem('tabby_cloudinary_preset') || '';
+    } catch(e) {}
 
     // Drag & drop for upload zone
-    const zone = document.getElementById('uploadZone');
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-    zone.addEventListener('drop', e => {
-      e.preventDefault(); zone.classList.remove('drag');
-      handleImageUpload(e.dataTransfer.files);
-    });
+    try {
+      const zone = document.getElementById('uploadZone');
+      if (zone) {
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+        zone.addEventListener('drop', e => {
+          e.preventDefault(); zone.classList.remove('drag');
+          handleImageUpload(e.dataTransfer.files);
+        });
+      }
+    } catch(e) {}
   });
 
   // ═══════════════════════════════════════════
@@ -925,6 +939,7 @@
     document.getElementById('topbarTitle').textContent = TAB_TITLES[id] || id;
     document.getElementById('sidebar').classList.remove('open');
   }
+  window.switchTab = switchTab;
 
   // ═══════════════════════════════════════════
   // SUPABASE HELPER
@@ -1541,5 +1556,9 @@
     document.getElementById('sidebar').classList.remove('open');
   });
 </script>
+
+<!-- External scripts loaded AFTER admin logic so errors here don't break login -->
+<script src="supabase-config.js"></script>
+<script src="cloudinary-config.js"></script>
 </body>
 </html>

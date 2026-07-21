@@ -249,7 +249,7 @@ window.renderCartItems = function() {
 
     content.innerHTML = `
       <div class="cart-empty-state">
-        <img src="add to cart.jpg" alt="Empty Shopping Bag" class="cart-empty-illustration" />
+        <img src="add-to-cart.jpg" alt="Empty Shopping Bag" class="cart-empty-illustration" />
         <p class="empty-msg">Your shopping bag is empty!</p>
         <a href="shop.html" class="shop-now-btn" onclick="window.toggleCartDrawer(false)">Shop Our Charms</a>
         ${marketingNote}
@@ -639,7 +639,7 @@ function injectCuteDiscountModal() {
   overlay.innerHTML = `
     <div class="cute-discount-card">
       <button type="button" class="modal-close-btn" onclick="window.closeCuteDiscountModal()">&times;</button>
-      <img src="10% gift.png" alt="Welcome Gift" class="cute-gift-illustration" />
+      <img src="ten-percent-gift.png" alt="Welcome Gift" class="cute-gift-illustration" />
       <h2 class="login-modal-title" style="font-size: 1.65rem; margin-bottom: 10px;">Welcome Gift Unlocked!</h2>
       <p class="cute-modal-desc">Thank you for joining our newsletter! You've received a special first-time welcome discount:</p>
       <div class="cute-coupon-badge">

@@ -183,114 +183,217 @@
   <!-- Interactive Commission Planner -->
   <section class="commission-planner-section" id="planner">
     <div class="container">
-      <div class="planner-layout">
+      <div class="planner-wrapper-centered">
         
-        <!-- Planner Form -->
-        <div class="planner-form-panel">
-          <h2 class="planner-title">Let's plan yours 🎨</h2>
-          <p class="planner-subtitle">Select your preferences to estimate price and check availability.</p>
+        <!-- Planner Main Form Card -->
+        <div class="planner-main-card">
+          <div class="planner-header">
+            <h2 class="planner-title">Let's plan yours 🐾</h2>
+            <p class="planner-subtitle">Share your preferences so I can create your custom charm with care.</p>
+          </div>
 
           <form id="petPlannerForm" onsubmit="submitInquiry(event)">
             
-            <div class="form-group">
-              <label class="form-label">Pet Type</label>
-              <div class="radio-group">
-                <label class="radio-tile">
-                  <input type="radio" name="petType" value="dog" checked onchange="updateEstimate()" />
-                  <span class="tile-icon">🐶</span>
-                  <span class="tile-label">Dog</span>
+            <!-- SECTION 1: UPLOAD YOUR PHOTOS -->
+            <div class="planner-form-section">
+              <h3 class="section-subheading">UPLOAD YOUR PHOTOS</h3>
+              <p class="section-desc">Upload clear photos from different angles. You can upload up to 6 images.</p>
+              
+              <div class="photo-upload-grid">
+                <!-- Slot 1 -->
+                <div class="photo-upload-slot" onclick="triggerFileInput(1)">
+                  <div class="slot-default-content" id="slot-default-1">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span class="upload-text">Upload image</span>
+                  </div>
+                  <div class="slot-preview" id="slot-preview-1" style="display: none;"></div>
+                  <button type="button" class="slot-clear-btn" id="slot-clear-1" style="display: none;" onclick="clearPhoto(event, 1)">&times;</button>
+                  <input type="file" id="photo-input-1" accept="image/*" style="display: none;" onchange="handlePhotoChange(this, 1)" />
+                </div>
+
+                <!-- Slot 2 -->
+                <div class="photo-upload-slot" onclick="triggerFileInput(2)">
+                  <div class="slot-default-content" id="slot-default-2">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span class="upload-text">Upload image</span>
+                  </div>
+                  <div class="slot-preview" id="slot-preview-2" style="display: none;"></div>
+                  <button type="button" class="slot-clear-btn" id="slot-clear-2" style="display: none;" onclick="clearPhoto(event, 2)">&times;</button>
+                  <input type="file" id="photo-input-2" accept="image/*" style="display: none;" onchange="handlePhotoChange(this, 2)" />
+                </div>
+
+                <!-- Slot 3 -->
+                <div class="photo-upload-slot" onclick="triggerFileInput(3)">
+                  <div class="slot-default-content" id="slot-default-3">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span class="upload-text">Upload image</span>
+                  </div>
+                  <div class="slot-preview" id="slot-preview-3" style="display: none;"></div>
+                  <button type="button" class="slot-clear-btn" id="slot-clear-3" style="display: none;" onclick="clearPhoto(event, 3)">&times;</button>
+                  <input type="file" id="photo-input-3" accept="image/*" style="display: none;" onchange="handlePhotoChange(this, 3)" />
+                </div>
+
+                <!-- Slot 4 -->
+                <div class="photo-upload-slot" onclick="triggerFileInput(4)">
+                  <div class="slot-default-content" id="slot-default-4">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span class="upload-text">Upload image</span>
+                  </div>
+                  <div class="slot-preview" id="slot-preview-4" style="display: none;"></div>
+                  <button type="button" class="slot-clear-btn" id="slot-clear-4" style="display: none;" onclick="clearPhoto(event, 4)">&times;</button>
+                  <input type="file" id="photo-input-4" accept="image/*" style="display: none;" onchange="handlePhotoChange(this, 4)" />
+                </div>
+
+                <!-- Slot 5 -->
+                <div class="photo-upload-slot" onclick="triggerFileInput(5)">
+                  <div class="slot-default-content" id="slot-default-5">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span class="upload-text">Upload image</span>
+                  </div>
+                  <div class="slot-preview" id="slot-preview-5" style="display: none;"></div>
+                  <button type="button" class="slot-clear-btn" id="slot-clear-5" style="display: none;" onclick="clearPhoto(event, 5)">&times;</button>
+                  <input type="file" id="photo-input-5" accept="image/*" style="display: none;" onchange="handlePhotoChange(this, 5)" />
+                </div>
+
+                <!-- Slot 6 -->
+                <div class="photo-upload-slot" onclick="triggerFileInput(6)">
+                  <div class="slot-default-content" id="slot-default-6">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span class="upload-text">Upload image</span>
+                  </div>
+                  <div class="slot-preview" id="slot-preview-6" style="display: none;"></div>
+                  <button type="button" class="slot-clear-btn" id="slot-clear-6" style="display: none;" onclick="clearPhoto(event, 6)">&times;</button>
+                  <input type="file" id="photo-input-6" accept="image/*" style="display: none;" onchange="handlePhotoChange(this, 6)" />
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2: TELL ME ABOUT YOUR CHARM -->
+            <div class="planner-form-section">
+              <h3 class="section-subheading">TELL ME ABOUT YOUR CHARM</h3>
+              <p class="section-desc">Share all the details about the charm you want me to create.</p>
+              
+              <div class="textarea-container">
+                <textarea id="charmDetails" class="form-textarea" maxlength="1000" oninput="updateTextareaCounter(this, 'charmDetailsCounter')" placeholder="Describe your idea in detail. Include shape, expressions, colors, props, background, text (if any), mood, theme—anything important!" required></textarea>
+                <div class="textarea-counter" id="charmDetailsCounter">0 / 1000</div>
+              </div>
+            </div>
+
+            <!-- SECTION 3: CHOOSE SIZE -->
+            <div class="planner-form-section">
+              <h3 class="section-subheading">CHOOSE SIZE</h3>
+              <p class="section-desc">Prices are based on size. Final price may vary slightly based on design complexity.</p>
+              
+              <div class="size-cards-grid">
+                <!-- Small Card -->
+                <label class="size-card active" onclick="selectSize('small')">
+                  <input type="radio" name="sizeSelection" value="small" checked style="display:none;" onchange="updateEstimate()" />
+                  <div class="size-card-info">
+                    <span class="size-name">Small</span>
+                    <span class="size-range">(~ 2–3 cm)</span>
+                  </div>
+                  <div class="size-card-footer">
+                    <span class="radio-indicator"></span>
+                    <span class="size-price">₹450</span>
+                  </div>
                 </label>
-                <label class="radio-tile">
-                  <input type="radio" name="petType" value="cat" onchange="updateEstimate()" />
-                  <span class="tile-icon">🐱</span>
-                  <span class="tile-label">Cat</span>
+
+                <!-- Medium Card -->
+                <label class="size-card" onclick="selectSize('medium')">
+                  <input type="radio" name="sizeSelection" value="medium" style="display:none;" onchange="updateEstimate()" />
+                  <div class="size-card-info">
+                    <span class="size-name">Medium</span>
+                    <span class="size-range">(~ 3–4.5 cm)</span>
+                  </div>
+                  <div class="size-card-footer">
+                    <span class="radio-indicator"></span>
+                    <span class="size-price">₹900</span>
+                  </div>
                 </label>
-                <label class="radio-tile">
-                  <input type="radio" name="petType" value="bird" onchange="updateEstimate()" />
-                  <span class="tile-icon">🐦</span>
-                  <span class="tile-label">Bird</span>
-                </label>
-                <label class="radio-tile">
-                  <input type="radio" name="petType" value="other" onchange="updateEstimate()" />
-                  <span class="tile-icon">🐰</span>
-                  <span class="tile-label">Other</span>
+
+                <!-- Large Card -->
+                <label class="size-card" onclick="selectSize('large')">
+                  <input type="radio" name="sizeSelection" value="large" style="display:none;" onchange="updateEstimate()" />
+                  <div class="size-card-info">
+                    <span class="size-name">Large</span>
+                    <span class="size-range">(~ 4.5–6 cm)</span>
+                  </div>
+                  <div class="size-card-footer">
+                    <span class="radio-indicator"></span>
+                    <span class="size-price">₹1,350</span>
+                  </div>
                 </label>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Choose Tier</label>
-              <div class="tier-select-list">
-                <label class="tier-option active-tier">
-                  <input type="radio" name="tierType" value="tier1" checked onchange="selectTier('tier1')" />
-                  <div class="tier-info">
-                    <span class="tier-name">Tier 1: Simple Sitting Pal</span>
-                    <span class="tier-desc">One pet, simple sitting/lying pose, approx 5x5 cm. Lightweight, glossy.</span>
-                  </div>
-                  <span class="tier-base-price">₹999</span>
-                </label>
-                <label class="tier-option">
-                  <input type="radio" name="tierType" value="tier2" onchange="selectTier('tier2')" />
-                  <div class="tier-info">
-                    <span class="tier-name">Tier 2: Detailed with Accessories</span>
-                    <span class="tier-desc">Adds a favorite toy, custom name base, flower crown, or complex pose.</span>
-                  </div>
-                  <span class="tier-base-price">₹1,499</span>
-                </label>
-                <label class="tier-option">
-                  <input type="radio" name="tierType" value="tier3" onchange="selectTier('tier3')" />
-                  <div class="tier-info">
-                    <span class="tier-name">Tier 3: Duo / Custom Scene</span>
-                    <span class="tier-desc">Two pets interacting, or a full detailed little base scene.</span>
-                  </div>
-                  <span class="tier-base-price">₹2,499</span>
-                </label>
+            <!-- SECTION 4: ANYTHING ELSE? -->
+            <div class="planner-form-section">
+              <h3 class="section-subheading">ANYTHING ELSE?</h3>
+              <p class="section-desc">Any specific requests? Color preferences? Material ideas? Anything I should know?</p>
+              
+              <div class="textarea-container">
+                <textarea id="additionalRequests" class="form-textarea" maxlength="500" oninput="updateTextareaCounter(this, 'additionalRequestsCounter')" placeholder="Write your additional requests here..."></textarea>
+                <div class="textarea-counter" id="additionalRequestsCounter">0 / 500</div>
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="petName">Pet's Name</label>
-              <input type="text" id="petName" class="form-input" placeholder="e.g., Bruno or Fluffy" required />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="petDesc">Details to capture</label>
-              <textarea id="petDesc" class="form-textarea" placeholder="Describe any unique features (e.g., spot on right eye, bent ear, favorite toy they should hold)"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-pink-pill btn-full-width">Submit Custom Request</button>
+            <button type="submit" class="btn btn-pink-pill btn-full-width btn-planner-submit">Submit Custom Request ✨</button>
           </form>
         </div>
 
-        <!-- Pricing Summary Sticky Card -->
-        <div class="planner-summary-panel">
-          <div class="summary-card">
-            <h3 class="summary-card-title">Estimate Summary</h3>
-            
-            <div class="summary-row">
-              <span>Base Pose</span>
-              <span id="summaryBasePrice">₹999</span>
-            </div>
-            
-            <div class="summary-row">
-              <span>Packaging & Stickers</span>
-              <span class="free-text">FREE</span>
-            </div>
+        <!-- Estimate Summary Card below the form card -->
+        <div class="planner-estimate-card">
+          <h3 class="estimate-card-title">Estimate Summary</h3>
+          
+          <div class="estimate-row">
+            <span class="estimate-label">Base Price</span>
+            <span class="estimate-value" id="summaryBasePrice">₹450</span>
+          </div>
+          
+          <div class="estimate-row">
+            <span class="estimate-label">Packaging & Stickers</span>
+            <span class="estimate-value free-text">FREE</span>
+          </div>
 
-            <div class="summary-divider"></div>
-            
-            <div class="summary-row total-row">
-              <span>Est. Total</span>
-              <span id="summaryTotal">₹999</span>
-            </div>
+          <div class="estimate-divider"></div>
+          
+          <div class="estimate-row total-row">
+            <span class="estimate-label">Est. Total</span>
+            <span class="estimate-value" id="summaryTotal">₹450</span>
+          </div>
 
-            <p class="summary-disclaimer">
-              *Taxes and shipping calculated on Instagram based on final delivery address.
-            </p>
+          <p class="estimate-disclaimer">
+            *Final price may vary slightly based on design complexity and size.
+          </p>
 
-            <div class="availability-badge">
+          <div class="slots-available-box">
+            <div class="slots-badge">
               <span class="pulse-dot"></span>
-              Only 3 slots open for this month!
+              Only 2 slots open for this month!
             </div>
           </div>
         </div>
@@ -372,10 +475,10 @@
       <span class="success-emoji">🎉</span>
       <h3 class="modal-title">Inquiry Prepared!</h3>
       <p class="modal-desc">
-        Your inquiry details for <strong id="modalPetName">Bruno</strong> have been saved! To confirm your slot and proceed:
+        Your custom charm inquiry details have been saved! To confirm your slot and proceed:
       </p>
       <div class="instruction-box">
-        <p>1. Copy your pet name & request summary.</p>
+        <p>1. Copy your size selection and details.</p>
         <p>2. Send it with your reference photos to my Instagram DM.</p>
       </div>
       <a href="https://ig.me/m/tabbychaser" target="_blank" class="btn btn-pink-pill" onclick="closeModal()">Go to Instagram DM</a>

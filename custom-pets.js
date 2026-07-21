@@ -3,42 +3,93 @@
    Planner Calculator, FAQ Accordions, and Inquiry Modal
    ========================================================================== */
 
-// ---- ESTIMATION CALCULATOR ----
+// ---- DYNAMIC PHOTO UPLOADS PREVIEW ----
+function triggerFileInput(index) {
+  const input = document.getElementById(`photo-input-${index}`);
+  if (input) input.click();
+}
+
+function handlePhotoChange(input, index) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview = document.getElementById(`slot-preview-${index}`);
+      const defContent = document.getElementById(`slot-default-${index}`);
+      const clearBtn = document.getElementById(`slot-clear-${index}`);
+      
+      if (preview) {
+        preview.style.backgroundImage = `url('${e.target.result}')`;
+        preview.style.display = 'block';
+      }
+      if (defContent) defContent.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'flex';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function clearPhoto(event, index) {
+  event.stopPropagation(); // Avoid opening file picker
+  
+  const input = document.getElementById(`photo-input-${index}`);
+  const preview = document.getElementById(`slot-preview-${index}`);
+  const defContent = document.getElementById(`slot-default-${index}`);
+  const clearBtn = document.getElementById(`slot-clear-${index}`);
+  
+  if (input) input.value = '';
+  if (preview) {
+    preview.style.backgroundImage = 'none';
+    preview.style.display = 'none';
+  }
+  if (defContent) defContent.style.display = 'flex';
+  if (clearBtn) clearBtn.style.display = 'none';
+}
+
+// ---- TEXTAREA COUNTERS ----
+function updateTextareaCounter(textarea, counterId) {
+  const counter = document.getElementById(counterId);
+  if (counter) {
+    const len = textarea.value.length;
+    const max = textarea.getAttribute('maxlength') || 1000;
+    counter.textContent = `${len} / ${max}`;
+  }
+}
+
+// ---- SIZE SELECTION AND ESTIMATE SUMMARY ----
+function selectSize(size) {
+  const sizeCards = document.querySelectorAll('.size-card');
+  sizeCards.forEach(card => {
+    const input = card.querySelector('input');
+    if (input && input.value === size) {
+      card.classList.add('active');
+      input.checked = true;
+    } else {
+      card.classList.remove('active');
+    }
+  });
+  updateEstimate();
+}
+
 function updateEstimate() {
   const form = document.getElementById('petPlannerForm');
   if (!form) return;
 
-  const tierType = form.elements['tierType'].value;
-  let basePrice = 999;
+  const sizeVal = form.elements['sizeSelection'].value;
+  let basePrice = 450;
 
-  if (tierType === 'tier2') {
-    basePrice = 1499;
-  } else if (tierType === 'tier3') {
-    basePrice = 2499;
+  if (sizeVal === 'medium') {
+    basePrice = 900;
+  } else if (sizeVal === 'large') {
+    basePrice = 1350;
   }
 
-  // Update summary fields
   const summaryBasePrice = document.getElementById('summaryBasePrice');
   const summaryTotal = document.getElementById('summaryTotal');
 
-  if (summaryBasePrice) summaryBasePrice.textContent = '₹' + basePrice;
-  if (summaryTotal) summaryTotal.textContent = '₹' + basePrice;
-}
+  const priceFormatted = '₹' + basePrice.toLocaleString('en-IN');
 
-function selectTier(tierId) {
-  // Update class of tier selections
-  const options = document.querySelectorAll('.tier-option');
-  options.forEach(opt => {
-    const input = opt.querySelector('input');
-    if (input && input.value === tierId) {
-      opt.classList.add('active-tier');
-      input.checked = true;
-    } else {
-      opt.classList.remove('active-tier');
-    }
-  });
-
-  updateEstimate();
+  if (summaryBasePrice) summaryBasePrice.textContent = priceFormatted;
+  if (summaryTotal) summaryTotal.textContent = priceFormatted;
 }
 
 // ---- FAQ ACCORDION TOGGLE ----
@@ -67,14 +118,8 @@ function toggleFaq(btn) {
 function submitInquiry(event) {
   event.preventDefault();
   
-  const petNameInput = document.getElementById('petName');
-  const petName = petNameInput ? petNameInput.value.trim() : 'your pet';
-
   // Display Success Modal
   const modal = document.getElementById('successModal');
-  const modalPetName = document.getElementById('modalPetName');
-  
-  if (modalPetName) modalPetName.textContent = petName;
   if (modal) modal.classList.add('show-modal');
 }
 
@@ -84,10 +129,35 @@ function closeModal() {
   
   // Reset form
   const form = document.getElementById('petPlannerForm');
-  if (form) form.reset();
+  if (form) {
+    form.reset();
+    
+    // Clear all image slots preview
+    for (let i = 1; i <= 6; i++) {
+      const preview = document.getElementById(`slot-preview-${i}`);
+      const defContent = document.getElementById(`slot-default-${i}`);
+      const clearBtn = document.getElementById(`slot-clear-${i}`);
+      const input = document.getElementById(`photo-input-${i}`);
+      
+      if (preview) {
+        preview.style.backgroundImage = 'none';
+        preview.style.display = 'none';
+      }
+      if (defContent) defContent.style.display = 'flex';
+      if (clearBtn) clearBtn.style.display = 'none';
+      if (input) input.value = '';
+    }
+    
+    // Reset character counters
+    const charmDetailsCounter = document.getElementById('charmDetailsCounter');
+    const additionalRequestsCounter = document.getElementById('additionalRequestsCounter');
+    if (charmDetailsCounter) charmDetailsCounter.textContent = '0 / 1000';
+    if (additionalRequestsCounter) additionalRequestsCounter.textContent = '0 / 500';
+  }
   
-  selectTier('tier1');
+  selectSize('small');
 }
+
 // ---- HAPPY COMMISSIONS SCROLLING MASONRY WALL ----
 function initHappyCommissionsWall() {
   const wall = document.querySelector('[data-tc-pets-wall]');

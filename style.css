@@ -2336,27 +2336,54 @@ body {
   animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.cute-gift-illustration {
-  max-width: 160px;
-  width: 100%;
-  height: auto;
-  margin-bottom: 16px;
+/* Polaroid Photo Styles for Black Background Images */
+.cart-empty-polaroid {
+  background: #ffffff;
+  padding: 12px 12px 32px 12px;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   display: inline-block;
-  border-radius: 20px !important;
-  border: 3px solid #ffffff;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-  animation: bounce-gift 2s infinite ease-in-out;
+  margin-bottom: 24px;
+  transform: rotate(-3deg);
+  transition: transform 0.3s ease;
 }
 
-.cart-empty-illustration {
-  max-width: 160px;
-  width: 100%;
-  height: auto;
-  margin-bottom: 16px;
+.cart-empty-polaroid:hover {
+  transform: rotate(0deg) scale(1.04);
+}
+
+.cart-empty-polaroid img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover !important;
+  border-radius: 6px !important;
+  display: block;
+}
+
+.cute-gift-polaroid {
+  background: #ffffff;
+  padding: 10px 10px 24px 10px;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1.5px solid rgba(0, 0, 0, 0.05);
   display: inline-block;
-  border-radius: 20px !important;
-  border: 3px solid #ffffff;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  margin-bottom: 20px;
+  transform: rotate(2deg);
+  transition: transform 0.3s ease;
+  animation: bounce-gift 2.5s infinite ease-in-out;
+}
+
+.cute-gift-polaroid:hover {
+  transform: rotate(0deg) scale(1.04);
+}
+
+.cute-gift-polaroid img {
+  width: 130px;
+  height: 130px;
+  object-fit: cover !important;
+  border-radius: 4px !important;
+  display: block;
 }
 
 @keyframes bounce-gift {

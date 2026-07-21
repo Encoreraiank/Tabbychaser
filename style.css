@@ -2050,15 +2050,213 @@ body {
   text-align: left;
 }
 
-.login-modal-title {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  margin-bottom: 20px;
-  color: var(--color-text-main);
-  text-align: center;
+/* Unified Global Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(19, 19, 19, 0.45);
+  backdrop-filter: blur(5px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-.login-submit-btn {
+.modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #888;
+  cursor: pointer;
+  line-height: 1;
+  padding: 5px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  color: var(--color-text-main);
+  transform: scale(1.1);
+}
+
+.login-modal-card {
+  background: #ffffff;
+  max-width: 440px;
   width: 100%;
-  margin-top: 15px;
+  padding: 40px 35px;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  position: relative;
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.login-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  text-align: center;
+  margin: 0 0 6px 0;
+}
+
+.login-modal-subtitle {
+  font-size: 0.92rem;
+  color: #666;
+  text-align: center;
+  margin: 0 0 28px 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px !important;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  color: var(--color-text-main);
+  outline: none;
+  font-family: inherit;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+  border-color: var(--color-brand-pink);
+  box-shadow: 0 0 0 3px rgba(244, 122, 171, 0.15);
+}
+
+/* Password eye positioning */
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-toggle-eye {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.forgot-password-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f47aab;
+  text-decoration: none;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+/* Cloudflare turnstile mock styles */
+.mock-cf-turnstile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px !important;
+  padding: 12px 16px;
+  background-color: #fafafa;
+  margin: 20px 0;
+}
+
+.cf-check-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cf-check-circle {
+  width: 24px;
+  height: 24px;
+  background-color: #2e7d32;
+  color: #ffffff;
+  border-radius: 50% !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.cf-success-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.cf-logo-wrap {
+  text-align: right;
+  font-size: 0.72rem;
+  color: #888;
+}
+
+.cf-logo-text {
+  font-weight: 800;
+  display: block;
+  letter-spacing: 0.5px;
+  color: #555;
+  margin-bottom: 2px;
+}
+
+.cf-privacy-link {
+  color: #666;
+  text-decoration: none;
+}
+
+.cf-privacy-link:hover {
+  text-decoration: underline;
+}
+
+.login-footer-text {
+  text-align: center;
+  font-size: 0.88rem;
+  color: #666;
+  margin-top: 24px;
+}
+
+.login-footer-text a {
+  color: #f47aab;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.login-footer-text a:hover {
+  text-decoration: underline;
 }

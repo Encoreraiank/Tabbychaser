@@ -50,6 +50,51 @@
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.02);
     }
 
+    .product-gallery-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .product-thumbnails-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .product-thumb-box {
+      width: 70px;
+      height: 70px;
+      border: 1.5px solid var(--color-border-rgba);
+      border-radius: 12px !important;
+      overflow: hidden;
+      cursor: pointer;
+      background-color: #ffffff;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
+    }
+
+    .product-thumb-box:hover {
+      opacity: 1;
+      border-color: var(--color-brand-pink);
+      transform: translateY(-2px);
+    }
+
+    .product-thumb-box.active {
+      opacity: 1;
+      border-color: var(--color-brand-pink);
+      box-shadow: 0 0 0 3px rgba(244, 122, 171, 0.15);
+    }
+
+    .product-thumb-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover !important;
+    }
+
     .product-image-panel {
       display: flex;
       align-items: center;
@@ -71,6 +116,52 @@
 
     .product-image-panel:hover .product-main-img {
       transform: scale(1.03);
+    }
+
+    .product-shipping-cards-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .shipping-info-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background-color: #ffffff;
+      border: 1.5px solid var(--color-border-rgba);
+      padding: 16px 20px;
+      border-radius: 18px !important;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.01);
+    }
+
+    .shipping-icon-bg {
+      width: 44px;
+      height: 44px;
+      background-color: rgba(244, 122, 171, 0.12);
+      border-radius: 12px !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .shipping-card-texts {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .shipping-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+
+    .shipping-card-subtitle {
+      font-size: 0.8rem;
+      color: #666;
     }
 
     .product-info-panel {
@@ -535,9 +626,19 @@
       area.innerHTML = `
         <div class="product-details-container">
           
-          <!-- Image Panel -->
-          <div class="product-image-panel">
-            <img src="${prod.image}" alt="${prod.name}" class="product-main-img" />
+          <!-- Left Column: Gallery -->
+          <div class="product-gallery-wrapper">
+            <div class="product-image-panel">
+              <img src="${prod.image}" alt="${prod.name}" class="product-main-img" id="mainProductImage" />
+            </div>
+            <!-- Thumbnails List -->
+            <div class="product-thumbnails-row">
+              ${(prod.images || [prod.image]).map((imgUrl, idx) => `
+                <div class="product-thumb-box ${idx === 0 ? 'active' : ''}" onclick="window.swapProductImage('${imgUrl}', this)">
+                  <img src="${imgUrl}" alt="Thumbnail preview ${idx+1}">
+                </div>
+              `).join('')}
+            </div>
           </div>
 
           <!-- Info Panel -->
@@ -551,6 +652,39 @@
             </div>
 
             <p class="product-description">${prod.description}</p>
+
+            <!-- Shipping Info Boxes -->
+            <div class="product-shipping-cards-row">
+              <div class="shipping-info-card">
+                <div class="shipping-icon-bg">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d35d88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                  </svg>
+                </div>
+                <div class="shipping-card-texts">
+                  <span class="shipping-card-title">Flat shipping</span>
+                  <span class="shipping-card-subtitle">₹59 per order</span>
+                </div>
+              </div>
+
+              <div class="shipping-info-card">
+                <div class="shipping-icon-bg">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d35d88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                  </svg>
+                </div>
+                <div class="shipping-card-texts">
+                  <span class="shipping-card-title">Ships in 35 days</span>
+                  <span class="shipping-card-subtitle">Fast & reliable delivery</span>
+                </div>
+              </div>
+            </div>
 
             <ul class="product-details-list">
               ${detailsListHtml}
@@ -573,6 +707,16 @@
         </div>
       `;
     }
+
+    window.swapProductImage = function(imgUrl, thumbBox) {
+      const mainImg = document.getElementById('mainProductImage');
+      if (mainImg) {
+        mainImg.src = imgUrl;
+      }
+      const boxes = document.querySelectorAll('.product-thumb-box');
+      boxes.forEach(box => box.classList.remove('active'));
+      thumbBox.classList.add('active');
+    };
 
     function updateQty(delta) {
       currentQty = Math.max(1, currentQty + delta);

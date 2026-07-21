@@ -351,42 +351,87 @@ function injectLoginModal() {
   overlay.innerHTML = `
     <div class="login-modal-card">
       <button type="button" class="modal-close-btn" onclick="window.toggleLoginModal(false)" aria-label="Close modal">&times;</button>
-      <div class="login-tabs">
-        <button class="login-tab active" id="tabLoginBtn" onclick="window.setLoginTab('login')">Login</button>
-        <button class="login-tab" id="tabSignUpBtn" onclick="window.setLoginTab('signup')">Sign Up</button>
-      </div>
       
-      <!-- Login Form -->
-      <form id="loginForm" onsubmit="window.handleLoginSubmit(event)" class="login-modal-form">
-        <h3 class="login-modal-title">Welcome back! ♡</h3>
-        <div class="form-group">
-          <label for="loginEmail">Email Address</label>
-          <input type="email" id="loginEmail" required class="form-input" placeholder="you@example.com" />
-        </div>
-        <div class="form-group">
-          <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" required class="form-input" placeholder="••••••••" />
-        </div>
-        <button type="submit" class="btn btn-pink-pill login-submit-btn">Login ✨</button>
-      </form>
+      <!-- Login Container -->
+      <div id="loginFormContainer">
+        <h2 class="login-modal-title">Welcome Back</h2>
+        <p class="login-modal-subtitle">Sign in to your Tabby Chaser account</p>
+        
+        <form id="loginForm" onsubmit="window.handleLoginSubmit(event)" class="login-modal-form">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" required class="form-input" placeholder="hello@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="loginPassword" required class="form-input" placeholder="••••••••" />
+              <button type="button" class="password-toggle-eye" onclick="window.togglePasswordVisibility('loginPassword')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+              <a href="#" class="forgot-password-link" onclick="event.preventDefault(); alert('Reset password link sent to your email!')">Forgot Password?</a>
+            </div>
+          </div>
 
-      <!-- Sign Up Form -->
-      <form id="signUpForm" onsubmit="window.handleSignUpSubmit(event)" class="login-modal-form" style="display:none;">
-        <h3 class="login-modal-title">Create an Account ✨</h3>
-        <div class="form-group">
-          <label for="signUpName">Full Name</label>
-          <input type="text" id="signUpName" required class="form-input" placeholder="ENCORE" />
+          <!-- Cloudflare Mock Verification -->
+          <div class="mock-cf-turnstile">
+            <div class="cf-check-wrap">
+              <span class="cf-check-circle">✓</span>
+              <span class="cf-success-text">Success!</span>
+            </div>
+            <div class="cf-logo-wrap">
+              <span class="cf-logo-text">CLOUDFLARE</span>
+              <a href="#" class="cf-privacy-link" onclick="event.preventDefault()">Privacy</a> • <a href="#" class="cf-privacy-link" onclick="event.preventDefault()">Help</a>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-pink-pill login-submit-btn">Sign In</button>
+        </form>
+        
+        <div class="login-footer-text">
+          Don't have an account? <a href="#" onclick="event.preventDefault(); window.toggleAuthMode('signup')">Sign Up</a>
         </div>
-        <div class="form-group">
-          <label for="signUpEmail">Email Address</label>
-          <input type="email" id="signUpEmail" required class="form-input" placeholder="you@example.com" />
+      </div>
+
+      <!-- Sign Up Container -->
+      <div id="signupFormContainer" style="display:none;">
+        <h2 class="login-modal-title">Create Account</h2>
+        <p class="login-modal-subtitle">Sign up for a Tabby Chaser account</p>
+        
+        <form id="signUpForm" onsubmit="window.handleSignUpSubmit(event)" class="login-modal-form">
+          <div class="form-group">
+            <label class="form-label" for="signUpName">Full Name</label>
+            <input type="text" id="signUpName" required class="form-input" placeholder="ENCORE" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signUpEmail">Email</label>
+            <input type="email" id="signUpEmail" required class="form-input" placeholder="hello@example.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="signUpPassword">Password</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="signUpPassword" required class="form-input" placeholder="••••••••" />
+              <button type="button" class="password-toggle-eye" onclick="window.togglePasswordVisibility('signUpPassword')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-pink-pill login-submit-btn">Sign Up</button>
+        </form>
+        
+        <div class="login-footer-text">
+          Already have an account? <a href="#" onclick="event.preventDefault(); window.toggleAuthMode('login')">Sign In</a>
         </div>
-        <div class="form-group">
-          <label for="signUpPassword">Password</label>
-          <input type="password" id="signUpPassword" required class="form-input" placeholder="••••••••" />
-        </div>
-        <button type="submit" class="btn btn-pink-pill login-submit-btn">Sign Up 🌸</button>
-      </form>
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -402,29 +447,32 @@ window.toggleLoginModal = function(open) {
   }
 };
 
-window.setLoginTab = function(tab) {
-  const loginForm = document.getElementById('loginForm');
-  const signUpForm = document.getElementById('signUpForm');
-  const tabLogin = document.getElementById('tabLoginBtn');
-  const tabSignUp = document.getElementById('tabSignUpBtn');
-
-  if (tab === 'login') {
-    loginForm.style.display = 'flex';
-    signUpForm.style.display = 'none';
-    tabLogin.classList.add('active');
-    tabSignUp.classList.remove('active');
+window.toggleAuthMode = function(mode) {
+  const loginForm = document.getElementById('loginFormContainer');
+  const signupForm = document.getElementById('signupFormContainer');
+  if (mode === 'login') {
+    loginForm.style.display = 'block';
+    signupForm.style.display = 'none';
   } else {
     loginForm.style.display = 'none';
-    signUpForm.style.display = 'flex';
-    tabLogin.classList.remove('active');
-    tabSignUp.classList.add('active');
+    signupForm.style.display = 'block';
+  }
+};
+
+window.togglePasswordVisibility = function(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    if (input.type === 'password') {
+      input.type = 'text';
+    } else {
+      input.type = 'password';
+    }
   }
 };
 
 window.handleLoginSubmit = function(event) {
   event.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();
-  // Simulate login
   const name = email.split('@')[0].toUpperCase();
   localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true }));
   window.toggleLoginModal(false);

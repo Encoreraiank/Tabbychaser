@@ -720,7 +720,14 @@
       
       const itemSubtotal = prod.price * qty;
       const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
+      const isFirstOrderCompleted = localStorage.getItem('tabby_first_order_completed') === 'true';
       const potentialSaved = Math.round(itemSubtotal * 0.1);
+      
+      if (isFirstOrderCompleted) {
+        noticeEl.style.color = '#666';
+        noticeEl.innerHTML = `💡 Welcome discount was already claimed on your first order. Thank you! ❤️`;
+        return;
+      }
       
       if (itemSubtotal > 500) {
         if (isSubscribed) {

@@ -223,11 +223,36 @@ window.renderCartItems = function() {
 
   const cart = window.getCart();
   if (cart.length === 0) {
+    const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
+    const isFirstOrderCompleted = localStorage.getItem('tabby_first_order_completed') === 'true';
+    let marketingNote = '';
+    
+    if (!isSubscribed) {
+      marketingNote = `
+        <div style="margin-top: 18px; font-size: 0.82rem; color: #d35d88; font-weight: 700; background-color: rgba(244, 122, 171, 0.05); padding: 14px; border-radius: 14px !important; border: 1.5px dashed rgba(244, 122, 171, 0.25); line-height: 1.45;">
+          🎁 Want 10% off? Subscribe to our welcome gift on the Home page to save on your first order above ₹500!
+        </div>
+      `;
+    } else if (isFirstOrderCompleted) {
+      marketingNote = `
+        <div style="margin-top: 18px; font-size: 0.82rem; color: #666; font-weight: 700; background-color: rgba(0, 0, 0, 0.02); padding: 14px; border-radius: 14px !important; border: 1.5px dashed rgba(0, 0, 0, 0.1); line-height: 1.45;">
+          Welcome discount was claimed on your first order. Thank you for supporting us! ❤️
+        </div>
+      `;
+    } else {
+      marketingNote = `
+        <div style="margin-top: 18px; font-size: 0.82rem; color: #2e7d32; font-weight: 700; background-color: rgba(46, 125, 50, 0.04); padding: 14px; border-radius: 14px !important; border: 1.5px dashed rgba(46, 125, 50, 0.2); line-height: 1.45;">
+          ✨ 10% welcome discount active! Add charms above ₹500 to save.
+        </div>
+      `;
+    }
+
     content.innerHTML = `
       <div class="cart-empty-state">
         <span class="empty-emoji">🐈</span>
         <p class="empty-msg">Your shopping bag is empty!</p>
         <a href="shop.html" class="shop-now-btn" onclick="window.toggleCartDrawer(false)">Shop Our Charms</a>
+        ${marketingNote}
       </div>
     `;
     if (subtotalEl) subtotalEl.textContent = '₹0';
@@ -263,28 +288,41 @@ window.renderCartItems = function() {
   content.innerHTML = html;
   
   const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
+  const isFirstOrderCompleted = localStorage.getItem('tabby_first_order_completed') === 'true';
   let discount = 0;
   
   if (isSubscribed) {
-    if (subtotal > 500) {
-      discount = Math.round(subtotal * 0.1);
+    if (isFirstOrderCompleted) {
       if (discountRow) {
         discountRow.style.display = 'flex';
-        discountRow.innerHTML = `<span>10% Welcome Discount (Subscribed)</span><span>-₹${discount}</span>`;
+        discountRow.innerHTML = `<span style="color: #666; font-size: 0.8rem; font-weight: 700;">First order discount claimed! ❤️</span><span></span>`;
       }
       if (marketingEl) marketingEl.style.display = 'none';
     } else {
-      if (discountRow) {
-        discountRow.style.display = 'flex';
-        discountRow.innerHTML = `<span style="color: #ef6c00; font-size: 0.82rem; font-weight: 700;">Add ₹${501 - subtotal} more to unlock 10% welcome discount! 🎁</span><span></span>`;
+      if (subtotal > 500) {
+        discount = Math.round(subtotal * 0.1);
+        if (discountRow) {
+          discountRow.style.display = 'flex';
+          discountRow.innerHTML = `<span>10% Welcome Discount (Subscribed)</span><span>-₹${discount}</span>`;
+        }
+        if (marketingEl) marketingEl.style.display = 'none';
+      } else {
+        if (discountRow) {
+          discountRow.style.display = 'flex';
+          discountRow.innerHTML = `<span style="color: #ef6c00; font-size: 0.82rem; font-weight: 700;">Add ₹${501 - subtotal} more to unlock 10% welcome discount! 🎁</span><span></span>`;
+        }
+        if (marketingEl) marketingEl.style.display = 'none';
       }
-      if (marketingEl) marketingEl.style.display = 'none';
     }
   } else {
     if (discountRow) discountRow.style.display = 'none';
     if (marketingEl) {
       marketingEl.style.display = 'block';
-      marketingEl.innerHTML = `🎁 Subscribe to our welcome gift on the Home page to get 10% off on orders above ₹500!`;
+      if (subtotal > 500) {
+        marketingEl.innerHTML = `🎁 Want 10% off? <a href="index.html#policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;" onclick="window.toggleCartDrawer(false)">Subscribe to our welcome gift</a> to save ₹${Math.round(subtotal * 0.1)} on this order!`;
+      } else {
+        marketingEl.innerHTML = `🎁 Want 10% off? Add ₹${501 - subtotal} more and <a href="index.html#policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;" onclick="window.toggleCartDrawer(false)">subscribe to our welcome gift</a> to save!`;
+      }
     }
   }
 
@@ -301,6 +339,10 @@ window.triggerCheckout = function() {
   if (cart.length === 0) return;
 
   alert(`🛒 Checkout Successful!\n\nYour order has been submitted. Thank you for supporting Tabby Chaser! ♡`);
+  
+  // Enforce first time welcome discount limits by tracking checkout completions!
+  localStorage.setItem('tabby_first_order_completed', 'true');
+  
   window.saveCart([]);
   window.toggleCartDrawer(false);
 };
@@ -580,10 +622,49 @@ window.handleNewsletterSubscribe = function(event) {
   localStorage.setItem('tabby_subscribed_email', email);
   input.value = '';
 
-  alert("🎁 10% discount for order above 500");
+  // Show cute modal discount unlocked message
+  window.showCuteDiscountModal();
 
   if (window.renderCartItems) {
     window.renderCartItems();
+  }
+};
+
+function injectCuteDiscountModal() {
+  if (document.getElementById('cuteDiscountModalOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'cuteDiscountModalOverlay';
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="cute-discount-card">
+      <button type="button" class="modal-close-btn" onclick="window.closeCuteDiscountModal()">&times;</button>
+      <div class="cute-gift-emoji">🎁✨</div>
+      <h2 class="login-modal-title" style="font-size: 1.65rem; margin-bottom: 10px;">Welcome Gift Unlocked!</h2>
+      <p class="cute-modal-desc">Thank you for joining our newsletter! You've received a special first-time welcome discount:</p>
+      <div class="cute-coupon-badge">
+        <span class="coupon-code-text">10% OFF</span>
+        <span class="coupon-sub-text">on orders above ₹500</span>
+      </div>
+      <p class="cute-modal-note">This discount will be automatically applied to your cart on your first order. Happy shopping! 🌸</p>
+      <button type="button" class="btn btn-pink-pill cute-modal-btn" onclick="window.closeCuteDiscountModal()">YAY! Let's Shop 🛍️</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+window.closeCuteDiscountModal = function() {
+  const overlay = document.getElementById('cuteDiscountModalOverlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+};
+
+window.showCuteDiscountModal = function() {
+  injectCuteDiscountModal();
+  const overlay = document.getElementById('cuteDiscountModalOverlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
   }
 };
 

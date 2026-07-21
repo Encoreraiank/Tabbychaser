@@ -505,3 +505,69 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Sidebar Info Banner Cards (Shipping & Discount) */
+.sidebar-info-banner-card {
+  background-color: rgba(244, 122, 171, 0.04);
+  border: 1.5px dashed rgba(244, 122, 171, 0.3);
+  border-radius: 18px !important;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+}
+
+.banner-icon-side {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(244, 122, 171, 0.12);
+  border-radius: 10px !important;
+  width: 36px;
+  height: 36px;
+}
+
+.banner-text-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-heading {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--color-text-main);
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+}
+
+.banner-desc {
+  font-size: 0.78rem;
+  color: #666;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.banner-apply-btn {
+  background-color: rgba(244, 122, 171, 0.08);
+  color: #d35d88;
+  border: 1.5px solid rgba(244, 122, 171, 0.25);
+  border-radius: 50px !important;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  align-self: flex-start;
+  transition: all 0.2s ease;
+}
+
+.banner-apply-btn:hover {
+  background-color: #d35d88;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+

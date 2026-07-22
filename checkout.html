@@ -1338,6 +1338,16 @@
         })();
       }
 
+      // Save applied coupon as used for this user & clear applied coupon
+      const applied = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+      if (applied && applied.code) {
+        const used = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
+        const codeUpper = applied.code.toUpperCase();
+        if (!used.includes(codeUpper)) used.push(codeUpper);
+        localStorage.setItem('tabby_used_coupons', JSON.stringify(used));
+      }
+      localStorage.removeItem('tabby_applied_coupon');
+
       // Clear shopping bag
       if (window.saveCart) {
         window.saveCart([]);

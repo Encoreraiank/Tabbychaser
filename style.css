@@ -42,6 +42,38 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+a, a:hover, a:focus, a:visited {
+  text-decoration: none !important;
+}
+
+/* Beautiful Add to Cart Pill Button */
+.add-to-cart-btn {
+  width: 100%;
+  background-color: rgba(244, 122, 171, 0.12);
+  color: #d35d88;
+  border: 1.5px solid rgba(244, 122, 171, 0.35);
+  border-radius: 50px !important;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.add-to-cart-btn:hover {
+  background-color: var(--color-brand-pink);
+  color: #ffffff;
+  border-color: var(--color-brand-pink);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244, 122, 171, 0.3);
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

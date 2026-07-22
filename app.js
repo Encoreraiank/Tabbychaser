@@ -348,8 +348,31 @@ window.renderCartItems = function() {
     }
   }
 
-  // Check applied coupon
-  const appliedCoupon = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+  // Check applied coupon & validate against active/used lists
+  let appliedCoupon = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+  const usedCoupons = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
+
+  if (appliedCoupon) {
+    const code = (appliedCoupon.code || '').toUpperCase();
+    
+    // Check if already used by user
+    if (usedCoupons.includes(code)) {
+      localStorage.removeItem('tabby_applied_coupon');
+      appliedCoupon = null;
+    } else {
+      // Validate against active coupons list
+      const localCoupons = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
+      const isKnownStatic = (code === 'WELCOME10' || code.startsWith('PAWS15'));
+      const isLocallyActive = localCoupons.some(c => c.code.toUpperCase() === code && c.active !== false);
+
+      if (!isKnownStatic && !isLocallyActive) {
+        // Clear inactive/deleted coupon
+        localStorage.removeItem('tabby_applied_coupon');
+        appliedCoupon = null;
+      }
+    }
+  }
+
   if (appliedCoupon) {
     if (appliedCoupon.type === 'percent') {
       discount = Math.round(subtotal * (appliedCoupon.value / 100));
@@ -360,6 +383,8 @@ window.renderCartItems = function() {
       discountRow.style.display = 'flex';
       discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-₹${discount}</span>`;
     }
+  } else {
+    if (discountRow) discountRow.style.display = 'none';
   }
 
   // Dynamic shipping calculation
@@ -385,6 +410,13 @@ window.applyCartCoupon = async function() {
   const code = (codeInput?.value || '').trim().toUpperCase();
   if (!code) return;
 
+  // Check one-time use restriction
+  const usedCoupons = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
+  if (usedCoupons.includes(code)) {
+    alert(`❌ You have already used coupon "${code}" on a previous order. Each coupon code can only be used once!`);
+    return;
+  }
+
   let foundCoupon = null;
 
   // 1. Try Supabase
@@ -401,7 +433,7 @@ window.applyCartCoupon = async function() {
     foundCoupon = localCoupons.find(c => c.code.toUpperCase() === code && c.active !== false);
   }
 
-  // Special welcome coupon check
+  // Special welcome / review coupon check
   if (!foundCoupon && (code === 'WELCOME10' || code.startsWith('PAWS15'))) {
     foundCoupon = { code: code, type: 'percent', value: code.startsWith('PAWS15') ? 15 : 10 };
   }
@@ -411,7 +443,7 @@ window.applyCartCoupon = async function() {
     alert(`🎉 Coupon "${foundCoupon.code}" applied successfully!`);
     window.renderCartItems();
   } else {
-    alert(`❌ Coupon code "${code}" is invalid or expired.`);
+    alert(`❌ Coupon code "${code}" is invalid or inactive in store.`);
   }
 };;
 

@@ -540,6 +540,14 @@
             </div>
           </div>
 
+          <div style="font-weight:700;font-size:0.85rem;margin-top:10px;margin-bottom:8px;color:#555;">Choose Hero Featured Products (Up to 4)</div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Hero Product #1</label><select id="heroProd1" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Hero Product #2</label><select id="heroProd2" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Hero Product #3</label><select id="heroProd3" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Hero Product #4</label><select id="heroProd4" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select></div>
+          </div>
+
           <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">3. Best Sellers Section</div>
           <div class="grid-2">
             <div class="form-group">
@@ -550,6 +558,18 @@
               <label class="form-label">Section Subtitle</label>
               <input type="text" id="siteBestSub" class="form-control" placeholder="Handmade with love for your daily joy" />
             </div>
+          </div>
+
+          <div style="font-weight:700;font-size:0.85rem;margin-top:10px;margin-bottom:8px;color:#555;">Choose Best Seller Grid Products (Up to 8)</div>
+          <div class="grid-2">
+            <div class="form-group"><label class="form-label">Best Seller #1</label><select id="bestProd1" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Best Seller #2</label><select id="bestProd2" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Best Seller #3</label><select id="bestProd3" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Best Seller #4</label><select id="bestProd4" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Best Seller #5</label><select id="bestProd5" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Best Seller #6</label><select id="bestProd6" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Best Seller #7</label><select id="bestProd7" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
+            <div class="form-group"><label class="form-label">Best Seller #8</label><select id="bestProd8" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
           </div>
 
           <button class="btn btn-pink" onclick="saveSiteSettings()" style="margin-top:16px;">💾 Save Hero & Best Sellers Content</button>
@@ -1449,6 +1469,26 @@
       }
     } catch(e) {}
 
+    // Populate Hero & Best Seller Product Options
+    const prodOptions = `<option value="">-- Select Product --</option>` + 
+      allProducts.map(p => `<option value="${p.id}">${p.name} (₹${p.price})</option>`).join('');
+
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById(`heroProd${i}`);
+      if (el) {
+        el.innerHTML = prodOptions;
+        if (s[`hero_prod_${i}`]) el.value = s[`hero_prod_${i}`];
+      }
+    }
+
+    for (let i = 1; i <= 8; i++) {
+      const el = document.getElementById(`bestProd${i}`);
+      if (el) {
+        el.innerHTML = prodOptions;
+        if (s[`best_prod_${i}`]) el.value = s[`best_prod_${i}`];
+      }
+    }
+
     document.getElementById('siteMarquee').value = s.announcement_text || '';
     document.getElementById('siteHeroTitle').value = s.hero_title || '';
     document.getElementById('siteHeroSub').value = s.hero_sub || '';
@@ -1456,9 +1496,6 @@
     document.getElementById('siteHeroBtnLink').value = s.hero_btn_link || '';
     document.getElementById('siteBestTitle').value = s.best_title || '';
     document.getElementById('siteBestSub').value = s.best_sub || '';
-    document.getElementById('siteBtsTitle').value = s.bts_title || '';
-    document.getElementById('siteBtsText').value = s.bts_text || '';
-    document.getElementById('siteBtsImage').value = s.bts_image || '';
     document.getElementById('shipFee').value = s.standard_shipping_fee || '59';
     document.getElementById('shipFreeThreshold').value = s.free_shipping_threshold || '2000';
     document.getElementById('storeEmail').value = s.store_email || 'tabbychaser2@gmail.com';
@@ -1479,12 +1516,19 @@
       hero_btn_link: document.getElementById('siteHeroBtnLink').value,
       best_title: document.getElementById('siteBestTitle').value,
       best_sub: document.getElementById('siteBestSub').value,
-      bts_title: document.getElementById('siteBtsTitle').value,
-      bts_text: document.getElementById('siteBtsText').value,
-      bts_image: document.getElementById('siteBtsImage').value,
       standard_shipping_fee: document.getElementById('shipFee').value,
       free_shipping_threshold: document.getElementById('shipFreeThreshold').value
     };
+
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById(`heroProd${i}`);
+      if (el) sObj[`hero_prod_${i}`] = el.value;
+    }
+
+    for (let i = 1; i <= 8; i++) {
+      const el = document.getElementById(`bestProd${i}`);
+      if (el) sObj[`best_prod_${i}`] = el.value;
+    }
 
     localStorage.setItem('tabby_site_settings', JSON.stringify(sObj));
 
@@ -1497,7 +1541,7 @@
       }
     } catch(e) {}
 
-    alert('✅ Homepage Content & Settings Saved Successfully! ✨');
+    alert('✅ Hero & Best Sellers Content Saved Successfully! ✨');
   }
 
   function saveSupabaseCredentials() {

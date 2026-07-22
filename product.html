@@ -571,6 +571,16 @@
     let loadedProduct = null;
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Dynamic shipping fee update
+      const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+      const fee = siteSettings.standard_shipping_fee || '59';
+      const freeThresh = siteSettings.free_shipping_threshold || '2000';
+      
+      const subEl = document.getElementById('prodShipSubtitle');
+      const freeEl = document.getElementById('prodFreeShipSub');
+      if (subEl) subEl.textContent = `₹${fee} per order`;
+      if (freeEl) freeEl.textContent = `On orders above ₹${parseInt(freeThresh).toLocaleString('en-IN')}`;
+
       // 1. Read 'id' from URL query params
       const urlParams = new URLSearchParams(window.location.search);
       const prodId = urlParams.get('id');
@@ -669,8 +679,8 @@
                   </svg>
                 </div>
                 <div class="shipping-card-texts">
-                  <span class="shipping-card-title">Flat shipping</span>
-                  <span class="shipping-card-subtitle">₹59 per order</span>
+                  <span class="shipping-card-title" id="prodShipTitle">Flat shipping</span>
+                  <span class="shipping-card-subtitle" id="prodShipSubtitle">₹59 per order</span>
                 </div>
               </div>
 
@@ -684,8 +694,8 @@
                   </svg>
                 </div>
                 <div class="shipping-card-texts">
-                  <span class="shipping-card-title">Ships in 35 days</span>
-                  <span class="shipping-card-subtitle">Fast & reliable delivery</span>
+                  <span class="shipping-card-title">Free Shipping</span>
+                  <span class="shipping-card-subtitle" id="prodFreeShipSub">On orders above ₹2,000</span>
                 </div>
               </div>
             </div>

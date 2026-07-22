@@ -220,14 +220,20 @@ function renderDynamicProducts(products) {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
 
+  const wishlist = window.getWishlist ? window.getWishlist() : [];
+
   grid.innerHTML = products.map(p => {
     const img = (p.images && p.images[0]) ? p.images[0] : (p.image || 'https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp');
     const catSlug = (p.category || 'charms').toLowerCase().replace(/\s+/g, '-');
     const stockStatus = (p.stock === 0 || p.stock === 'out-of-stock') ? 'out-of-stock' : ((p.stock <= 3 || p.stock === 'low-stock') ? 'low-stock' : 'in-stock');
     const badgeHtml = p.badge ? `<span class="badge badge-best">${p.badge}</span>` : '';
+    const isWishlisted = wishlist.some(item => item.name === p.name);
 
     return `
       <div class="shop-card" data-cat="${catSlug}" data-price="${p.price}" data-stock="${stockStatus}" data-name="${p.name.replace(/"/g, '&quot;')}">
+        <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" data-wishlist-name="${p.name.replace(/"/g, '&quot;')}" onclick="window.toggleWishlist('${p.id || ''}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${img}', event)" title="Add to Wishlist">
+          ${isWishlisted ? '♥' : '♡'}
+        </button>
         <a href="product.html?id=${p.id || ''}" class="shop-card-link">
           <div class="shop-card-img-wrap">
             ${badgeHtml}

@@ -166,6 +166,45 @@ window.getCart = function() {
   }
 };
 
+window.getWishlist = function() {
+  try {
+    return JSON.parse(localStorage.getItem('tabby_wishlist_items')) || [];
+  } catch(e) { return []; }
+};
+
+window.toggleWishlist = function(idOrName, name, price, img, event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  let list = window.getWishlist();
+  const index = list.findIndex(item => item.name === name);
+  let isSaved = false;
+
+  if (index >= 0) {
+    list.splice(index, 1);
+  } else {
+    list.push({ id: idOrName, name, price: parseInt(price), img });
+    isSaved = true;
+  }
+
+  localStorage.setItem('tabby_wishlist_items', JSON.stringify(list));
+  
+  alert(isSaved ? `Added "${name}" to your Wishlist 💕` : `Removed "${name}" from your Wishlist`);
+  
+  // Update heart buttons across DOM
+  const hearts = document.querySelectorAll(`[data-wishlist-name="${CSS.escape(name)}"]`);
+  hearts.forEach(h => {
+    if (isSaved) {
+      h.classList.add('active');
+      h.innerHTML = '♥';
+    } else {
+      h.classList.remove('active');
+      h.innerHTML = '♡';
+    }
+  });
+};
+
 window.saveCart = function(cart) {
   localStorage.setItem('tabby_cart_items', JSON.stringify(cart));
   window.updateCartBadge();

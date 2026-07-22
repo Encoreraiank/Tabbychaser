@@ -776,7 +776,7 @@
   <script src="products-data.js"></script>
   <script src="app.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
       if (siteSettings.announcement_text) {
         const marquee = document.getElementById('announcementMarquee');
@@ -799,28 +799,56 @@
         if (btns.length > 0) btns[0].setAttribute('href', siteSettings.hero_btn_link);
       }
 
-      // Best Sellers Section
+      // Best Sellers Title & Subtitle
       if (siteSettings.best_title) {
-        const titles = document.querySelectorAll('.section-header-pill .pill-title-text');
-        if (titles.length > 0) titles[0].textContent = siteSettings.best_title;
-      }
-      if (siteSettings.best_sub) {
-        const subs = document.querySelectorAll('.section-header-pill .pill-subtitle');
-        if (subs.length > 0) subs[0].textContent = siteSettings.best_sub;
+        const head = document.querySelector('.sellers-heading');
+        if (head) head.textContent = siteSettings.best_title;
       }
 
-      // Behind The Scenes Section
-      if (siteSettings.bts_title) {
-        const btsHeaders = document.querySelectorAll('.showcase-text-block h2');
-        if (btsHeaders.length > 0) btsHeaders[0].textContent = siteSettings.bts_title;
-      }
-      if (siteSettings.bts_text) {
-        const btsDescs = document.querySelectorAll('.showcase-text-block p');
-        if (btsDescs.length > 0) btsDescs[0].textContent = siteSettings.bts_text;
-      }
-      if (siteSettings.bts_image) {
-        const btsImgs = document.querySelectorAll('.showcase-img');
-        if (btsImgs.length > 0) btsImgs[0].src = siteSettings.bts_image;
+      // Fetch live products for Best Sellers Grid & Hero Slides
+      let products = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
+      if (products.length === 0 && typeof PRODUCTS_DATA !== 'undefined') products = PRODUCTS_DATA;
+      const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+      products = products.filter(p => !deletedIds.includes(p.id));
+
+      // Render Selected Best Seller Products (Up to 8)
+      const selectedBestIds = [1,2,3,4,5,6,7,8].map(i => siteSettings[`best_prod_${i}`]).filter(Boolean);
+      let bestList = selectedBestIds.length > 0
+        ? selectedBestIds.map(id => products.find(p => p.id === id)).filter(Boolean)
+        : products.slice(0, 8);
+
+      if (bestList.length > 0) {
+        const grid = document.querySelector('.sellers-products-grid');
+        const wishlist = window.getWishlist ? window.getWishlist() : [];
+
+        if (grid) {
+          grid.innerHTML = bestList.map(p => {
+            const img = (p.images && p.images[0]) ? p.images[0] : (p.image || 'store-logo-c471e30d.webp');
+            const isWish = wishlist.some(w => w.name === p.name);
+            return `
+              <div style="position:relative;">
+                <button class="wishlist-heart-btn ${isWish ? 'active' : ''}" data-wishlist-name="${p.name.replace(/"/g, '&quot;')}" onclick="window.toggleWishlist('${p.id || ''}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${img}', event)" title="Add to Wishlist">
+                  ${isWish ? '♥' : '♡'}
+                </button>
+                <a href="product.html?id=${p.id || ''}" class="showcase-product-card-link">
+                  <div class="showcase-product-card">
+                    <div class="card-image-wrapper">
+                      <span class="card-hot-badge">${p.badge || 'Bestseller'}</span>
+                      <img src="${img}" alt="${p.name}" />
+                    </div>
+                    <div class="card-meta-details">
+                      <div class="card-title-price-row">
+                        <span class="prod-title">${p.name}</span>
+                        <span class="prod-price">₹${p.price}</span>
+                      </div>
+                      <span class="prod-tagline">${p.category || 'Handmade'}</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            `;
+          }).join('');
+        }
       }
     });
   </script>

@@ -281,7 +281,6 @@
     <div class="nav-group-label">Content & Settings</div>
     <button class="nav-btn" onclick="switchTab('heroManager', this)"><span class="nav-icon">🖼️</span> Hero & Banner</button>
     <button class="nav-btn" onclick="switchTab('shipping', this)"><span class="nav-icon">🚚</span> Shipping Fees</button>
-    <button class="nav-btn" onclick="switchTab('media', this)"><span class="nav-icon">📁</span> Media Library</button>
     <button class="nav-btn" onclick="switchTab('siteSettings', this)"><span class="nav-icon">⚙️</span> Store Settings</button>
   </div>
 
@@ -510,24 +509,64 @@
       </div>
     </div>
 
-    <!-- ━━━━ HERO MANAGER TAB ━━━━ -->
+    <!-- ━━━━ HERO & HOMEPAGE SECTIONS MANAGER TAB ━━━━ -->
     <div class="tab-pane" id="tab-heroManager">
       <div class="card">
-        <div class="card-header"><div class="card-title">Homepage Banner & Marquee</div></div>
+        <div class="card-header"><div class="card-title">Homepage Content & Sections Manager</div></div>
         <div class="card-body">
+          <div style="font-weight:700;font-size:0.9rem;margin-bottom:12px;color:var(--pink);">1. Announcement Marquee Bar</div>
           <div class="form-group">
-            <label class="form-label">Announcement Marquee Text</label>
+            <label class="form-label">Marquee Text</label>
             <input type="text" id="siteMarquee" class="form-control" placeholder="🚚 Free shipping on orders above ₹2,000 | Handmade with love in Bangalore" />
           </div>
+
+          <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">2. Hero Section</div>
           <div class="form-group">
-            <label class="form-label">Hero Banner Headline</label>
-            <input type="text" id="siteHeroTitle" class="form-control" placeholder="Handmade Polymer Clay Charms" />
+            <label class="form-label">Hero Headline Title</label>
+            <input type="text" id="siteHeroTitle" class="form-control" placeholder="Slay everyday with cute little frog charms." />
           </div>
           <div class="form-group">
-            <label class="form-label">Hero Subheading</label>
-            <textarea id="siteHeroSub" class="form-control" rows="2" placeholder="Each piece is sculpted and painted with love by one sleepy cat"></textarea>
+            <label class="form-label">Hero Paragraph Subheading</label>
+            <textarea id="siteHeroSub" class="form-control" rows="2" placeholder="A tiny frog friend ready to hop into your everyday adventures. Handmade from cold porcelain clay."></textarea>
           </div>
-          <button class="btn btn-pink" onclick="saveSiteSettings()">💾 Save Hero Content</button>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Button Text</label>
+              <input type="text" id="siteHeroBtnText" class="form-control" placeholder="Adopt Froggy" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Button Target Link</label>
+              <input type="text" id="siteHeroBtnLink" class="form-control" placeholder="product.html?id=pond-hopper-frog" />
+            </div>
+          </div>
+
+          <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">3. Best Sellers Section</div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Section Title</label>
+              <input type="text" id="siteBestTitle" class="form-control" placeholder="Best Sellers" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Section Subtitle</label>
+              <input type="text" id="siteBestSub" class="form-control" placeholder="Handmade with love for your daily joy" />
+            </div>
+          </div>
+
+          <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">4. Behind The Scenes (About Anjali Section)</div>
+          <div class="form-group">
+            <label class="form-label">Heading Title</label>
+            <input type="text" id="siteBtsTitle" class="form-control" placeholder="BEHIND THE SCENES" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Story Description Paragraph</label>
+            <textarea id="siteBtsText" class="form-control" rows="3" placeholder="Just me, some clay and a little paint. Every single piece is sculpted, sanded, painted, and varnished by hand..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Section Image URL</label>
+            <input type="text" id="siteBtsImage" class="form-control" placeholder="https://..." />
+          </div>
+
+          <button class="btn btn-pink" onclick="saveSiteSettings()" style="margin-top:12px;">💾 Save All Homepage Content</button>
         </div>
       </div>
     </div>
@@ -552,30 +591,10 @@
       </div>
     </div>
 
-    <!-- ━━━━ MEDIA TAB ━━━━ -->
-    <div class="tab-pane" id="tab-media">
-      <div class="card">
-        <div class="card-header"><div class="card-title">Cloudinary Upload Config</div></div>
-        <div class="card-body">
-          <div class="grid-2">
-            <div class="form-group">
-              <label class="form-label">Cloud Name</label>
-              <input type="text" id="cloudName" class="form-control" placeholder="rjjympjfdmvjuuovidtc" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Upload Preset (Unsigned)</label>
-              <input type="text" id="cloudPreset" class="form-control" placeholder="tabby_unsigned_preset" />
-            </div>
-          </div>
-          <button class="btn btn-pink" onclick="saveCloudinary()">Save Cloudinary Config</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ━━━━ STORE SETTINGS TAB ━━━━ -->
+    <!-- ━━━━ STORE & API INTEGRATION SETTINGS TAB ━━━━ -->
     <div class="tab-pane" id="tab-siteSettings">
       <div class="card">
-        <div class="card-header"><div class="card-title">General Store Settings</div></div>
+        <div class="card-header"><div class="card-title">Store & API Integration Settings</div></div>
         <div class="card-body">
           <div class="grid-2">
             <div class="form-group">
@@ -587,6 +606,35 @@
               <input type="text" id="storeInsta" class="form-control" placeholder="@tabbychaser" />
             </div>
           </div>
+
+          <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">🔑 Supabase Connection (Database & Auth)</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Found in Supabase Dashboard → Settings → API</p>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Supabase Project URL</label>
+              <input type="text" id="supaUrl" class="form-control" placeholder="https://rjjympjfdmvjuuovidtc.supabase.co" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Supabase Anon Key</label>
+              <input type="text" id="supaKey" class="form-control" placeholder="eyJhbG..." />
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="saveSupabaseCredentials()">Connect Supabase</button>
+
+          <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">☁️ Cloudinary Connection (Image Uploads)</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Found in Cloudinary Dashboard → Settings → Upload → Unsigned Preset</p>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Cloud Name</label>
+              <input type="text" id="cloudName" class="form-control" placeholder="rjjympjfdmvjuuovidtc" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Upload Preset (Unsigned)</label>
+              <input type="text" id="cloudPreset" class="form-control" placeholder="tabby_unsigned_preset" />
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="saveCloudinary()">Connect Cloudinary</button>
+
           <div class="form-group" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
             <label class="form-label">Admin Password Change</label>
             <input type="password" id="newAdminPass" class="form-control" placeholder="New Password" style="max-width:300px;margin-bottom:8px;" />
@@ -1355,7 +1403,7 @@
     loadReviews();
   }
 
-  // 9. SITE SETTINGS & HERO
+  // 9. SITE SETTINGS & HERO & INTEGRATIONS
   async function loadSiteSettings() {
     let s = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
     try {
@@ -1369,10 +1417,22 @@
     document.getElementById('siteMarquee').value = s.announcement_text || '';
     document.getElementById('siteHeroTitle').value = s.hero_title || '';
     document.getElementById('siteHeroSub').value = s.hero_sub || '';
+    document.getElementById('siteHeroBtnText').value = s.hero_btn_text || '';
+    document.getElementById('siteHeroBtnLink').value = s.hero_btn_link || '';
+    document.getElementById('siteBestTitle').value = s.best_title || '';
+    document.getElementById('siteBestSub').value = s.best_sub || '';
+    document.getElementById('siteBtsTitle').value = s.bts_title || '';
+    document.getElementById('siteBtsText').value = s.bts_text || '';
+    document.getElementById('siteBtsImage').value = s.bts_image || '';
     document.getElementById('shipFee').value = s.standard_shipping_fee || '59';
     document.getElementById('shipFreeThreshold').value = s.free_shipping_threshold || '2000';
     document.getElementById('storeEmail').value = s.store_email || 'tabbychaser2@gmail.com';
     document.getElementById('storeInsta').value = s.instagram_url || '@tabbychaser';
+
+    document.getElementById('supaUrl').value = localStorage.getItem('tabby_supabase_url') || 'https://rjjympjfdmvjuuovidtc.supabase.co';
+    document.getElementById('supaKey').value = localStorage.getItem('tabby_supabase_key') || '';
+    document.getElementById('cloudName').value = localStorage.getItem('tabby_cloudinary_name') || 'rjjympjfdmvjuuovidtc';
+    document.getElementById('cloudPreset').value = localStorage.getItem('tabby_cloudinary_preset') || 'tabby_unsigned_preset';
   }
 
   async function saveSiteSettings() {
@@ -1380,6 +1440,13 @@
       announcement_text: document.getElementById('siteMarquee').value,
       hero_title: document.getElementById('siteHeroTitle').value,
       hero_sub: document.getElementById('siteHeroSub').value,
+      hero_btn_text: document.getElementById('siteHeroBtnText').value,
+      hero_btn_link: document.getElementById('siteHeroBtnLink').value,
+      best_title: document.getElementById('siteBestTitle').value,
+      best_sub: document.getElementById('siteBestSub').value,
+      bts_title: document.getElementById('siteBtsTitle').value,
+      bts_text: document.getElementById('siteBtsText').value,
+      bts_image: document.getElementById('siteBtsImage').value,
       standard_shipping_fee: document.getElementById('shipFee').value,
       free_shipping_threshold: document.getElementById('shipFreeThreshold').value
     };
@@ -1395,13 +1462,22 @@
       }
     } catch(e) {}
 
-    alert('Settings Saved Successfully! ✨');
+    alert('✅ Homepage Content & Settings Saved Successfully! ✨');
+  }
+
+  function saveSupabaseCredentials() {
+    const url = document.getElementById('supaUrl').value.trim();
+    const key = document.getElementById('supaKey').value.trim();
+    if (url) localStorage.setItem('tabby_supabase_url', url);
+    if (key) localStorage.setItem('tabby_supabase_key', key);
+    alert('✅ Supabase credentials saved! Reloading dashboard...');
+    window.location.reload();
   }
 
   function saveCloudinary() {
     localStorage.setItem('tabby_cloudinary_name', document.getElementById('cloudName').value);
     localStorage.setItem('tabby_cloudinary_preset', document.getElementById('cloudPreset').value);
-    alert('Cloudinary Config Saved!');
+    alert('✅ Cloudinary credentials saved!');
   }
 
   function changeAdminPass() {

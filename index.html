@@ -790,6 +790,38 @@
         const descs = document.querySelectorAll('.hero-paragraph-desc');
         if (descs.length > 0) descs[0].textContent = siteSettings.hero_sub;
       }
+      if (siteSettings.hero_btn_text) {
+        const btns = document.querySelectorAll('.btn-pink-pill');
+        if (btns.length > 0) btns[0].textContent = siteSettings.hero_btn_text;
+      }
+      if (siteSettings.hero_btn_link) {
+        const btns = document.querySelectorAll('.btn-pink-pill');
+        if (btns.length > 0) btns[0].setAttribute('href', siteSettings.hero_btn_link);
+      }
+
+      // Best Sellers Section
+      if (siteSettings.best_title) {
+        const titles = document.querySelectorAll('.section-header-pill .pill-title-text');
+        if (titles.length > 0) titles[0].textContent = siteSettings.best_title;
+      }
+      if (siteSettings.best_sub) {
+        const subs = document.querySelectorAll('.section-header-pill .pill-subtitle');
+        if (subs.length > 0) subs[0].textContent = siteSettings.best_sub;
+      }
+
+      // Behind The Scenes Section
+      if (siteSettings.bts_title) {
+        const btsHeaders = document.querySelectorAll('.showcase-text-block h2');
+        if (btsHeaders.length > 0) btsHeaders[0].textContent = siteSettings.bts_title;
+      }
+      if (siteSettings.bts_text) {
+        const btsDescs = document.querySelectorAll('.showcase-text-block p');
+        if (btsDescs.length > 0) btsDescs[0].textContent = siteSettings.bts_text;
+      }
+      if (siteSettings.bts_image) {
+        const btsImgs = document.querySelectorAll('.showcase-img');
+        if (btsImgs.length > 0) btsImgs[0].src = siteSettings.bts_image;
+      }
     });
   </script>
 </body>

@@ -129,7 +129,7 @@ function showToast(message) {
   }, 2800);
 }
 
-// ---- INIT & DYNAMIC SUPABASE STOREFRONT LOADER ----
+// ---- DYNAMIC STOREFRONT & CATEGORY ENGINE ----
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const searchParam = urlParams.get('search');
@@ -137,35 +137,93 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (searchParam && searchInput) {
     searchInput.value = decodeURIComponent(searchParam);
   }
-  filterProducts();
 
-  // Try fetching products from Supabase DB live
+  await loadLiveStorefrontData();
+});
+
+async function loadLiveStorefrontData() {
+  let products = [];
+  const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+
+  // 1. Try Supabase
   let tries = 0;
-  while (!window.supabaseClient && tries < 10) {
-    await new Promise(r => setTimeout(r, 200));
+  while (!window.supabaseClient && tries < 5) {
+    await new Promise(r => setTimeout(r, 150));
     tries++;
   }
 
   if (window.supabaseClient) {
     try {
       const { data: dbProducts } = await window.supabaseClient.from('products').select('*').eq('status', 'published');
-      if (dbProducts && dbProducts.length > 0) {
-        renderDynamicProducts(dbProducts);
-      }
-    } catch (err) {
-      console.warn('Fallback to static products:', err);
-    }
+      if (dbProducts && dbProducts.length > 0) products = dbProducts;
+    } catch (err) {}
   }
-});
+
+  // 2. Fallback to localStorage
+  if (products.length === 0) {
+    const local = JSON.parse(localStorage.getItem('tabby_products_local') || 'null');
+    if (local && local.length > 0) products = local;
+  }
+
+  // 3. Fallback to PRODUCTS_DATA
+  if (products.length === 0 && typeof PRODUCTS_DATA !== 'undefined') {
+    products = PRODUCTS_DATA.map(p => ({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      compare_price: p.compare_price || null,
+      category: p.category || 'charms',
+      stock: p.stock === 'out-of-stock' ? 0 : (p.stock === 'low-stock' ? 3 : 15),
+      badge: p.badge || null,
+      images: p.images || [p.image]
+    }));
+  }
+
+  // Filter out any explicitly deleted products
+  const liveProducts = products.filter(p => !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
+
+  // Render dynamic category pills & product cards
+  renderDynamicCategoryPills();
+  renderDynamicProducts(liveProducts);
+}
+
+function renderDynamicCategoryPills() {
+  const container = document.querySelector('.filter-scroll-track');
+  if (!container) return;
+
+  const localCats = JSON.parse(localStorage.getItem('tabby_categories_local') || '[]');
+  const defaultCats = [
+    { name: 'All Charms', slug: 'all' },
+    { name: 'Charms 🌸', slug: 'charms' },
+    { name: 'Keychains 🔑', slug: 'keychains' },
+    { name: 'Desk Pals 🐸', slug: 'desk-pals' },
+    { name: 'Sticker Sheets ✨', slug: 'stickers' },
+    { name: 'Worry Stones 🌟', slug: 'worry-stones' }
+  ];
+
+  const merged = [...defaultCats];
+  localCats.forEach(c => {
+    const slug = (c.slug || c.name.toLowerCase().replace(/\s+/g, '-'));
+    if (!merged.some(m => m.slug === slug)) {
+      merged.push({ name: c.name, slug: slug });
+    }
+  });
+
+  container.innerHTML = merged.map((c, i) => `
+    <button class="filter-btn ${i === 0 ? 'active' : ''}" data-cat="${c.slug}" onclick="setCat(this, '${c.slug}')">
+      ${c.name}
+    </button>
+  `).join('');
+}
 
 function renderDynamicProducts(products) {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
 
   grid.innerHTML = products.map(p => {
-    const img = (p.images && p.images[0]) ? p.images[0] : 'https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp';
+    const img = (p.images && p.images[0]) ? p.images[0] : (p.image || 'https://rjjympjfdmvjuuovidtc.supabase.co/storage/v1/object/public/product-images/50ce9ac9-ccac-42d0-bc0d-8f6b7868ee44/product-88b446e8-wa8nqo.webp');
     const catSlug = (p.category || 'charms').toLowerCase().replace(/\s+/g, '-');
-    const stockStatus = p.stock > 3 ? 'in-stock' : (p.stock > 0 ? 'low-stock' : 'out-of-stock');
+    const stockStatus = (p.stock === 0 || p.stock === 'out-of-stock') ? 'out-of-stock' : ((p.stock <= 3 || p.stock === 'low-stock') ? 'low-stock' : 'in-stock');
     const badgeHtml = p.badge ? `<span class="badge badge-best">${p.badge}</span>` : '';
 
     return `
@@ -196,4 +254,5 @@ function renderDynamicProducts(products) {
 
   filterProducts();
 }
+
 

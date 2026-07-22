@@ -70,6 +70,10 @@
         
         <!-- Elegant Box (#fce9e5) for strong visibility -->
         <div class="hero-rounded-card">
+          <!-- Manual Navigation Arrows -->
+          <button type="button" class="hero-nav-btn prev-btn" onclick="window.goToSlide(window.currentHeroSlideIdx - 1)" title="Previous Slide">‹</button>
+          <button type="button" class="hero-nav-btn next-btn" onclick="window.goToSlide(window.currentHeroSlideIdx + 1)" title="Next Slide">›</button>
+
           <div class="hero-slides-wrapper" id="slidesWrapper">
             
             <!-- Slide 0: Frog Charm -->
@@ -879,8 +883,8 @@
         slidesWrapper.innerHTML = slidesHtml;
         if (dotsContainer) dotsContainer.innerHTML = dotsHtml;
 
-        // Auto-Slide & Dot Switching Controller
-        let currentSlideIdx = 0;
+        // Auto-Slide & Touch / Drag / Arrow Controller
+        window.currentHeroSlideIdx = 0;
         let autoSlideTimer = null;
 
         window.goToSlide = function(n) {
@@ -888,23 +892,38 @@
           const dots = dotsContainer ? dotsContainer.querySelectorAll('.dot') : [];
           if (!slides.length) return;
 
-          currentSlideIdx = (n + slides.length) % slides.length;
+          window.currentHeroSlideIdx = (n + slides.length) % slides.length;
 
           slides.forEach((slide, sIdx) => {
-            if (sIdx === currentSlideIdx) slide.classList.add('active');
+            if (sIdx === window.currentHeroSlideIdx) slide.classList.add('active');
             else slide.classList.remove('active');
           });
 
           dots.forEach((dot, dIdx) => {
-            if (dIdx === currentSlideIdx) dot.classList.add('active');
+            if (dIdx === window.currentHeroSlideIdx) dot.classList.add('active');
             else dot.classList.remove('active');
           });
 
           if (autoSlideTimer) clearInterval(autoSlideTimer);
           autoSlideTimer = setInterval(() => {
-            window.goToSlide(currentSlideIdx + 1);
+            window.goToSlide(window.currentHeroSlideIdx + 1);
           }, 4500);
         };
+
+        // Touch Swipe & Drag Listeners for Manual Swiping
+        let touchStartX = 0;
+        slidesWrapper.addEventListener('touchstart', (e) => {
+          touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        slidesWrapper.addEventListener('touchend', (e) => {
+          const touchEndX = e.changedTouches[0].clientX;
+          const diffX = touchEndX - touchStartX;
+          if (Math.abs(diffX) > 40) {
+            if (diffX < 0) window.goToSlide(window.currentHeroSlideIdx + 1); // Swipe Left -> Next
+            else window.goToSlide(window.currentHeroSlideIdx - 1); // Swipe Right -> Prev
+          }
+        }, { passive: true });
 
         // Initialize Carousel
         window.goToSlide(0);

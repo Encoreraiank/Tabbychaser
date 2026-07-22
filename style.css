@@ -832,6 +832,15 @@ a, a:hover, a:focus, a:visited {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 30px;
+  align-items: stretch;
+}
+
+.showcase-product-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
 }
 
 .showcase-product-card {
@@ -843,6 +852,8 @@ a, a:hover, a:focus, a:visited {
   transition: var(--transition);
   display: flex;
   flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
   gap: 12px;
 }
 
@@ -865,6 +876,47 @@ a, a:hover, a:focus, a:visited {
   height: 100%;
   object-fit: cover;
   transition: var(--transition);
+}
+
+/* Hero Navigation Arrows */
+.hero-rounded-card {
+  position: relative;
+}
+
+.hero-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1.5px solid var(--color-brand-pink);
+  color: var(--color-pink-highlight);
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.hero-nav-btn:hover {
+  background: var(--color-brand-pink);
+  color: var(--color-text-main);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.hero-nav-btn.prev-btn { left: 16px; }
+.hero-nav-btn.next-btn { right: 16px; }
+
+@media (max-width: 768px) {
+  .hero-nav-btn { width: 36px; height: 36px; font-size: 1.3rem; }
+  .hero-nav-btn.prev-btn { left: 8px; }
+  .hero-nav-btn.next-btn { right: 8px; }
 }
 
 .showcase-product-card:hover .card-image-wrapper img {

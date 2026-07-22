@@ -535,7 +535,7 @@
   <script src="products-data.js"></script>
   <script src="app.js"></script>
   <script src="cloudinary-config.js"></script>
-  <script src="app.js"></script>
+  <script src="custom-pets.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
@@ -561,6 +561,10 @@
             submitBtn.style.opacity = '0.6';
           }
         }
+      }
+
+      if (window.updateEstimate) {
+        window.updateEstimate();
       }
     });
   </script>

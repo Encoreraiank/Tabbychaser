@@ -775,10 +775,23 @@
   </footer>
 
   <script src="products-data.js"></script>
+  <script src="supabase-config.js"></script>
   <script src="app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+      let siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+
+      // Fetch latest site settings from Supabase if available
+      if (window.supabaseClient) {
+        try {
+          const { data: remoteSettings } = await window.supabaseClient.from('site_settings').select('*');
+          if (remoteSettings && remoteSettings.length > 0) {
+            remoteSettings.forEach(row => siteSettings[row.key] = row.value);
+            localStorage.setItem('tabby_site_settings', JSON.stringify(siteSettings));
+          }
+        } catch(e) {}
+      }
+
       // Update Commissions Button Status
       const commOpen = siteSettings.commissions_open !== 'false';
       const commBtnContainer = document.getElementById('commissionsDisplayBtn');
@@ -797,9 +810,15 @@
           `;
         }
       }
+
       if (siteSettings.announcement_text) {
         const marquee = document.getElementById('announcementMarquee');
         if (marquee) marquee.innerHTML = `<span>${siteSettings.announcement_text}</span>`;
+      }
+
+      if (siteSettings.best_title) {
+        const head = document.querySelector('.sellers-heading');
+        if (head) head.textContent = siteSettings.best_title;
       }
       // Fetch live products for Best Sellers Grid & Hero Slides
       let products = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');

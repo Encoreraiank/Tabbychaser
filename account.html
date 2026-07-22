@@ -378,10 +378,13 @@
                 <label for="profInstaInput">Instagram Handle</label>
                 <input type="text" id="profInstaInput" class="form-input" placeholder="@your_instagram" />
               </div>
-              <div class="form-group form-span-2">
-                <label for="profPassInput">Account Password / Security Key</label>
-                <input type="password" id="profPassInput" class="form-input" placeholder="Enter new password (optional)" />
-                <small style="color:#888;font-size:0.75rem;">Leave blank to keep existing password</small>
+              <div class="form-group">
+                <label for="profPassNew">New Password</label>
+                <input type="password" id="profPassNew" class="form-input" placeholder="Enter new password" minlength="6" />
+              </div>
+              <div class="form-group">
+                <label for="profPassConfirm">Confirm Password</label>
+                <input type="password" id="profPassConfirm" class="form-input" placeholder="Confirm new password" minlength="6" />
               </div>
               <div class="form-span-2" style="margin-top: 10px; display: flex; gap: 12px; align-items: center;">
                 <button type="submit" class="btn btn-pink-pill">Save Profile 💾</button>
@@ -548,23 +551,41 @@
       const email = document.getElementById('profEmailInput').value.trim();
       const phone = document.getElementById('profPhoneInput').value.trim();
       const instagram = document.getElementById('profInstaInput').value.trim();
-      const pass = document.getElementById('profPassInput').value.trim();
+      const passNew = document.getElementById('profPassNew').value;
+      const passConfirm = document.getElementById('profPassConfirm').value;
+
+      if (passNew || passConfirm) {
+        if (passNew !== passConfirm) {
+          alert("❌ Passwords do not match! Please check and try again.");
+          return;
+        }
+        if (passNew.length < 6) {
+          alert("❌ Password must be at least 6 characters long.");
+          return;
+        }
+      }
 
       const session = JSON.parse(localStorage.getItem('tabby_user_session') || '{}');
       session.name = name;
       session.email = email;
       session.phone = phone;
       session.instagram = instagram;
-      if (pass) session.password = pass;
 
       localStorage.setItem('tabby_user_session', JSON.stringify(session));
       document.getElementById('welcomeUserName').textContent = name;
 
       // Sync profile & update password in Supabase
+      let passMsg = '';
       if (window.supabaseClient) {
         try {
-          if (pass) {
-            await window.supabaseClient.auth.updateUser({ password: pass });
+          if (passNew) {
+            const { error: passErr } = await window.supabaseClient.auth.updateUser({ password: passNew });
+            if (passErr) {
+              console.warn('Password update error:', passErr.message);
+              passMsg = '\n(Note: Could not update Supabase auth password directly)';
+            } else {
+              passMsg = '\n(Password updated in database! 🔒)';
+            }
           }
           const { data: { user } } = await window.supabaseClient.auth.getUser();
           if (user) {
@@ -580,7 +601,11 @@
         } catch(err) {}
       }
 
-      alert("Profile details updated successfully! 💾");
+      // Clear password fields
+      document.getElementById('profPassNew').value = '';
+      document.getElementById('profPassConfirm').value = '';
+
+      alert(`✅ Profile details updated successfully! 💾${passMsg}`);
     }
 
     function switchAccountTab(tabId, btn) {

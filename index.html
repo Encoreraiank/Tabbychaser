@@ -827,15 +827,21 @@
       products = products.filter(p => !deletedIds.includes(p.id));
 
       // Render Dynamic 4 Hero Carousel Slides
-      const heroTrack = document.querySelector('.hero-slider-track');
-      if (heroTrack) {
+      const slidesWrapper = document.getElementById('slidesWrapper') || document.querySelector('.hero-slides-wrapper');
+      const dotsContainer = document.getElementById('sliderDots');
+
+      if (slidesWrapper) {
         let slidesHtml = '';
+        let dotsHtml = '';
+
         for (let i = 1; i <= 4; i++) {
-          const title = siteSettings[`hero_title_${i}`] || (i===1 ? siteSettings.hero_title || 'Slay everyday with cute little frog charms.' : `Featured Charm #${i}`);
-          const sub = siteSettings[`hero_sub_${i}`] || (i===1 ? siteSettings.hero_sub || 'A tiny frog friend ready to hop into your everyday adventures.' : 'Handmade cold porcelain charm.');
-          const btnText = siteSettings[`hero_btn_text_${i}`] || (i===1 ? siteSettings.hero_btn_text || 'Adopt Charm' : 'Shop Now');
+          const idx = i - 1;
+          const title = siteSettings[`hero_title_${i}`] || (i === 1 ? (siteSettings.hero_title || 'Slay everyday with cute little frog charms.') : (i === 2 ? 'Sweet bow bear charms for your bag.' : (i === 3 ? 'Tiny Desk Pals to keep you company.' : 'Handmade with love in Bangalore.')));
+          const sub = siteSettings[`hero_sub_${i}`] || (i === 1 ? (siteSettings.hero_sub || 'A tiny frog friend ready to hop into your everyday adventures.') : (i === 2 ? 'Handcrafted with pastel pink ribbons & high-shine glaze.' : (i === 3 ? 'Handmade cold porcelain miniatures for your workspace.' : 'Custom figurines, charms and pocket gifts.')));
+          const btnText = siteSettings[`hero_btn_text_${i}`] || (i === 1 ? (siteSettings.hero_btn_text || 'Adopt Froggy') : (i === 2 ? 'Shop Bear' : (i === 3 ? 'View Desk Pals' : 'Explore All')));
+          
           const prodId = siteSettings[`hero_prod_${i}`];
-          const prod = products.find(p => p.id === prodId) || products[i-1] || products[0];
+          const prod = products.find(p => p.id === prodId) || products[idx] || products[0];
 
           const prodImg = (prod && prod.images && prod.images[0]) ? prod.images[0] : (prod?.image || 'store-logo-c471e30d.webp');
           const prodName = prod?.name || 'Handmade Charm';
@@ -843,7 +849,7 @@
           const targetUrl = prod?.id ? `product.html?id=${prod.id}` : 'shop.html';
 
           slidesHtml += `
-            <div class="hero-slide ${i===1?'active':''}" data-index="${i}">
+            <div class="hero-slide ${idx === 0 ? 'active' : ''}" data-index="${idx}">
               <div class="hero-card-grid">
                 <div class="hero-text-panel">
                   <div class="handmade-badge-pill">
@@ -866,8 +872,42 @@
               </div>
             </div>
           `;
+
+          dotsHtml += `<span class="dot ${idx === 0 ? 'active' : ''}" onclick="window.goToSlide(${idx})"></span>`;
         }
-        heroTrack.innerHTML = slidesHtml;
+
+        slidesWrapper.innerHTML = slidesHtml;
+        if (dotsContainer) dotsContainer.innerHTML = dotsHtml;
+
+        // Auto-Slide & Dot Switching Controller
+        let currentSlideIdx = 0;
+        let autoSlideTimer = null;
+
+        window.goToSlide = function(n) {
+          const slides = slidesWrapper.querySelectorAll('.hero-slide');
+          const dots = dotsContainer ? dotsContainer.querySelectorAll('.dot') : [];
+          if (!slides.length) return;
+
+          currentSlideIdx = (n + slides.length) % slides.length;
+
+          slides.forEach((slide, sIdx) => {
+            if (sIdx === currentSlideIdx) slide.classList.add('active');
+            else slide.classList.remove('active');
+          });
+
+          dots.forEach((dot, dIdx) => {
+            if (dIdx === currentSlideIdx) dot.classList.add('active');
+            else dot.classList.remove('active');
+          });
+
+          if (autoSlideTimer) clearInterval(autoSlideTimer);
+          autoSlideTimer = setInterval(() => {
+            window.goToSlide(currentSlideIdx + 1);
+          }, 4500);
+        };
+
+        // Initialize Carousel
+        window.goToSlide(0);
       }
 
       // Render Selected Best Seller Products (Up to 8)

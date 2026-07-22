@@ -230,10 +230,11 @@
           </p>
 
           <div class="showcase-btn-row">
-            <button class="pill-btn btn-grey-closed">
-              <span class="btn-icon">🔒</span>
-              Commissions Closed
-            </button>
+            <span id="commissionsDisplayBtn">
+              <a href="custom-pets.html" class="pill-btn btn-pink-outline" style="background:#e8f5e9;color:#2e7d32;border:1.5px solid #a5d6a7;text-decoration:none;">
+                <span class="btn-icon">🟢</span> Custom Orders Open
+              </a>
+            </span>
             <a href="#shop" class="pill-btn btn-pink-outline">
               <span class="btn-icon">💖</span>
               Explore Collection
@@ -778,6 +779,24 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+      // Update Commissions Button Status
+      const commOpen = siteSettings.commissions_open !== 'false';
+      const commBtnContainer = document.getElementById('commissionsDisplayBtn');
+      if (commBtnContainer) {
+        if (commOpen) {
+          commBtnContainer.innerHTML = `
+            <a href="custom-pets.html" class="pill-btn btn-pink-outline" style="background:#e8f5e9;color:#2e7d32;border:1.5px solid #a5d6a7;text-decoration:none;">
+              <span class="btn-icon">🟢</span> Custom Orders Open
+            </a>
+          `;
+        } else {
+          commBtnContainer.innerHTML = `
+            <button class="pill-btn btn-grey-closed" onclick="alert('Custom order commissions are currently closed. Check back soon!')" style="background:#ffebee;color:#c62828;border:1.5px solid #ef9a9a;cursor:pointer;">
+              <span class="btn-icon">🔴</span> Commissions Closed
+            </button>
+          `;
+        }
+      }
       if (siteSettings.announcement_text) {
         const marquee = document.getElementById('announcementMarquee');
         if (marquee) marquee.innerHTML = `<span>${siteSettings.announcement_text}</span>`;

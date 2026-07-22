@@ -183,22 +183,23 @@ async function loadLiveStorefrontData() {
   const liveProducts = products.filter(p => !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
 
   // Render dynamic category pills & product cards
-  renderDynamicCategoryPills();
+  renderDynamicCategoryPills(liveProducts);
   renderDynamicProducts(liveProducts);
 }
 
-function renderDynamicCategoryPills() {
-  const container = document.querySelector('.filter-scroll-track');
+function renderDynamicCategoryPills(liveProducts = []) {
+  const container = document.getElementById('categoryFilter') || document.querySelector('.filter-scroll-track');
   if (!container) return;
 
   const localCats = JSON.parse(localStorage.getItem('tabby_categories_local') || '[]');
   const defaultCats = [
-    { name: 'All Charms', slug: 'all' },
+    { name: 'All Products', slug: 'all' },
     { name: 'Charms 🌸', slug: 'charms' },
     { name: 'Keychains 🔑', slug: 'keychains' },
     { name: 'Desk Pals 🐸', slug: 'desk-pals' },
     { name: 'Sticker Sheets ✨', slug: 'stickers' },
-    { name: 'Worry Stones 🌟', slug: 'worry-stones' }
+    { name: 'Worry Stones 🌟', slug: 'worry-stones' },
+    { name: 'Phone Charms 📱', slug: 'phone-charms' }
   ];
 
   const merged = [...defaultCats];
@@ -209,11 +210,19 @@ function renderDynamicCategoryPills() {
     }
   });
 
-  container.innerHTML = merged.map((c, i) => `
-    <button class="filter-btn ${i === 0 ? 'active' : ''}" data-cat="${c.slug}" onclick="setCat(this, '${c.slug}')">
-      ${c.name}
-    </button>
-  `).join('');
+  container.innerHTML = merged.map((c, i) => {
+    const count = (c.slug === 'all') 
+      ? liveProducts.length 
+      : liveProducts.filter(p => (p.category || '').toLowerCase().replace(/\s+/g, '-') === c.slug).length;
+
+    return `
+      <li>
+        <button class="filter-btn ${i === 0 ? 'active' : ''}" data-cat="${c.slug}" onclick="setCat(this, '${c.slug}')">
+          ${c.name} <span class="filter-count">${count}</span>
+        </button>
+      </li>
+    `;
+  }).join('');
 }
 
 function renderDynamicProducts(products) {

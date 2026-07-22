@@ -64,9 +64,9 @@
       <div class="pet-hero-card">
         
         <div class="pet-hero-card-left">
-          <div class="custom-orders-pill">
+          <div class="custom-orders-pill" id="customOrdersStatusPill">
             <span class="active-dot"></span>
-            Custom orders are open! ✨
+            Custom orders are open! 🟢
           </div>
           <h1 class="pet-hero-title">Custom orders,<br />made just for you. ♡</h1>
           <p class="pet-hero-desc">
@@ -535,7 +535,34 @@
   <script src="products-data.js"></script>
   <script src="app.js"></script>
   <script src="cloudinary-config.js"></script>
-  <script src="custom-pets.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+      const isOpen = siteSettings.commissions_open !== 'false';
+      const pill = document.getElementById('customOrdersStatusPill');
+      const submitBtn = document.querySelector('button[type="submit"]');
 
+      if (pill) {
+        if (isOpen) {
+          pill.style.background = '#e8f5e9';
+          pill.style.color = '#2e7d32';
+          pill.style.border = '1px solid #a5d6a7';
+          pill.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:#2e7d32;display:inline-block;margin-right:6px;"></span> Custom orders are open! 🟢';
+        } else {
+          pill.style.background = '#ffebee';
+          pill.style.color = '#c62828';
+          pill.style.border = '1px solid #ef9a9a';
+          pill.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:#c62828;display:inline-block;margin-right:6px;"></span> Custom orders are closed! 🔴';
+          
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '🔒 Commissions Currently Closed';
+            submitBtn.style.opacity = '0.6';
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>

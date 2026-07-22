@@ -101,6 +101,58 @@ a, a:hover, a:focus, a:visited {
   transform: scale(1.15);
 }
 
+/* Styled Account Logout Button */
+.account-logout-btn, .btn-outline-white {
+  background-color: #ffffff !important;
+  color: #d32f2f !important;
+  border: 1.5px solid #ffcdd2 !important;
+  border-radius: 50px !important;
+  padding: 8px 20px !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  text-decoration: none !important;
+}
+
+.account-logout-btn:hover, .btn-outline-white:hover {
+  background-color: #ffebee !important;
+  border-color: #ef5350 !important;
+}
+
+/* Submit Review & Large Action Buttons */
+.place-order-large-btn, .btn-submit-pink {
+  background: linear-gradient(135deg, #f48fb1, #d81b60) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 50px !important;
+  padding: 14px 28px !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 15px rgba(216, 27, 96, 0.3) !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.place-order-large-btn:hover, .btn-submit-pink:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(216, 27, 96, 0.4) !important;
+}
+
+.place-order-large-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

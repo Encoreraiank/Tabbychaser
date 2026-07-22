@@ -420,7 +420,13 @@ window.renderCartItems = function() {
     }
     if (discountRow) {
       discountRow.style.display = 'flex';
-      discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-₹${discount}</span>`;
+      discountRow.innerHTML = `
+        <span style="display:flex;align-items:center;gap:6px;">
+          Coupon (${appliedCoupon.code}) 
+          <button onclick="window.removeCartCoupon()" style="border:none;background:none;color:#e53935;font-weight:800;cursor:pointer;font-size:0.78rem;padding:0;margin-left:4px;" title="Remove coupon">✕ Remove</button>
+        </span>
+        <span>-₹${discount}</span>
+      `;
     }
   } else {
     if (discountRow) discountRow.style.display = 'none';
@@ -442,6 +448,13 @@ window.renderCartItems = function() {
   if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE 🚚' : '₹' + shipping;
   if (totalEl) totalEl.textContent = '₹' + total.toLocaleString('en-IN');
 }
+
+// ---- REMOVE CART COUPON ----
+window.removeCartCoupon = function() {
+  localStorage.removeItem('tabby_applied_coupon');
+  alert('Coupon removed from cart.');
+  window.renderCartItems();
+};
 
 // ---- APPLY CART COUPON ----
 window.applyCartCoupon = async function() {

@@ -273,14 +273,16 @@
     <button class="nav-btn" onclick="switchTab('categories', this)"><span class="nav-icon">🏷️</span> Categories</button>
     <button class="nav-btn" onclick="switchTab('inventory', this)"><span class="nav-icon">📋</span> Inventory</button>
 
-    <div class="nav-group-label">Customers & Marketing</div>
+    <div class="nav-group-label">Customers</div>
     <button class="nav-btn" onclick="switchTab('customers', this)"><span class="nav-icon">👥</span> Customers</button>
+
+    <div class="nav-group-label">Marketing</div>
     <button class="nav-btn" onclick="switchTab('coupons', this)"><span class="nav-icon">🎟️</span> Coupons</button>
-    <button class="nav-btn" onclick="switchTab('reviews', this)"><span class="nav-icon">⭐</span> Reviews</button>
+    <button class="nav-btn" onclick="switchTab('reviews', this)"><span class="nav-icon">⭐</span> Reviews & Approval</button>
+    <button class="nav-btn" onclick="switchTab('shipping', this)"><span class="nav-icon">🚚</span> Shipping Fees</button>
 
     <div class="nav-group-label">Content & Settings</div>
     <button class="nav-btn" onclick="switchTab('heroManager', this)"><span class="nav-icon">🖼️</span> Hero & Banner</button>
-    <button class="nav-btn" onclick="switchTab('shipping', this)"><span class="nav-icon">🚚</span> Shipping Fees</button>
     <button class="nav-btn" onclick="switchTab('siteSettings', this)"><span class="nav-icon">⚙️</span> Store Settings</button>
   </div>
 
@@ -388,7 +390,12 @@
     <!-- ━━━━ CUSTOM REQUESTS TAB ━━━━ -->
     <div class="tab-pane" id="tab-custom">
       <div class="card">
-        <div class="card-header"><div class="card-title">Custom Pet Requests</div></div>
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="card-title">Custom Pet Requests</div>
+          <button id="commissionsToggleBtn" onclick="toggleCommissionsStatus()" class="btn btn-green btn-sm" style="font-weight:700;">
+            🟢 Commissions: OPEN
+          </button>
+        </div>
         <div style="overflow-x:auto;">
           <table>
             <thead>
@@ -444,14 +451,25 @@
     <!-- ━━━━ INVENTORY TAB ━━━━ -->
     <div class="tab-pane" id="tab-inventory">
       <div class="card">
-        <div class="card-header"><div class="card-title">Low & Out of Stock Products</div></div>
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="card-title">Store Inventory & Stock Manager</div>
+          <input type="text" class="search-input" id="inventorySearch" placeholder="Search SKU or product name..." oninput="renderInventory()" style="max-width:260px;" />
+        </div>
         <div style="overflow-x:auto;">
           <table>
             <thead>
-              <tr><th>Product</th><th>Category</th><th>Stock</th><th>Status</th><th>Update Stock</th></tr>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock Qty</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
             </thead>
             <tbody id="inventoryTableBody">
-              <tr><td colspan="5" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
+              <tr><td colspan="7" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -1084,15 +1102,29 @@
   }
 
   async function uploadProductImages(files) {
-    const name = localStorage.getItem('tabby_cloudinary_name') || 'rjjympjfdmvjuuovidtc';
-    const preset = localStorage.getItem('tabby_cloudinary_preset') || 'tabby_unsigned_preset';
+    const name = localStorage.getItem('tabby_cloudinary_name') || 'atzancff';
+    const preset = localStorage.getItem('tabby_cloudinary_preset') || 'tabbychaserstore';
     for (const f of Array.from(files)) {
-      const fd = new FormData();
-      fd.append('file', f);
-      fd.append('upload_preset', preset);
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${name}/image/upload`, { method:'POST', body:fd });
-      const data = await res.json();
-      if (data.secure_url) currentProductImgs.push(data.secure_url);
+      try {
+        const fd = new FormData();
+        fd.append('file', f);
+        fd.append('upload_preset', preset);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${name}/image/upload`, { method:'POST', body:fd });
+        const data = await res.json();
+        if (data.secure_url) {
+          currentProductImgs.push(data.secure_url);
+        } else {
+          throw new Error('Cloudinary response missing url');
+        }
+      } catch(err) {
+        // Fallback to FileReader base64
+        const r = new FileReader();
+        r.onload = e => {
+          currentProductImgs.push(e.target.result);
+          renderProductPreviews();
+        };
+        r.readAsDataURL(f);
+      }
     }
     renderProductPreviews();
   }
@@ -1263,24 +1295,89 @@
 
   // 5. INVENTORY
   function renderInventory() {
-    const low = allProducts.filter(p => p.stock <= 5);
-    document.getElementById('inventoryTableBody').innerHTML = low.length ? low.map(p => `
-      <tr>
-        <td style="font-weight:700;">${p.name}</td>
-        <td>${p.category || '—'}</td>
-        <td style="font-weight:800;color:${p.stock===0?'var(--red)':'var(--orange)'};">${p.stock}</td>
-        <td><span class="badge-status st-${p.status}">${p.status}</span></td>
-        <td>
-          <input type="number" value="${p.stock}" style="width:70px;" class="form-control" onchange="updateStock('${p.id}', this.value)" />
-        </td>
-      </tr>
-    `).join('') : `<tr><td colspan="5" style="text-align:center;padding:20px;">All stock levels are good! 🌟</td></tr>`;
+    const searchVal = (document.getElementById('inventorySearch')?.value || '').toLowerCase().trim();
+    const filtered = allProducts.filter(p => 
+      !searchVal || 
+      (p.name || '').toLowerCase().includes(searchVal) ||
+      (p.sku || p.id || '').toLowerCase().includes(searchVal)
+    );
+
+    document.getElementById('inventoryTableBody').innerHTML = filtered.length ? filtered.map(p => {
+      const img = (p.images && p.images[0]) ? p.images[0] : (p.image || 'store-logo-c471e30d.webp');
+      const sku = p.sku || `TC-${(p.id||'100').toString().slice(-4).toUpperCase()}`;
+      return `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <img src="${img}" style="width:38px;height:38px;border-radius:8px;object-fit:cover;" />
+              <div>
+                <div style="font-weight:700;">${p.name}</div>
+                <small style="color:#888;">ID: ${p.id}</small>
+              </div>
+            </div>
+          </td>
+          <td style="font-weight:600;color:#555;">${sku}</td>
+          <td>${p.category || 'Charms'}</td>
+          <td style="font-weight:700;">₹${p.price}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <button onclick="adjustInventoryQty('${p.id}', -1)" class="btn btn-outline btn-sm" style="padding:2px 8px;font-weight:800;">-</button>
+              <input type="number" id="invStock_${p.id}" value="${p.stock}" style="width:60px;text-align:center;" class="form-control" />
+              <button onclick="adjustInventoryQty('${p.id}', 1)" class="btn btn-outline btn-sm" style="padding:2px 8px;font-weight:800;">+</button>
+            </div>
+          </td>
+          <td>
+            <select id="invStatus_${p.id}" class="form-control" style="padding:4px 8px;font-size:0.8rem;">
+              <option value="published" ${p.status==='published'?'selected':''}>Published 🟢</option>
+              <option value="draft" ${p.status==='draft'?'selected':''}>Draft 📝</option>
+              <option value="out-of-stock" ${p.stock===0||p.status==='out-of-stock'?'selected':''}>Out of Stock 🔴</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-pink btn-sm" onclick="saveInventoryRow('${p.id}')">💾 Save</button>
+          </td>
+        </tr>
+      `;
+    }).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;">No inventory items found</td></tr>`;
   }
 
-  async function updateStock(id, stock) {
-    const client = await db();
-    await client.from('products').update({ stock: parseInt(stock)||0 }).eq('id', id);
-    loadProducts();
+  function adjustInventoryQty(id, delta) {
+    const input = document.getElementById(`invStock_${id}`);
+    if (input) {
+      let val = parseInt(input.value) || 0;
+      val = Math.max(0, val + delta);
+      input.value = val;
+    }
+  }
+
+  async function saveInventoryRow(id) {
+    const stockInput = document.getElementById(`invStock_${id}`);
+    const statusSelect = document.getElementById(`invStatus_${id}`);
+    if (!stockInput || !statusSelect) return;
+
+    const newStock = Math.max(0, parseInt(stockInput.value) || 0);
+    const newStatus = statusSelect.value;
+
+    const prod = allProducts.find(p => p.id === id);
+    if (prod) {
+      prod.stock = newStock;
+      prod.status = newStatus;
+    }
+
+    // Save locally
+    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
+
+    // Save to Supabase
+    try {
+      const client = await db();
+      if (client) {
+        await client.from('products').update({ stock: newStock, status: newStatus }).eq('id', id);
+      }
+    } catch(e) {}
+
+    alert(`✅ Inventory updated for product ID: ${id}`);
+    renderProducts();
+    renderInventory();
   }
 
   // 6. CUSTOMERS
@@ -1505,6 +1602,39 @@
     document.getElementById('supaKey').value = localStorage.getItem('tabby_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI';
     document.getElementById('cloudName').value = localStorage.getItem('tabby_cloudinary_name') || 'atzancff';
     document.getElementById('cloudPreset').value = localStorage.getItem('tabby_cloudinary_preset') || 'tabbychaserstore';
+    
+    loadCommissionsStatus();
+  }
+
+  function loadCommissionsStatus() {
+    const s = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+    const isOpen = s.commissions_open !== 'false';
+    const btn = document.getElementById('commissionsToggleBtn');
+    if (btn) {
+      if (isOpen) {
+        btn.className = 'btn btn-green btn-sm';
+        btn.textContent = '🟢 Commissions: OPEN';
+      } else {
+        btn.className = 'btn btn-red btn-sm';
+        btn.textContent = '🔴 Commissions: CLOSED';
+      }
+    }
+  }
+
+  async function toggleCommissionsStatus() {
+    const s = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+    const current = s.commissions_open !== 'false';
+    const next = !current;
+    s.commissions_open = next ? 'true' : 'false';
+    localStorage.setItem('tabby_site_settings', JSON.stringify(s));
+
+    try {
+      const client = await db();
+      if (client) await client.from('site_settings').upsert({ key: 'commissions_open', value: next ? 'true' : 'false' }, { onConflict: 'key' });
+    } catch(e) {}
+
+    loadCommissionsStatus();
+    alert(`Commissions status updated to: ${next ? 'OPEN 🟢' : 'CLOSED 🔴'}`);
   }
 
   async function saveSiteSettings() {

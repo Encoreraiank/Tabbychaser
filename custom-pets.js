@@ -177,7 +177,31 @@ async function submitInquiry(event) {
     }
   }
 
-  window.uploadedPetPhotos = [];
+async function uploadImageToCloudinary(file) {
+  const cloudName = window.cloudinaryConfig?.cloudName || localStorage.getItem('tabby_cloudinary_name') || 'atzancff';
+  const preset = window.cloudinaryConfig?.uploadPreset || localStorage.getItem('tabby_cloudinary_preset') || 'tabbychaserstore';
+  
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', preset);
+
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    if (data.secure_url) return data.secure_url;
+    throw new Error(data.error?.message || 'Upload failed');
+  } catch(err) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+  }
+}
 
   if (filesToUpload.length > 0) {
     const originalText = submitBtn.textContent;

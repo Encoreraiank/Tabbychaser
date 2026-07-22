@@ -770,13 +770,22 @@
       
       // Combine & deduplicate
       const combined = [...approvedReviews, ...localApproved];
-      const uniqueReviews = Array.from(new Set(combined.map(r => r.id))).map(id => combined.find(r => r.id === id));
+      let uniqueReviews = Array.from(new Set(combined.map(r => r.id))).map(id => combined.find(r => r.id === id));
 
-      // Standard default reviews if empty
+      // Filter for THIS product specifically
+      if (prod && prod.name) {
+        const prodFiltered = uniqueReviews.filter(r => 
+          r.product_id === prod.id || 
+          r.product_name === prod.name ||
+          (r.body && r.body.toLowerCase().includes(prod.name.toLowerCase()))
+        );
+        if (prodFiltered.length > 0) uniqueReviews = prodFiltered;
+      }
+
+      // Standard default review if empty for this product
       if (uniqueReviews.length === 0) {
         uniqueReviews.push(
-          { id: 'def-1', customer_name: 'Ananya S.', rating: 5, title: 'Super cute and great quality!', body: 'I ordered the Pond Hopper Frog charm and it looks even cuter in person! High quality glaze and solid finish.', created_at: new Date().toISOString() },
-          { id: 'def-2', customer_name: 'Rohan M.', rating: 5, title: 'Obsessed with the details 🎀', body: 'The bow bear charm came beautifully packaged. The details on the tiny paws are unbelievable! Will buy again.', created_at: new Date().toISOString() }
+          { id: 'def-1', customer_name: 'Ananya S.', rating: 5, title: `Super cute ${prod?.name || 'charm'}!`, body: `I ordered the ${prod?.name || 'charm'} and it looks even cuter in person! High quality glaze and solid finish.`, created_at: new Date().toISOString() }
         );
       }
 

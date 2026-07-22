@@ -113,16 +113,23 @@
             <input type="email" id="reviewEmail" required class="form-input" placeholder="Same email used for order" />
           </div>
 
+          <div class="form-group">
+            <label class="form-label" for="reviewProductSelect">Product Reviewed *</label>
+            <select id="reviewProductSelect" required class="form-input">
+              <option value="">-- Select Product Reviewed --</option>
+            </select>
+          </div>
+
           <div class="form-group" style="text-align:center;">
             <label class="form-label">Your Rating *</label>
             <div class="star-rating" id="starRating">
-              <span onclick="setRating(1)">★</span>
-              <span onclick="setRating(2)">★</span>
-              <span onclick="setRating(3)">★</span>
-              <span onclick="setRating(4)">★</span>
-              <span onclick="setRating(5)">★</span>
+              <span onclick="setRating(1)" title="1 star">★</span>
+              <span onclick="setRating(2)" title="2 stars">★</span>
+              <span onclick="setRating(3)" title="3 stars">★</span>
+              <span onclick="setRating(4)" title="4 stars">★</span>
+              <span onclick="setRating(5)" title="5 stars">★</span>
             </div>
-            <input type="hidden" id="reviewRating" value="5" />
+            <input type="hidden" id="reviewRating" value="0" />
           </div>
 
           <div class="form-group">
@@ -146,7 +153,7 @@
 
           <div id="reviewError" style="color:red;font-size:0.82rem;margin-bottom:14px;display:none;font-weight:700;"></div>
 
-          <button type="submit" id="submitReviewBtn" class="place-order-large-btn" style="width:100%;">
+          <button type="submit" id="submitReviewBtn" class="btn-submit-pink" style="width:100%;">
             Submit Review 🌟
           </button>
         </form>
@@ -154,11 +161,24 @@
     </div>
   </main>
 
+  <script src="products-data.js"></script>
   <script src="supabase-config.js"></script>
   <script src="cloudinary-config.js"></script>
   <script>
-    let selectedRating = 5;
+    let selectedRating = 0;
     let uploadedPhotos = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Populate Product Dropdown
+      const select = document.getElementById('reviewProductSelect');
+      let products = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
+      if (products.length === 0 && typeof PRODUCTS_DATA !== 'undefined') products = PRODUCTS_DATA;
+      
+      if (select) {
+        select.innerHTML = '<option value="">-- Select Product Reviewed --</option>' + 
+          products.map(p => `<option value="${p.id || p.name}" data-name="${p.name}">${p.name}</option>`).join('');
+      }
+    });
 
     function setRating(val) {
       selectedRating = val;
@@ -169,12 +189,11 @@
         else s.classList.remove('active');
       });
     }
-    setRating(5);
 
     async function handleReviewPhotos(files) {
       const grid = document.getElementById('photoPreviewGrid');
-      const cloudName = window.cloudinaryConfig?.cloudName || 'rjjympjfdmvjuuovidtc';
-      const preset = window.cloudinaryConfig?.uploadPreset || 'tabby_unsigned_preset';
+      const cloudName = window.cloudinaryConfig?.cloudName || 'atzancff';
+      const preset = window.cloudinaryConfig?.uploadPreset || 'tabbychaserstore';
 
       for (const file of Array.from(files).slice(0, 3)) {
         const fd = new FormData();
@@ -191,7 +210,6 @@
             grid.appendChild(img);
           }
         } catch(e) {
-          // Fallback to base64 preview
           const r = new FileReader();
           r.onload = e => {
             uploadedPhotos.push(e.target.result);
@@ -210,8 +228,17 @@
       const errEl = document.getElementById('reviewError');
       errEl.style.display = 'none';
 
+      if (selectedRating <= 0) {
+        errEl.textContent = '❌ Please select a star rating (1 to 5 stars).';
+        errEl.style.display = 'block';
+        return;
+      }
+
       const orderRef = document.getElementById('reviewOrderRef').value.trim().toUpperCase();
       const email = document.getElementById('reviewEmail').value.trim().toLowerCase();
+      const prodSelect = document.getElementById('reviewProductSelect');
+      const prodId = prodSelect ? prodSelect.value : '';
+      const prodName = prodSelect ? prodSelect.options[prodSelect.selectedIndex]?.text : '';
       const title = document.getElementById('reviewTitle').value.trim();
       const body = document.getElementById('reviewBody').value.trim();
 

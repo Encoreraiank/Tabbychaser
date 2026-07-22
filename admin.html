@@ -479,13 +479,22 @@
     <!-- ━━━━ CUSTOMERS TAB ━━━━ -->
     <div class="tab-pane" id="tab-customers">
       <div class="card">
+        <div class="card-header"><div class="card-title">Registered Store Customers</div></div>
         <div style="overflow-x:auto;">
           <table>
             <thead>
-              <tr><th>Name</th><th>Email</th><th>Phone</th><th>Instagram</th><th>Orders</th><th>Lifetime Spent</th></tr>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone No</th>
+                <th>Instagram</th>
+                <th>Orders</th>
+                <th>Total Spent</th>
+                <th>Joined Date</th>
+              </tr>
             </thead>
             <tbody id="customersTableBody">
-              <tr><td colspan="6" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
+              <tr><td colspan="7" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -530,55 +539,122 @@
     <!-- ━━━━ HERO & BEST SELLERS MANAGER TAB ━━━━ -->
     <div class="tab-pane" id="tab-heroManager">
       <div class="card">
-        <div class="card-header"><div class="card-title">Homepage Banner & Best Sellers Manager</div></div>
+        <div class="card-header"><div class="card-title">🖼️ Hero Carousel & Best Sellers Manager</div></div>
         <div class="card-body">
-          <div style="font-weight:700;font-size:0.9rem;margin-bottom:12px;color:var(--pink);">1. Announcement Marquee Bar</div>
+          
+          <h3 style="color:var(--pink);font-size:1.05rem;margin-bottom:16px;border-bottom:1.5px solid var(--border);padding-bottom:8px;">
+            1. Hero Carousel (Up to 4 Slides)
+          </h3>
+
+          <!-- Slide 1 -->
+          <div style="background:#fdf7f9;border:1px solid #f8bbd0;border-radius:12px;padding:16px;margin-bottom:16px;">
+            <div style="font-weight:800;color:#c2185b;margin-bottom:10px;">🌟 Hero Slide #1</div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Headline Title #1</label>
+                <input type="text" id="heroTitle1" class="form-control" placeholder="Slay everyday with cute little frog charms." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Select Featured Product #1</label>
+                <select id="heroProd1" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Subheading Paragraph #1</label>
+                <input type="text" id="heroSub1" class="form-control" placeholder="A tiny frog friend ready to hop into your everyday adventures." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Button Text #1</label>
+                <input type="text" id="heroBtnText1" class="form-control" placeholder="Adopt Froggy" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2 -->
+          <div style="background:#fdf7f9;border:1px solid #f8bbd0;border-radius:12px;padding:16px;margin-bottom:16px;">
+            <div style="font-weight:800;color:#c2185b;margin-bottom:10px;">🌟 Hero Slide #2</div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Headline Title #2</label>
+                <input type="text" id="heroTitle2" class="form-control" placeholder="Sweet bow bear charms for your bag." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Select Featured Product #2</label>
+                <select id="heroProd2" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Subheading Paragraph #2</label>
+                <input type="text" id="heroSub2" class="form-control" placeholder="Handcrafted with pastel pink ribbons & high-shine glaze." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Button Text #2</label>
+                <input type="text" id="heroBtnText2" class="form-control" placeholder="Shop Bear" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3 -->
+          <div style="background:#fdf7f9;border:1px solid #f8bbd0;border-radius:12px;padding:16px;margin-bottom:16px;">
+            <div style="font-weight:800;color:#c2185b;margin-bottom:10px;">🌟 Hero Slide #3</div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Headline Title #3</label>
+                <input type="text" id="heroTitle3" class="form-control" placeholder="Tiny Desk Pals to keep you company." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Select Featured Product #3</label>
+                <select id="heroProd3" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Subheading Paragraph #3</label>
+                <input type="text" id="heroSub3" class="form-control" placeholder="Handmade cold porcelain miniatures for your workspace." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Button Text #3</label>
+                <input type="text" id="heroBtnText3" class="form-control" placeholder="View Desk Pals" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4 -->
+          <div style="background:#fdf7f9;border:1px solid #f8bbd0;border-radius:12px;padding:16px;margin-bottom:16px;">
+            <div style="font-weight:800;color:#c2185b;margin-bottom:10px;">🌟 Hero Slide #4</div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Headline Title #4</label>
+                <input type="text" id="heroTitle4" class="form-control" placeholder="Handmade with love in Bangalore." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Select Featured Product #4</label>
+                <select id="heroProd4" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Subheading Paragraph #4</label>
+                <input type="text" id="heroSub4" class="form-control" placeholder="Custom figurines, charms and pocket gifts." />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Button Text #4</label>
+                <input type="text" id="heroBtnText4" class="form-control" placeholder="Explore All" />
+              </div>
+            </div>
+          </div>
+
+          <h3 style="color:var(--pink);font-size:1.05rem;margin-top:24px;margin-bottom:16px;border-bottom:1.5px solid var(--border);padding-bottom:8px;">
+            2. Best Sellers Section
+          </h3>
           <div class="form-group">
-            <label class="form-label">Marquee Text</label>
-            <input type="text" id="siteMarquee" class="form-control" placeholder="🚚 Free shipping on orders above ₹2,000 | Handmade with love in Bangalore" />
+            <label class="form-label">Best Sellers Section Title</label>
+            <input type="text" id="siteBestTitle" class="form-control" placeholder="Best sellers" />
           </div>
 
-          <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">2. Hero Section</div>
-          <div class="form-group">
-            <label class="form-label">Hero Headline Title</label>
-            <input type="text" id="siteHeroTitle" class="form-control" placeholder="Slay everyday with cute little frog charms." />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Hero Paragraph Subheading</label>
-            <textarea id="siteHeroSub" class="form-control" rows="2" placeholder="A tiny frog friend ready to hop into your everyday adventures. Handmade from cold porcelain clay."></textarea>
-          </div>
-          <div class="grid-2">
-            <div class="form-group">
-              <label class="form-label">Button Text</label>
-              <input type="text" id="siteHeroBtnText" class="form-control" placeholder="Adopt Froggy" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Button Target Link</label>
-              <input type="text" id="siteHeroBtnLink" class="form-control" placeholder="product.html?id=pond-hopper-frog" />
-            </div>
-          </div>
-
-          <div style="font-weight:700;font-size:0.85rem;margin-top:10px;margin-bottom:8px;color:#555;">Choose Hero Featured Products (Up to 4)</div>
-          <div class="grid-2">
-            <div class="form-group"><label class="form-label">Hero Product #1</label><select id="heroProd1" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select></div>
-            <div class="form-group"><label class="form-label">Hero Product #2</label><select id="heroProd2" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select></div>
-            <div class="form-group"><label class="form-label">Hero Product #3</label><select id="heroProd3" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select></div>
-            <div class="form-group"><label class="form-label">Hero Product #4</label><select id="heroProd4" class="form-control hero-prod-select"><option value="">-- Select Product --</option></select></div>
-          </div>
-
-          <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">3. Best Sellers Section</div>
-          <div class="grid-2">
-            <div class="form-group">
-              <label class="form-label">Section Title</label>
-              <input type="text" id="siteBestTitle" class="form-control" placeholder="Best Sellers" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Section Subtitle</label>
-              <input type="text" id="siteBestSub" class="form-control" placeholder="Handmade with love for your daily joy" />
-            </div>
-          </div>
-
-          <div style="font-weight:700;font-size:0.85rem;margin-top:10px;margin-bottom:8px;color:#555;">Choose Best Seller Grid Products (Up to 8)</div>
+          <div style="font-weight:700;font-size:0.85rem;margin-top:14px;margin-bottom:10px;color:#555;">Choose Best Seller Grid Products (Up to 8)</div>
           <div class="grid-2">
             <div class="form-group"><label class="form-label">Best Seller #1</label><select id="bestProd1" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
             <div class="form-group"><label class="form-label">Best Seller #2</label><select id="bestProd2" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
@@ -590,7 +666,7 @@
             <div class="form-group"><label class="form-label">Best Seller #8</label><select id="bestProd8" class="form-control best-prod-select"><option value="">-- Select Product --</option></select></div>
           </div>
 
-          <button class="btn btn-pink" onclick="saveSiteSettings()" style="margin-top:16px;">💾 Save Hero & Best Sellers Content</button>
+          <button class="btn btn-pink" onclick="saveSiteSettings()" style="margin-top:20px;width:100%;padding:12px;font-size:1rem;">💾 Save Hero Carousel & Best Sellers Content</button>
         </div>
       </div>
     </div>
@@ -1382,15 +1458,72 @@
 
   // 6. CUSTOMERS
   async function loadCustomers() {
-    const client = await db(); if (!client) return;
-    const { data } = await client.from('orders').select('name, email, phone, instagram, total');
+    let orderData = [];
+    let profileData = [];
+
+    const client = await db();
+    if (client) {
+      try {
+        const { data: ords } = await client.from('orders').select('*');
+        if (ords) orderData = ords;
+        const { data: profs } = await client.from('profiles').select('*');
+        if (profs) profileData = profs;
+      } catch(e) {}
+    }
+
+    // Merge map keyed by email
     const map = {};
-    (data || []).forEach(o => {
-      if (!map[o.email]) map[o.email] = { name: o.name, phone: o.phone, instagram: o.instagram, count: 0, spent: 0 };
-      map[o.email].count++;
-      map[o.email].spent += o.total;
+
+    profileData.forEach(p => {
+      if (p.email) {
+        map[p.email.toLowerCase()] = {
+          name: p.name || 'Customer',
+          email: p.email.toLowerCase(),
+          phone: p.phone || '—',
+          instagram: p.instagram || '—',
+          count: 0,
+          spent: 0,
+          joined: p.created_at ? new Date(p.created_at).toLocaleDateString('en-IN') : 'Recent'
+        };
+      }
     });
-    allCustomers = Object.entries(map).map(([email, d]) => ({ email, ...d }));
+
+    orderData.forEach(o => {
+      const email = (o.email || '').toLowerCase();
+      if (!email) return;
+      if (!map[email]) {
+        map[email] = {
+          name: o.name || 'Customer',
+          email: email,
+          phone: o.phone || '—',
+          instagram: o.instagram || '—',
+          count: 0,
+          spent: 0,
+          joined: o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN') : 'Recent'
+        };
+      }
+      map[email].count++;
+      map[email].spent += parseFloat(o.total || 0);
+      if (o.phone && map[email].phone === '—') map[email].phone = o.phone;
+      if (o.instagram && map[email].instagram === '—') map[email].instagram = o.instagram;
+    });
+
+    // Check local session fallback
+    const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
+    if (session && session.email && !map[session.email.toLowerCase()]) {
+      map[session.email.toLowerCase()] = {
+        name: session.name || 'User',
+        email: session.email.toLowerCase(),
+        phone: session.phone || '—',
+        instagram: session.instagram || '—',
+        count: 0,
+        spent: 0,
+        joined: 'Today'
+      };
+    }
+
+    allCustomers = Object.values(map);
+
     document.getElementById('customersTableBody').innerHTML = allCustomers.length ? allCustomers.map(c => `
       <tr>
         <td style="font-weight:700;">${c.name}</td>
@@ -1398,9 +1531,10 @@
         <td>${c.phone || '—'}</td>
         <td>${c.instagram || '—'}</td>
         <td>${c.count}</td>
-        <td style="font-weight:700;">${fmtINR(c.spent)}</td>
+        <td style="font-weight:700;color:var(--pink);">₹${c.spent.toLocaleString('en-IN')}</td>
+        <td style="color:#666;font-size:0.85rem;">${c.joined}</td>
       </tr>
-    `).join('') : `<tr><td colspan="6" style="text-align:center;padding:20px;">No customers yet</td></tr>`;
+    `).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;">No registered customers yet</td></tr>`;
   }
 
   // 7. COUPONS
@@ -1570,14 +1704,23 @@
     const prodOptions = `<option value="">-- Select Product --</option>` + 
       allProducts.map(p => `<option value="${p.id}">${p.name} (₹${p.price})</option>`).join('');
 
+    // Populate 4 Hero Slides inputs
     for (let i = 1; i <= 4; i++) {
-      const el = document.getElementById(`heroProd${i}`);
-      if (el) {
-        el.innerHTML = prodOptions;
-        if (s[`hero_prod_${i}`]) el.value = s[`hero_prod_${i}`];
+      const tEl = document.getElementById(`heroTitle${i}`);
+      const sEl = document.getElementById(`heroSub${i}`);
+      const bEl = document.getElementById(`heroBtnText${i}`);
+      const pEl = document.getElementById(`heroProd${i}`);
+
+      if (tEl) tEl.value = s[`hero_title_${i}`] || (i===1?'Slay everyday with cute little frog charms.':'');
+      if (sEl) sEl.value = s[`hero_sub_${i}`] || (i===1?'A tiny frog friend ready to hop into your everyday adventures.':'');
+      if (bEl) bEl.value = s[`hero_btn_text_${i}`] || (i===1?'Adopt Froggy':'Shop Now');
+      if (pEl) {
+        pEl.innerHTML = prodOptions;
+        if (s[`hero_prod_${i}`]) pEl.value = s[`hero_prod_${i}`];
       }
     }
 
+    // Populate 8 Best Seller Selects
     for (let i = 1; i <= 8; i++) {
       const el = document.getElementById(`bestProd${i}`);
       if (el) {
@@ -1586,17 +1729,11 @@
       }
     }
 
-    document.getElementById('siteMarquee').value = s.announcement_text || '';
-    document.getElementById('siteHeroTitle').value = s.hero_title || '';
-    document.getElementById('siteHeroSub').value = s.hero_sub || '';
-    document.getElementById('siteHeroBtnText').value = s.hero_btn_text || '';
-    document.getElementById('siteHeroBtnLink').value = s.hero_btn_link || '';
-    document.getElementById('siteBestTitle').value = s.best_title || '';
-    document.getElementById('siteBestSub').value = s.best_sub || '';
-    document.getElementById('shipFee').value = s.standard_shipping_fee || '59';
-    document.getElementById('shipFreeThreshold').value = s.free_shipping_threshold || '2000';
-    document.getElementById('storeEmail').value = s.store_email || 'tabbychaser2@gmail.com';
-    document.getElementById('storeInsta').value = s.instagram_url || '@tabbychaser';
+    if (document.getElementById('siteBestTitle')) document.getElementById('siteBestTitle').value = s.best_title || 'Best sellers';
+    if (document.getElementById('shipFee')) document.getElementById('shipFee').value = s.standard_shipping_fee || '59';
+    if (document.getElementById('shipFreeThreshold')) document.getElementById('shipFreeThreshold').value = s.free_shipping_threshold || '2000';
+    if (document.getElementById('storeEmail')) document.getElementById('storeEmail').value = s.store_email || 'tabbychaser2@gmail.com';
+    if (document.getElementById('storeInsta')) document.getElementById('storeInsta').value = s.instagram_url || '@tabbychaser';
 
     document.getElementById('supaUrl').value = localStorage.getItem('tabby_supabase_url') || 'https://bdwfwutvqvmyujwgrtwu.supabase.co';
     document.getElementById('supaKey').value = localStorage.getItem('tabby_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI';
@@ -1638,21 +1775,25 @@
   }
 
   async function saveSiteSettings() {
+    const existing = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+
     const sObj = {
-      announcement_text: document.getElementById('siteMarquee').value,
-      hero_title: document.getElementById('siteHeroTitle').value,
-      hero_sub: document.getElementById('siteHeroSub').value,
-      hero_btn_text: document.getElementById('siteHeroBtnText').value,
-      hero_btn_link: document.getElementById('siteHeroBtnLink').value,
-      best_title: document.getElementById('siteBestTitle').value,
-      best_sub: document.getElementById('siteBestSub').value,
-      standard_shipping_fee: document.getElementById('shipFee').value,
-      free_shipping_threshold: document.getElementById('shipFreeThreshold').value
+      ...existing,
+      best_title: document.getElementById('siteBestTitle') ? document.getElementById('siteBestTitle').value : 'Best sellers',
+      standard_shipping_fee: document.getElementById('shipFee') ? document.getElementById('shipFee').value : '59',
+      free_shipping_threshold: document.getElementById('shipFreeThreshold') ? document.getElementById('shipFreeThreshold').value : '2000'
     };
 
     for (let i = 1; i <= 4; i++) {
-      const el = document.getElementById(`heroProd${i}`);
-      if (el) sObj[`hero_prod_${i}`] = el.value;
+      const tEl = document.getElementById(`heroTitle${i}`);
+      const sEl = document.getElementById(`heroSub${i}`);
+      const bEl = document.getElementById(`heroBtnText${i}`);
+      const pEl = document.getElementById(`heroProd${i}`);
+
+      if (tEl) sObj[`hero_title_${i}`] = tEl.value;
+      if (sEl) sObj[`hero_sub_${i}`] = sEl.value;
+      if (bEl) sObj[`hero_btn_text_${i}`] = bEl.value;
+      if (pEl) sObj[`hero_prod_${i}`] = pEl.value;
     }
 
     for (let i = 1; i <= 8; i++) {
@@ -1671,7 +1812,7 @@
       }
     } catch(e) {}
 
-    alert('✅ Hero & Best Sellers Content Saved Successfully! ✨');
+    alert('✅ Hero Carousel (4 Slides) & Best Sellers Content Saved! ✨');
   }
 
   function saveSupabaseCredentials() {

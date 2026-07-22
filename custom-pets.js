@@ -74,9 +74,11 @@ function updateEstimate() {
   const form = document.getElementById('petPlannerForm');
   if (!form) return;
 
+  const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+  const shippingPrice = parseInt(siteSettings.standard_shipping_fee || '59');
+
   const sizeVal = form.elements['sizeSelection'].value;
   let basePrice = 450;
-  const shippingPrice = 59;
 
   if (sizeVal === 'medium') {
     basePrice = 900;
@@ -86,12 +88,16 @@ function updateEstimate() {
 
   const summaryBasePrice = document.getElementById('summaryBasePrice');
   const summaryTotal = document.getElementById('summaryTotal');
+  const shipLabel = document.getElementById('summaryShipLabel');
+  const shipVal = document.getElementById('summaryShipVal');
 
   const baseFormatted = '₹' + basePrice.toLocaleString('en-IN');
   const totalFormatted = '₹' + (basePrice + shippingPrice).toLocaleString('en-IN');
 
   if (summaryBasePrice) summaryBasePrice.textContent = baseFormatted;
   if (summaryTotal) summaryTotal.textContent = totalFormatted;
+  if (shipLabel) shipLabel.textContent = `Shipping charges - Rs ${shippingPrice}`;
+  if (shipVal) shipVal.textContent = `₹${shippingPrice}`;
 }
 
 // ---- FAQ ACCORDION TOGGLE ----

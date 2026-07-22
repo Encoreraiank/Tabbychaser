@@ -673,14 +673,14 @@
                 <div class="shipping-icon-bg">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d35d88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="1" y="3" width="15" height="13"></rect>
-                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
                     <circle cx="5.5" cy="18.5" r="2.5"></circle>
                     <circle cx="18.5" cy="18.5" r="2.5"></circle>
                   </svg>
                 </div>
                 <div class="shipping-card-texts">
-                  <span class="shipping-card-title" id="prodShipTitle">Flat shipping</span>
-                  <span class="shipping-card-subtitle" id="prodShipSubtitle">₹59 per order</span>
+                  <span class="shipping-card-title">Flat shipping</span>
+                  <span class="shipping-card-subtitle">₹${(JSON.parse(localStorage.getItem('tabby_site_settings')||'{}').standard_shipping_fee || '59')} per order</span>
                 </div>
               </div>
 
@@ -695,7 +695,7 @@
                 </div>
                 <div class="shipping-card-texts">
                   <span class="shipping-card-title">Free Shipping</span>
-                  <span class="shipping-card-subtitle" id="prodFreeShipSub">On orders above ₹2,000</span>
+                  <span class="shipping-card-subtitle">On orders above ₹${parseInt(JSON.parse(localStorage.getItem('tabby_site_settings')||'{}').free_shipping_threshold || '2000').toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>

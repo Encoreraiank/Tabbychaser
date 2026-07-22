@@ -801,34 +801,55 @@
         const marquee = document.getElementById('announcementMarquee');
         if (marquee) marquee.innerHTML = `<span>${siteSettings.announcement_text}</span>`;
       }
-      if (siteSettings.hero_title) {
-        const h1s = document.querySelectorAll('.hero-headline-title');
-        if (h1s.length > 0) h1s[0].innerHTML = siteSettings.hero_title;
-      }
-      if (siteSettings.hero_sub) {
-        const descs = document.querySelectorAll('.hero-paragraph-desc');
-        if (descs.length > 0) descs[0].textContent = siteSettings.hero_sub;
-      }
-      if (siteSettings.hero_btn_text) {
-        const btns = document.querySelectorAll('.btn-pink-pill');
-        if (btns.length > 0) btns[0].textContent = siteSettings.hero_btn_text;
-      }
-      if (siteSettings.hero_btn_link) {
-        const btns = document.querySelectorAll('.btn-pink-pill');
-        if (btns.length > 0) btns[0].setAttribute('href', siteSettings.hero_btn_link);
-      }
-
-      // Best Sellers Title & Subtitle
-      if (siteSettings.best_title) {
-        const head = document.querySelector('.sellers-heading');
-        if (head) head.textContent = siteSettings.best_title;
-      }
-
       // Fetch live products for Best Sellers Grid & Hero Slides
       let products = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
       if (products.length === 0 && typeof PRODUCTS_DATA !== 'undefined') products = PRODUCTS_DATA;
       const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
       products = products.filter(p => !deletedIds.includes(p.id));
+
+      // Render Dynamic 4 Hero Carousel Slides
+      const heroTrack = document.querySelector('.hero-slider-track');
+      if (heroTrack) {
+        let slidesHtml = '';
+        for (let i = 1; i <= 4; i++) {
+          const title = siteSettings[`hero_title_${i}`] || (i===1 ? siteSettings.hero_title || 'Slay everyday with cute little frog charms.' : `Featured Charm #${i}`);
+          const sub = siteSettings[`hero_sub_${i}`] || (i===1 ? siteSettings.hero_sub || 'A tiny frog friend ready to hop into your everyday adventures.' : 'Handmade cold porcelain charm.');
+          const btnText = siteSettings[`hero_btn_text_${i}`] || (i===1 ? siteSettings.hero_btn_text || 'Adopt Charm' : 'Shop Now');
+          const prodId = siteSettings[`hero_prod_${i}`];
+          const prod = products.find(p => p.id === prodId) || products[i-1] || products[0];
+
+          const prodImg = (prod && prod.images && prod.images[0]) ? prod.images[0] : (prod?.image || 'store-logo-c471e30d.webp');
+          const prodName = prod?.name || 'Handmade Charm';
+          const prodPrice = prod?.price ? `₹${prod.price}` : '₹219';
+          const targetUrl = prod?.id ? `product.html?id=${prod.id}` : 'shop.html';
+
+          slidesHtml += `
+            <div class="hero-slide ${i===1?'active':''}" data-index="${i}">
+              <div class="hero-card-grid">
+                <div class="hero-text-panel">
+                  <div class="handmade-badge-pill">
+                    <span class="badge-dot"></span>
+                    ${prod?.badge || 'Handmade ✨'}
+                  </div>
+                  <h1 class="hero-headline-title">${title}</h1>
+                  <p class="hero-paragraph-desc">${sub}</p>
+                  <a href="${targetUrl}" class="btn btn-pink-pill">${btnText}</a>
+                </div>
+                <div class="hero-image-panel">
+                  <div class="image-inner-wrap">
+                    <img src="${prodImg}" alt="${prodName}" class="hero-card-img" />
+                    <div class="product-overlay-tag">
+                      <span class="tag-title">${prodName}</span>
+                      <span class="tag-price">${prodPrice}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        heroTrack.innerHTML = slidesHtml;
+      }
 
       // Render Selected Best Seller Products (Up to 8)
       const selectedBestIds = [1,2,3,4,5,6,7,8].map(i => siteSettings[`best_prod_${i}`]).filter(Boolean);

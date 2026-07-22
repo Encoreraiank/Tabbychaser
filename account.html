@@ -378,6 +378,11 @@
                 <label for="profInstaInput">Instagram Handle</label>
                 <input type="text" id="profInstaInput" class="form-input" placeholder="@your_instagram" />
               </div>
+              <div class="form-group form-span-2">
+                <label for="profPassInput">Account Password / Security Key</label>
+                <input type="password" id="profPassInput" class="form-input" placeholder="Enter new password (optional)" />
+                <small style="color:#888;font-size:0.75rem;">Leave blank to keep existing password</small>
+              </div>
               <div class="form-span-2" style="margin-top: 10px; display: flex; gap: 12px; align-items: center;">
                 <button type="submit" class="btn btn-pink-pill">Save Profile 💾</button>
                 <button type="button" class="btn btn-outline-white" onclick="handleLogout()">Logout 🚪</button>
@@ -543,19 +548,24 @@
       const email = document.getElementById('profEmailInput').value.trim();
       const phone = document.getElementById('profPhoneInput').value.trim();
       const instagram = document.getElementById('profInstaInput').value.trim();
+      const pass = document.getElementById('profPassInput').value.trim();
 
       const session = JSON.parse(localStorage.getItem('tabby_user_session') || '{}');
       session.name = name;
       session.email = email;
       session.phone = phone;
       session.instagram = instagram;
+      if (pass) session.password = pass;
 
       localStorage.setItem('tabby_user_session', JSON.stringify(session));
       document.getElementById('welcomeUserName').textContent = name;
 
-      // Sync profile to Supabase
+      // Sync profile & update password in Supabase
       if (window.supabaseClient) {
         try {
+          if (pass) {
+            await window.supabaseClient.auth.updateUser({ password: pass });
+          }
           const { data: { user } } = await window.supabaseClient.auth.getUser();
           if (user) {
             await window.supabaseClient.from('profiles').upsert({

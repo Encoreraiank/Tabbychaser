@@ -113,13 +113,6 @@
             <input type="email" id="reviewEmail" required class="form-input" placeholder="Same email used for order" />
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="reviewProductSelect">Product Reviewed *</label>
-            <select id="reviewProductSelect" required class="form-input">
-              <option value="">-- Select Product Reviewed --</option>
-            </select>
-          </div>
-
           <div class="form-group" style="text-align:center;">
             <label class="form-label">Your Rating *</label>
             <div class="star-rating" id="starRating">
@@ -133,11 +126,6 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="reviewTitle">Review Title</label>
-            <input type="text" id="reviewTitle" class="form-input" placeholder="e.g. Absolutely adorable!" />
-          </div>
-
-          <div class="form-group">
             <label class="form-label" for="reviewBody">Your Review *</label>
             <textarea id="reviewBody" required class="form-input" rows="4" placeholder="Tell us what you loved about your handmade charm..."></textarea>
           </div>
@@ -148,7 +136,7 @@
             <button type="button" class="btn" style="border:1.5px dashed var(--color-brand-pink);background:#fff;width:100%;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;color:var(--color-brand-pink);" onclick="document.getElementById('reviewPhotoInput').click()">
               📸 Attach Charm Photos
             </button>
-            <div class="photo-preview-grid" id="photoPreviewGrid"></div>
+            <div class="photo-preview-grid" id="photoPreviewGrid" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;"></div>
           </div>
 
           <div id="reviewError" style="color:red;font-size:0.82rem;margin-bottom:14px;display:none;font-weight:700;"></div>
@@ -161,24 +149,11 @@
     </div>
   </main>
 
-  <script src="products-data.js"></script>
   <script src="supabase-config.js"></script>
   <script src="cloudinary-config.js"></script>
   <script>
     let selectedRating = 0;
     let uploadedPhotos = [];
-
-    document.addEventListener('DOMContentLoaded', () => {
-      // Populate Product Dropdown
-      const select = document.getElementById('reviewProductSelect');
-      let products = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
-      if (products.length === 0 && typeof PRODUCTS_DATA !== 'undefined') products = PRODUCTS_DATA;
-      
-      if (select) {
-        select.innerHTML = '<option value="">-- Select Product Reviewed --</option>' + 
-          products.map(p => `<option value="${p.id || p.name}" data-name="${p.name}">${p.name}</option>`).join('');
-      }
-    });
 
     function setRating(val) {
       selectedRating = val;
@@ -190,33 +165,39 @@
       });
     }
 
-    async function handleReviewPhotos(files) {
+    function renderReviewPhotos() {
       const grid = document.getElementById('photoPreviewGrid');
+      if (!grid) return;
+      grid.innerHTML = uploadedPhotos.map((url, i) => `
+        <div style="position:relative;display:inline-block;margin-top:6px;">
+          <img src="${url}" class="photo-preview" style="width:70px;height:70px;object-fit:cover;border-radius:10px;border:1.5px solid #eee;" />
+          <button type="button" onclick="uploadedPhotos.splice(${i},1);renderReviewPhotos();" style="position:absolute;top:-6px;right:-6px;background:#d32f2f;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    async function handleReviewPhotos(files) {
       const cloudName = window.cloudinaryConfig?.cloudName || 'atzancff';
       const preset = window.cloudinaryConfig?.uploadPreset || 'tabbychaserstore';
 
       for (const file of Array.from(files).slice(0, 3)) {
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('upload_preset', preset);
         try {
+          const fd = new FormData();
+          fd.append('file', file);
+          fd.append('upload_preset', preset);
           const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: fd });
           const data = await res.json();
           if (data.secure_url) {
             uploadedPhotos.push(data.secure_url);
-            const img = document.createElement('img');
-            img.src = data.secure_url;
-            img.className = 'photo-preview';
-            grid.appendChild(img);
+            renderReviewPhotos();
+          } else {
+            throw new Error('Upload error');
           }
         } catch(e) {
           const r = new FileReader();
           r.onload = e => {
             uploadedPhotos.push(e.target.result);
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'photo-preview';
-            grid.appendChild(img);
+            renderReviewPhotos();
           };
           r.readAsDataURL(file);
         }
@@ -236,10 +217,6 @@
 
       const orderRef = document.getElementById('reviewOrderRef').value.trim().toUpperCase();
       const email = document.getElementById('reviewEmail').value.trim().toLowerCase();
-      const prodSelect = document.getElementById('reviewProductSelect');
-      const prodId = prodSelect ? prodSelect.value : '';
-      const prodName = prodSelect ? prodSelect.options[prodSelect.selectedIndex]?.text : '';
-      const title = document.getElementById('reviewTitle').value.trim();
       const body = document.getElementById('reviewBody').value.trim();
 
       const btn = document.getElementById('submitReviewBtn');

@@ -2,9 +2,8 @@
 // CLOUDINARY CLIENT-SIDE CONFIGURATION
 // ==========================================
 
-// Configurable values. Replace with your actual Cloudinary Cloud Name & Unsigned Upload Preset.
-const CLOUDINARY_CLOUD_NAME = localStorage.getItem('tabby_cloudinary_name') || 'rjjympjfdmvjuuovidtc'; // Fallback to their project storage namespace
-const CLOUDINARY_UPLOAD_PRESET = localStorage.getItem('tabby_cloudinary_preset') || 'tabby_unsigned_preset';
+const CLOUDINARY_CLOUD_NAME = localStorage.getItem('tabby_cloudinary_name') || 'atzancff';
+const CLOUDINARY_UPLOAD_PRESET = localStorage.getItem('tabby_cloudinary_preset') || 'tabbychaserstore';
 
 // Global accessors
 window.cloudinaryConfig = {

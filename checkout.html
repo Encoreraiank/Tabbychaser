@@ -1218,10 +1218,10 @@
       const orderRef = `TC-${orderNum}`;
       localStorage.setItem('tabby_latest_order_id', orderRef);
 
-      const razorpayKey = localStorage.getItem('tabby_razorpay_key_id') || 'rzp_test_51TabbyChaserStore';
+      const razorpayKey = (localStorage.getItem('tabby_razorpay_key_id') || '').trim();
 
-      // Trigger official Razorpay Popup Checkout SDK
-      if (typeof Razorpay !== 'undefined' && razorpayKey) {
+      // Trigger official Razorpay Popup Checkout SDK if a real Razorpay key is configured
+      if (typeof Razorpay !== 'undefined' && razorpayKey && (razorpayKey.startsWith('rzp_live_') || razorpayKey.startsWith('rzp_test_')) && razorpayKey.length >= 15) {
         const options = {
           key: razorpayKey,
           amount: Math.round(checkoutTotal * 100), // Amount in paise
@@ -1250,10 +1250,14 @@
 
         try {
           const rzp = new Razorpay(options);
+          rzp.on('payment.failed', function (resp) {
+            console.warn('Razorpay payment error:', resp.error);
+            alert(`Razorpay Payment Notice: ${resp.error?.description || 'Transaction was not completed.'}`);
+          });
           rzp.open();
           return;
         } catch(e) {
-          console.warn('Razorpay popup error, falling back to embedded gateway modal:', e.message);
+          console.warn('Razorpay SDK init error:', e.message);
         }
       }
 

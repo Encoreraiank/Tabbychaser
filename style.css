@@ -912,21 +912,23 @@ a, a:hover, a:focus, a:visited {
 .hero-nav-btn.prev-btn { left: 28px; }
 .hero-nav-btn.next-btn { right: 28px; }
 
-/* Adjust dots to not overlap with prev arrow */
+/* Adjust dots to center perfectly between prev & next arrows */
 .slider-dots {
   display: flex;
-  gap: 6px;
-  margin-top: 36px;
-  margin-left: 48px;
-  position: relative;
+  gap: 8px;
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
   .hero-nav-btn { width: 34px; height: 34px; font-size: 1.2rem; bottom: 16px; }
   .hero-nav-btn.prev-btn { left: 14px; }
   .hero-nav-btn.next-btn { right: 14px; }
-  .slider-dots { margin-left: 40px; }
+  .slider-dots { bottom: 22px; }
 }
 
 .showcase-product-card:hover .card-image-wrapper img {

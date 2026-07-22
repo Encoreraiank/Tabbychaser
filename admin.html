@@ -726,14 +726,22 @@
           <div class="grid-2">
             <div class="form-group">
               <label class="form-label">Cloud Name</label>
-              <input type="text" id="cloudName" class="form-control" placeholder="rjjympjfdmvjuuovidtc" />
+              <input type="text" id="cloudName" class="form-control" placeholder="atzancff" />
             </div>
             <div class="form-group">
               <label class="form-label">Upload Preset (Unsigned)</label>
-              <input type="text" id="cloudPreset" class="form-control" placeholder="tabby_unsigned_preset" />
+              <input type="text" id="cloudPreset" class="form-control" placeholder="tabbychaserstore" />
             </div>
           </div>
           <button class="btn btn-outline btn-sm" onclick="saveCloudinary()">Connect Cloudinary</button>
+
+          <div style="font-weight:700;font-size:0.9rem;margin-top:20px;margin-bottom:12px;color:var(--pink);border-top:1px solid var(--border);padding-top:16px;">💳 Razorpay Payment Gateway Connection</div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Found in Razorpay Dashboard → Account & Settings → API Keys → Key ID</p>
+          <div class="form-group">
+            <label class="form-label">Razorpay Key ID</label>
+            <input type="text" id="razorpayKeyId" class="form-control" placeholder="rzp_test_..." />
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="saveRazorpayKey()">Connect Razorpay Key ID</button>
 
           <div class="form-group" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
             <label class="form-label">Admin Password Change</label>
@@ -1739,6 +1747,7 @@
     document.getElementById('supaKey').value = localStorage.getItem('tabby_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI';
     document.getElementById('cloudName').value = localStorage.getItem('tabby_cloudinary_name') || 'atzancff';
     document.getElementById('cloudPreset').value = localStorage.getItem('tabby_cloudinary_preset') || 'tabbychaserstore';
+    if (document.getElementById('razorpayKeyId')) document.getElementById('razorpayKeyId').value = localStorage.getItem('tabby_razorpay_key_id') || 'rzp_test_51TabbyChaserStore';
     
     loadCommissionsStatus();
   }
@@ -1828,6 +1837,14 @@
     localStorage.setItem('tabby_cloudinary_name', document.getElementById('cloudName').value);
     localStorage.setItem('tabby_cloudinary_preset', document.getElementById('cloudPreset').value);
     alert('✅ Cloudinary credentials saved!');
+  }
+
+  function saveRazorpayKey() {
+    const key = document.getElementById('razorpayKeyId').value.trim();
+    if (key) {
+      localStorage.setItem('tabby_razorpay_key_id', key);
+      alert('✅ Razorpay Key ID saved successfully! 💳');
+    }
   }
 
   function changeAdminPass() {

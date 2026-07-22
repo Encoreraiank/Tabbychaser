@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
     .checkout-main {
       padding: 60px 0;
@@ -1203,27 +1204,70 @@
     window.handlePlaceOrder = function(event) {
       event.preventDefault();
 
-      // Generate simulated order ID
-      const orderNum = Math.floor(100000 + Math.random() * 900000);
-      localStorage.setItem('tabby_latest_order_id', `TC-${orderNum}`);
+      const name = document.getElementById('checkoutName').value.trim();
+      const email = document.getElementById('checkoutEmail').value.trim();
+      const phone = document.getElementById('checkoutPhone').value.trim();
 
-      if (activePaymentMethod === 'upi') {
-        // Trigger UPI payment QR gateway
-        document.getElementById('paymentOrderId').textContent = `Order: #TC-${orderNum}`;
-        document.getElementById('paymentAmountDisplay').textContent = `₹${checkoutTotal.toLocaleString('en-IN')}`;
-        
-        // Generate scanable mock QR code using qrserver api
-        const payAddress = "tabbychaser2@okaxis";
-        const merchantName = "Tabby Chaser Store";
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=${payAddress}%26pn=${encodeURIComponent(merchantName)}%26am=${checkoutTotal}%26tn=Order%20TC-${orderNum}`;
-        document.getElementById('paymentQrCode').src = qrUrl;
-
-        window.togglePaymentModal(true);
-        startPaymentTimer();
-      } else {
-        // Cash on delivery - direct success!
-        simulateCheckoutSuccessDirect("cod");
+      if (!name || !email || !phone) {
+        alert("Please fill in your Name, Email, and Phone number.");
+        return;
       }
+
+      // Generate order ID
+      const orderNum = Math.floor(100000 + Math.random() * 900000);
+      const orderRef = `TC-${orderNum}`;
+      localStorage.setItem('tabby_latest_order_id', orderRef);
+
+      const razorpayKey = localStorage.getItem('tabby_razorpay_key_id') || 'rzp_test_51TabbyChaserStore';
+
+      // Trigger official Razorpay Popup Checkout SDK
+      if (typeof Razorpay !== 'undefined' && razorpayKey) {
+        const options = {
+          key: razorpayKey,
+          amount: Math.round(checkoutTotal * 100), // Amount in paise
+          currency: "INR",
+          name: "Tabby Chaser",
+          description: `Handmade Charm Order #${orderRef}`,
+          image: "store-logo-c471e30d.webp",
+          handler: function (response) {
+            const payId = response.razorpay_payment_id || `pay_${Date.now()}`;
+            simulateCheckoutSuccessDirect('razorpay', payId);
+          },
+          prefill: {
+            name: name,
+            email: email,
+            contact: phone
+          },
+          theme: {
+            color: "#f47aab"
+          },
+          modal: {
+            ondismiss: function() {
+              console.log('Payment modal closed by user');
+            }
+          }
+        };
+
+        try {
+          const rzp = new Razorpay(options);
+          rzp.open();
+          return;
+        } catch(e) {
+          console.warn('Razorpay popup error, falling back to embedded gateway modal:', e.message);
+        }
+      }
+
+      // Fallback: Trigger custom gateway modal
+      document.getElementById('paymentOrderId').textContent = `Order: #${orderRef}`;
+      document.getElementById('paymentAmountDisplay').textContent = `₹${checkoutTotal.toLocaleString('en-IN')}`;
+      
+      const payAddress = "tabbychaser2@okaxis";
+      const merchantName = "Tabby Chaser Store";
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=${payAddress}%26pn=${encodeURIComponent(merchantName)}%26am=${checkoutTotal}%26tn=Order%20${orderRef}`;
+      document.getElementById('paymentQrCode').src = qrUrl;
+
+      window.togglePaymentModal(true);
+      startPaymentTimer();
     };
 
     window.togglePaymentModal = function(show) {
@@ -1288,13 +1332,13 @@
       simulateCheckoutSuccessDirect(method);
     };
 
-    function simulateCheckoutSuccessDirect(method) {
+    function simulateCheckoutSuccessDirect(method, paymentId = null) {
       const container = document.getElementById('checkoutLayoutContainer');
       const orderId = localStorage.getItem('tabby_latest_order_id') || 'TC-928471';
       
       const name = document.getElementById('checkoutName').value.trim();
       const email = document.getElementById('checkoutEmail').value.trim();
-    const instagram = (document.getElementById('checkoutInstagram')?.value || '').trim();
+      const instagram = (document.getElementById('checkoutInstagram')?.value || '').trim();
       const notes = (document.getElementById('checkoutNotes')?.value || '').trim();
       const phone = document.getElementById('checkoutPhone').value.trim();
       const street = document.getElementById('checkoutAddress').value.trim();
@@ -1322,10 +1366,11 @@
               items: cart,
               subtotal: checkoutSubtotal,
               discount: checkoutDiscount,
-              shipping: checkoutShipping + (method === 'cod' ? 50 : 0),
+              shipping: checkoutShipping,
               total: checkoutTotal,
-              payment_method: method,
-              status: 'pending'
+              payment_method: method || 'razorpay',
+              payment_id: paymentId || null,
+              status: 'paid'
             };
             const { error } = await window.supabaseClient
               .from('orders')

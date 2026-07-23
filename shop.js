@@ -141,31 +141,54 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadLiveStorefrontData();
 });
 
+function cleanCategoryName(name) {
+  if (!name) return '';
+  return name.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}]/gu, '').trim();
+}
+
 async function loadLiveStorefrontData() {
   let products = null;
-  const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+  let remoteDeletedIds = [];
 
-  // 1. Try Supabase
+  // Wait for Supabase client
   let tries = 0;
   while (!window.supabaseClient && tries < 4) {
     await new Promise(r => setTimeout(r, 150));
     tries++;
   }
 
+  // 1. Fetch live products and site settings from Supabase
   if (window.supabaseClient) {
     try {
-      const { data: dbProducts } = await window.supabaseClient.from('products').select('*').eq('status', 'published');
-      if (dbProducts) products = dbProducts;
-    } catch (err) {}
+      const { data: dbProducts } = await window.supabaseClient.from('products').select('*');
+      if (dbProducts) {
+        products = dbProducts;
+        localStorage.setItem('tabby_products_local', JSON.stringify(dbProducts));
+      }
+
+      const { data: dbSettings } = await window.supabaseClient.from('site_settings').select('*');
+      if (dbSettings) {
+        const deletedRow = dbSettings.find(s => s.key === 'deleted_product_ids');
+        if (deletedRow && deletedRow.value) {
+          try { remoteDeletedIds = JSON.parse(deletedRow.value); } catch(e){}
+        }
+      }
+    } catch (err) {
+      console.warn('Supabase storefront fetch error:', err);
+    }
   }
 
-  // 2. Fallback to localStorage
+  // 2. Fallback to localStorage if offline
   if (products === null) {
     const local = localStorage.getItem('tabby_products_local');
     if (local !== null) {
       try { products = JSON.parse(local); } catch(e){}
     }
   }
+
+  const localDeletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+  const deletedIds = Array.from(new Set([...localDeletedIds, ...remoteDeletedIds]));
+  localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
 
   const isInitialized = localStorage.getItem('tabby_products_initialized') === 'true';
   if (!isInitialized && (!products || products.length === 0) && typeof PRODUCTS_DATA !== 'undefined') {
@@ -181,8 +204,8 @@ async function loadLiveStorefrontData() {
     }));
   }
 
-  // Filter out any explicitly deleted products
-  const liveProducts = (products || []).filter(p => !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
+  // Filter out any explicitly deleted products or draft status
+  const liveProducts = (products || []).filter(p => p.status !== 'draft' && !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
 
   // Render dynamic category pills & product cards
   renderDynamicCategoryPills(liveProducts);
@@ -196,23 +219,25 @@ function renderDynamicCategoryPills(liveProducts = []) {
   const localCats = JSON.parse(localStorage.getItem('tabby_categories_local') || '[]');
   const defaultCats = [
     { name: 'All Products', slug: 'all' },
-    { name: 'Charms 🌸', slug: 'charms' },
-    { name: 'Keychains 🔑', slug: 'keychains' },
-    { name: 'Desk Pals 🐸', slug: 'desk-pals' },
-    { name: 'Sticker Sheets ✨', slug: 'stickers' },
-    { name: 'Worry Stones 🌟', slug: 'worry-stones' },
-    { name: 'Phone Charms 📱', slug: 'phone-charms' }
+    { name: 'Charms', slug: 'charms' },
+    { name: 'Keychains', slug: 'keychains' },
+    { name: 'Desk Pals', slug: 'desk-pals' },
+    { name: 'Sticker Sheets', slug: 'stickers' },
+    { name: 'Worry Stones', slug: 'worry-stones' },
+    { name: 'Phone Charms', slug: 'phone-charms' }
   ];
 
   const merged = [...defaultCats];
   localCats.forEach(c => {
-    const slug = (c.slug || c.name.toLowerCase().replace(/\s+/g, '-'));
+    const cleanName = cleanCategoryName(c.name);
+    const slug = (c.slug || cleanName.toLowerCase().replace(/\s+/g, '-'));
     if (!merged.some(m => m.slug === slug)) {
-      merged.push({ name: c.name, slug: slug });
+      merged.push({ name: cleanName, slug: slug });
     }
   });
 
   container.innerHTML = merged.map((c, i) => {
+    const cleanDisplayName = cleanCategoryName(c.name);
     const count = (c.slug === 'all') 
       ? liveProducts.length 
       : liveProducts.filter(p => (p.category || '').toLowerCase().replace(/\s+/g, '-') === c.slug).length;
@@ -220,7 +245,7 @@ function renderDynamicCategoryPills(liveProducts = []) {
     return `
       <li>
         <button class="filter-btn ${i === 0 ? 'active' : ''}" data-cat="${c.slug}" onclick="setCat(this, '${c.slug}')">
-          ${c.name} <span class="filter-count">${count}</span>
+          ${cleanDisplayName} <span class="filter-count">${count}</span>
         </button>
       </li>
     `;

@@ -1235,8 +1235,9 @@
     const price = parseFloat(document.getElementById('pPrice').value);
     if (!name || isNaN(price)) { alert('Name and Price are required.'); return; }
 
+    const prodId = id || ('prod-' + Date.now());
     const payload = {
-      id: id || ('prod-' + Date.now()),
+      id: prodId,
       name, price,
       description: document.getElementById('pDesc').value.trim(),
       compare_price: parseFloat(document.getElementById('pComparePrice').value) || null,
@@ -1254,19 +1255,18 @@
       updated_at: new Date().toISOString()
     };
 
-    // 1. Try Supabase
+    // 1. Save to Supabase (Always Upsert for Cross-Device Cloud Sync)
     try {
       const client = await db();
       if (client) {
-        if (id) await client.from('products').update(payload).eq('id', id);
-        else await client.from('products').insert(payload);
+        await client.from('products').upsert(payload);
       }
     } catch(e) {
       console.warn('Supabase save product error:', e);
     }
 
     // 2. Save to local state & localStorage
-    const idx = allProducts.findIndex(p => p.id === id);
+    const idx = allProducts.findIndex(p => p.id === prodId || p.name === name);
     if (idx >= 0) allProducts[idx] = payload;
     else allProducts.unshift(payload);
     localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
@@ -1275,27 +1275,43 @@
     renderProducts();
     renderInventory();
     updateDashboardStats();
-    alert('✅ Product saved!');
+    alert('✅ Product saved and synced to live store!');
   }
 
   async function deleteProduct(id) {
-    if (!confirm('Delete this product?')) return;
+    const targetProd = allProducts.find(p => p.id === id);
+    if (!confirm(`Delete "${targetProd?.name || 'this product'}"?`)) return;
+
+    // 1. Delete from Supabase Database
     try {
       const client = await db();
-      if (client) await client.from('products').delete().eq('id', id);
+      if (client) {
+        await client.from('products').delete().eq('id', id);
+        if (targetProd?.name) {
+          await client.from('products').delete().eq('name', targetProd.name);
+        }
+      }
     } catch(e) {}
 
-    // Track deleted IDs so sync never restores them
+    // 2. Track deleted IDs & Sync deleted IDs via Supabase site_settings so ALL devices hide it
     const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
     if (!deletedIds.includes(id)) deletedIds.push(id);
+    if (targetProd?.name && !deletedIds.includes(targetProd.name)) deletedIds.push(targetProd.name);
     localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
+
+    try {
+      const client = await db();
+      if (client) {
+        await client.from('site_settings').upsert({ key: 'deleted_product_ids', value: JSON.stringify(deletedIds) });
+      }
+    } catch(e) {}
 
     allProducts = allProducts.filter(p => p.id !== id);
     localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
     renderProducts();
     renderInventory();
     updateDashboardStats();
-    alert('✅ Product deleted.');
+    alert('✅ Product deleted across all devices.');
   }
 
   function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }
@@ -1313,14 +1329,14 @@
 
     const local = JSON.parse(localStorage.getItem('tabby_categories_local') || '[]');
     
-    // Default categories if empty
+    // Default categories if empty (without emojis)
     if (data.length === 0 && local.length === 0) {
       const defaults = [
-        { id: 'cat-1', name: 'Charms 🌸', slug: 'charms', description: 'Handmade polymer & cold porcelain charms', sort_order: 1, visible: true },
-        { id: 'cat-2', name: 'Keychains 🔑', slug: 'keychains', description: 'Cute keychains for bags & keys', sort_order: 2, visible: true },
-        { id: 'cat-3', name: 'Desk Pals 🐸', slug: 'desk-pals', description: 'Mini figurines for your workspace', sort_order: 3, visible: true },
-        { id: 'cat-4', name: 'Sticker Sheets ✨', slug: 'stickers', description: 'Waterproof cute stickers', sort_order: 4, visible: true },
-        { id: 'cat-5', name: 'Worry Stones 🌟', slug: 'worry-stones', description: 'Pocket companion worry stones', sort_order: 5, visible: true }
+        { id: 'cat-1', name: 'Charms', slug: 'charms', description: 'Handmade polymer & cold porcelain charms', sort_order: 1, visible: true },
+        { id: 'cat-2', name: 'Keychains', slug: 'keychains', description: 'Cute keychains for bags & keys', sort_order: 2, visible: true },
+        { id: 'cat-3', name: 'Desk Pals', slug: 'desk-pals', description: 'Mini figurines for your workspace', sort_order: 3, visible: true },
+        { id: 'cat-4', name: 'Sticker Sheets', slug: 'stickers', description: 'Waterproof cute stickers', sort_order: 4, visible: true },
+        { id: 'cat-5', name: 'Worry Stones', slug: 'worry-stones', description: 'Pocket companion worry stones', sort_order: 5, visible: true }
       ];
       localStorage.setItem('tabby_categories_local', JSON.stringify(defaults));
       allCategories = defaults;

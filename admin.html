@@ -991,16 +991,14 @@
   });
 
   async function initDashboard() {
-    await loadCategories();
-    await Promise.all([
-      loadOrders(),
-      loadCustomOrders(),
-      loadProducts(),
-      loadCustomers(),
-      loadCoupons(),
-      loadReviews(),
-      loadSiteSettings()
-    ]);
+    try { await loadCategories(); } catch(e) { console.error('loadCategories note:', e); }
+    try { await loadProducts(); } catch(e) { console.error('loadProducts note:', e); }
+    try { await loadOrders(); } catch(e) { console.error('loadOrders note:', e); }
+    try { await loadCustomOrders(); } catch(e) { console.error('loadCustomOrders note:', e); }
+    try { await loadCustomers(); } catch(e) { console.error('loadCustomers note:', e); }
+    try { await loadCoupons(); } catch(e) { console.error('loadCoupons note:', e); }
+    try { await loadReviews(); } catch(e) { console.error('loadReviews note:', e); }
+    try { await loadSiteSettings(); } catch(e) { console.error('loadSiteSettings note:', e); }
   }
 
   // NAVIGATION
@@ -1282,8 +1280,10 @@
   async function saveProduct() {
     const id = document.getElementById('pId').value;
     const name = document.getElementById('pName').value.trim();
-    const price = parseFloat(document.getElementById('pPrice').value);
-    if (!name || isNaN(price)) { alert('Name and Price are required.'); return; }
+    let rawPrice = parseFloat(document.getElementById('pPrice').value);
+    const price = isNaN(rawPrice) ? 0 : rawPrice;
+
+    if (!name) { alert('Please enter a Product Name.'); return; }
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const prodId = id || slug || ('prod-' + Date.now());

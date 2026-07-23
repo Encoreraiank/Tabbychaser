@@ -425,11 +425,18 @@ window.renderCartItems = function() {
     }
   }
 
-  if (discountRow && appliedCoupon && appliedCoupon.type === 'percent') {
-    const couponDiscount = Math.round(subtotal * (appliedCoupon.value / 100));
-    discount += couponDiscount;
-    discountRow.style.display = 'flex';
-    discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-₹${couponDiscount}</span>`;
+  if (discountRow && appliedCoupon) {
+    let couponDiscount = 0;
+    if (appliedCoupon.type === 'percent') {
+      couponDiscount = Math.round(subtotal * (appliedCoupon.value / 100));
+    } else if (appliedCoupon.type === 'flat') {
+      couponDiscount = appliedCoupon.value;
+    }
+    if (couponDiscount > 0) {
+      discount += couponDiscount;
+      discountRow.style.display = 'flex';
+      discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-₹${couponDiscount}</span>`;
+    }
   }
 
   // Dynamic shipping calculation
@@ -486,8 +493,12 @@ window.applyCartCoupon = async function() {
   }
 
   // Special welcome / review coupon check
-  if (!foundCoupon && (code === 'WELCOME10' || code.startsWith('PAWS15'))) {
-    foundCoupon = { code: code, type: 'percent', value: code.startsWith('PAWS15') ? 15 : 10 };
+  if (!foundCoupon) {
+    if (code === 'WELCOME10') {
+      foundCoupon = { code: 'WELCOME10', type: 'percent', value: 10, min_order: 500 };
+    } else if (code === 'REVIEW50' || code.startsWith('PAWS15')) {
+      foundCoupon = { code: code, type: 'flat', value: 50, min_order: 0 };
+    }
   }
 
   if (foundCoupon) {
@@ -787,6 +798,18 @@ window.handleSignUpSubmit = async function(event) {
 };
 
 function initHeaderAccountButton() {
+  const session = JSON.parse(localStorage.getItem('tabby_user_session'));
+
+  document.querySelectorAll('.profile-header-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      const currentSession = JSON.parse(localStorage.getItem('tabby_user_session'));
+      if (!currentSession || !currentSession.loggedIn) {
+        e.preventDefault();
+        window.toggleLoginModal(true);
+      }
+    };
+  });
+
   const headerActions = document.querySelector('.header-actions');
   if (!headerActions) return;
 
@@ -795,14 +818,13 @@ function initHeaderAccountButton() {
     loginBtn = document.createElement('a');
     loginBtn.id = 'loginBtn';
     loginBtn.className = 'login-pill-btn';
-    loginBtn.href = '#';
+    loginBtn.href = 'account';
     headerActions.insertBefore(loginBtn, headerActions.querySelector('.cart-pill-btn') || headerActions.firstChild);
   }
 
-  const session = JSON.parse(localStorage.getItem('tabby_user_session'));
   if (session && session.loggedIn) {
     loginBtn.textContent = `Hi, ${session.name.split(' ')[0]}`;
-    loginBtn.href = 'account.html';
+    loginBtn.href = 'account';
     loginBtn.onclick = null;
   } else {
     loginBtn.textContent = 'Login';

@@ -1334,12 +1334,15 @@
     try {
       const client = await db();
       if (client) {
-        await client.from('products').upsert(cleanDbPayload);
-        await client.from('site_settings').upsert({
+        const { error: pErr } = await client.from('products').upsert(cleanDbPayload, { onConflict: 'id' });
+        if (pErr) console.warn('Supabase products upsert note:', pErr.message);
+
+        const { error: sErr } = await client.from('site_settings').upsert({
           key: 'tabby_products_json',
           value: JSON.stringify(allProducts),
           updated_at: new Date().toISOString()
-        });
+        }, { onConflict: 'key' });
+        if (sErr) console.warn('Supabase site_settings upsert note:', sErr.message);
       }
     } catch(e) {
       console.warn('Supabase sync warning:', e);
@@ -1379,8 +1382,8 @@
       if (client) {
         await client.from('products').delete().eq('id', id);
         if (targetName) await client.from('products').delete().eq('name', targetName);
-        await client.from('site_settings').upsert({ key: 'deleted_product_ids', value: JSON.stringify(deletedIds) });
-        await client.from('site_settings').upsert({ key: 'tabby_products_json', value: JSON.stringify(allProducts) });
+        await client.from('site_settings').upsert({ key: 'deleted_product_ids', value: JSON.stringify(deletedIds) }, { onConflict: 'key' });
+        await client.from('site_settings').upsert({ key: 'tabby_products_json', value: JSON.stringify(allProducts) }, { onConflict: 'key' });
       }
     } catch(e) {}
 
@@ -1564,6 +1567,11 @@
       const client = await db();
       if (client) {
         await client.from('products').update({ stock: newStock, status: newStatus }).eq('id', id);
+        await client.from('site_settings').upsert({
+          key: 'tabby_products_json',
+          value: JSON.stringify(allProducts),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
       }
     } catch(e) {}
 

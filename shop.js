@@ -196,10 +196,17 @@ async function loadLiveStorefrontData() {
     .map(key => allList.find(p => (p.id || p.name) === key));
 
   const localDeletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-  const deletedIds = Array.from(new Set([...localDeletedIds, ...remoteDeletedIds]));
+  const deletedIds = Array.from(new Set([...localDeletedIds, ...remoteDeletedIds])).map(s => String(s).toLowerCase().trim());
   localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
 
-  const liveProducts = uniqueProducts.filter(p => p.status !== 'draft' && !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
+  const liveProducts = uniqueProducts.filter(p => {
+    if (!p || p.status === 'draft') return false;
+    const pid = String(p.id || '').toLowerCase();
+    const pname = String(p.name || '').toLowerCase();
+    const pslug = String(p.slug || '').toLowerCase();
+    const pclean = pname.replace(/[^a-z0-9]+/g, '-');
+    return !deletedIds.includes(pid) && !deletedIds.includes(pname) && !deletedIds.includes(pslug) && !deletedIds.includes(pclean);
+  });
 
   // Save merged state to local storage
   localStorage.setItem('tabby_products_local', JSON.stringify(uniqueProducts));

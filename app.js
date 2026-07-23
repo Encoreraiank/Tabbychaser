@@ -679,8 +679,10 @@ window.handleNewsletterSubscribe = function (event) {
   }
 
   // Mark as subscribed (one-time per email)
+  const userKey = email.replace(/[^a-z0-9]/g, '_');
   subscribedEmails.push(email);
   localStorage.setItem('tabby_subscribed_emails', JSON.stringify(subscribedEmails));
+  localStorage.setItem(`tabby_subscribed_${userKey}`, 'true');
   localStorage.setItem('tabby_subscribed', 'true');
   localStorage.setItem('tabby_subscribed_email', email);
 

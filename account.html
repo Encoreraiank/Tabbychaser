@@ -648,16 +648,15 @@
       if (!container) return;
 
       const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
-      const userKey = session && session.email ? session.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : 'guest';
-      const userEmail = session?.email ? session.email.toLowerCase() : '';
+      const userEmail = session?.email ? session.email.toLowerCase().trim() : '';
+      const userKey = userEmail ? userEmail.replace(/[^a-z0-9]/g, '_') : 'guest';
 
-      const usedCoupons = JSON.parse(localStorage.getItem(`tabby_used_coupons_${userKey}`) || localStorage.getItem('tabby_used_coupons') || '[]');
-      const reviewedOrders = JSON.parse(localStorage.getItem(`tabby_reviewed_${userKey}`) || localStorage.getItem('tabby_reviewed_orders') || '{}');
-      const hasReviewed = (typeof reviewedOrders === 'object' && Object.keys(reviewedOrders).length > 0) || localStorage.getItem(`tabby_reviewed_${userKey}`) === 'true';
-
-      const isSubscribed = (localStorage.getItem(`tabby_subscribed_${userKey}`) === 'true') ||
-                           (userEmail && (localStorage.getItem('tabby_subscribed_email') || '').toLowerCase() === userEmail);
-      const isFirstOrderCompleted = localStorage.getItem(`tabby_first_order_completed_${userKey}`) === 'true' || localStorage.getItem('tabby_first_order_completed') === 'true';
+      const usedCoupons = JSON.parse(localStorage.getItem(`tabby_used_coupons_${userKey}`) || '[]');
+      
+      // Strictly user-scoped subscription & review status
+      const isSubscribed = userEmail && localStorage.getItem(`tabby_subscribed_${userKey}`) === 'true';
+      const hasReviewed = userEmail && localStorage.getItem(`tabby_reviewed_${userKey}`) === 'true';
+      const isFirstOrderCompleted = localStorage.getItem(`tabby_first_order_completed_${userKey}`) === 'true';
 
       // Load storewide coupons from local or Supabase
       let adminCoupons = [];

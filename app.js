@@ -826,6 +826,7 @@ function initShopCardLinks() {
   });
 }
 
+// Handle Newsletter Subscription
 window.handleNewsletterSubscribe = function(event) {
   event.preventDefault();
   const form = event.target;
@@ -836,6 +837,11 @@ window.handleNewsletterSubscribe = function(event) {
 
   localStorage.setItem('tabby_subscribed', 'true');
   localStorage.setItem('tabby_subscribed_email', email);
+
+  // Auto-apply 10% Welcome Coupon
+  const welcomeCoupon = { code: 'WELCOME10', type: 'percent', value: 10, min_order: 500 };
+  localStorage.setItem('tabby_applied_coupon', JSON.stringify(welcomeCoupon));
+
   input.value = '';
 
   // Show cute modal discount unlocked message

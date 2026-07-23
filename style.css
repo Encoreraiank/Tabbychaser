@@ -1437,26 +1437,35 @@ a, a:hover, a:focus, a:visited {
 }
 
 /* Follow Button (Updated to Pink Accent) */
+.instagram-follow-btn,
 .insta-follow-btn {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--color-brand-pink);
-  background-color: var(--color-brand-pink);
-  color: var(--color-text-main);
-  text-decoration: none;
+  gap: 6px;
+  background-color: #fff0f5;
+  color: #d35d88 !important;
+  border: 1.5px solid #f47aab;
+  text-decoration: none !important;
   font-weight: 700;
   font-size: 0.92rem;
-  padding: 10px 26px;
+  padding: 10px 24px;
   border-radius: 9999px !important;
-  transition: var(--transition);
+  transition: all 0.25s ease;
   cursor: pointer;
+  box-shadow: 0 4px 12px rgba(244, 122, 171, 0.15);
 }
 
+.instagram-follow-btn:hover,
 .insta-follow-btn:hover {
-  background-color: transparent;
-  color: var(--color-text-main);
-  border-color: var(--color-text-main);
+  background-color: #f47aab;
+  color: #ffffff !important;
   transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(244, 122, 171, 0.3);
+}
+
+.profile-header-btn:hover {
+  transform: scale(1.08) !important;
+  background: rgba(244, 122, 171, 0.25) !important;
 }
 
 /* 10 square images grid */

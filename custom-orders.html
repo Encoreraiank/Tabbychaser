@@ -34,22 +34,24 @@
   <!-- Header Navigation -->
   <header class="site-header">
     <div class="header-container container">
-      <a href="index.html" class="brand-logo">
+      <a href="/" class="brand-logo">
         <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
         <span class="logo-text">Tabby Chaser</span>
       </a>
       <nav class="nav-menu">
-        <a href="index.html" class="nav-link outline-pill">Home</a>
-        <a href="shop.html" class="nav-link outline-pill">Shop</a>
-        <a href="custom-pets.html" class="nav-link active-pill">Custom Orders</a>
-        <a href="policies.html" class="nav-link outline-pill">Policies</a>
-        <a href="track.html" class="nav-link outline-pill">Track Order</a>
+        <a href="/" class="nav-link outline-pill">Home</a>
+        <a href="shop" class="nav-link outline-pill">Shop</a>
+        <a href="custom-orders" class="nav-link active-pill">Custom Orders</a>
+        <a href="policies" class="nav-link outline-pill">Policies</a>
       </nav>
       <div class="header-actions">
         <div class="search-box-pill">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" placeholder="Search..." disabled />
+          <input type="text" placeholder="Search..." id="customOrdersSearchInput" />
         </div>
+        <a href="account" class="profile-header-btn" title="My Account" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:rgba(244,122,171,0.12);color:#d35d88;text-decoration:none;transition:transform 0.2s ease;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
         <button class="cart-pill-btn" id="cartBtn">
           Cart
           <span class="cart-badge">0</span>
@@ -75,7 +77,7 @@
             with lots of love and a little bit of panic.
           </p>
           <div class="pet-hero-actions">
-            <a href="mailto:tabbychaser2@gmail.com?subject=Custom%20Order%20Inquiry" class="btn btn-solid-pink">📩 Email to start</a>
+            <a href="#planner" class="btn btn-solid-pink">✨ Let's plan yours</a>
             <a href="#how-it-works" class="btn btn-outline-white">See how it works &gt;</a>
           </div>
         </div>
@@ -157,31 +159,6 @@
         </div>
 
       </div>
-    </div>
-  </section>
-
-  <!-- A Few Happy Commissions (Infinite Scrolling Photo Wall) -->
-  <section class="commissions-gallery-section" id="happy-commissions">
-    <div class="container">
-      <div class="tc-pets__gallery-head">
-        <h2 class="tc-heading-dark">A few happy commissions</h2>
-      </div>
-    </div>
-    
-    <div class="tc-pets__wall" data-tc-pets-wall>
-      <div class="tc-pets__wall-track" data-tc-pets-wall-track>
-        <img src="assets/instagram/post-1.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-2.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-3.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-4.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-5.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-6.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-7.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-8.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-9.jpg" alt="Custom pet sculpture commission" />
-        <img src="assets/instagram/post-10.jpg" alt="Custom pet sculpture commission" />
-      </div>
-      <div class="tc-pets__wall-overlay"></div>
     </div>
   </section>
 
@@ -407,25 +384,12 @@
     </div>
   </section>
 
-  <!-- Memorial Note Section -->
-  <section class="memorial-section">
-    <div class="container">
-      <div class="memorial-card">
-        <span class="memorial-icon">🤍</span>
-        <h2 class="memorial-title">A gentle note on memorials</h2>
-        <p class="memorial-desc">
-          If you are ordering a custom sculpture to remember a beloved pet you have lost, I will treat your photos and your piece with all the care and respect they deserve. Take your time, send what photos you have, and tell me anything you would like me to capture. There is no rush.
-        </p>
-      </div>
-    </div>
-  </section>
-
   <!-- FAQ Section -->
   <section class="faq-section">
     <div class="container">
       <div class="section-header-centered">
         <h2 class="section-title">Frequently Asked Questions</h2>
-        <p class="section-subtitle">Answers to common questions about custom pet orders.</p>
+        <p class="section-subtitle">Answers to common questions about custom orders.</p>
       </div>
 
       <div class="faq-accordion-list">
@@ -436,7 +400,7 @@
             <span class="faq-arrow">▼</span>
           </button>
           <div class="faq-answer">
-            <p>Every pet is sculpted entirely by hand using cold porcelain or high-grade polymer clay. They are finished with detailed acrylic paint and coated with a premium glossy resin glaze to protect them from moisture and dust, ensuring they last forever.</p>
+            <p>Every charm is handcrafted using handmade cold porcelain clay and carefully sculpted by hand. Each piece is finished with a glossy resin coating for added durability and a vibrant shine. Since every piece is handmade, slight variations make each one unique</p>
           </div>
         </div>
 
@@ -446,7 +410,7 @@
             <span class="faq-arrow">▼</span>
           </button>
           <div class="faq-answer">
-            <p>Because there are no molds used and every detail is created from scratch, custom commissions take approximately 3 to 4 weeks. I will share a progress update with you during sculpting so you can check and approve the pose before glazing.</p>
+            <p>Because every piece is handmade, with no molds used, and every detail is sculpted from scratch, custom commissions typically take 4–5 weeks to complete. This allows enough time for sculpting, drying, finishing, and quality checks to ensure your piece is made with care.</p>
           </div>
         </div>
 
@@ -456,7 +420,7 @@
             <span class="faq-arrow">▼</span>
           </button>
           <div class="faq-answer">
-            <p>Yes! We pack all custom orders snugly in thick bubble wrap and cardboard boxes, and ship them pan-India with tracking numbers. You'll receive shipping updates as soon as the package is dispatched.</p>
+            <p>Yes! We ship custom orders across India, so you can place an order from anywhere in the country.</p>
           </div>
         </div>
 
@@ -466,7 +430,7 @@
             <span class="faq-arrow">▼</span>
           </button>
           <div class="faq-answer">
-            <p>Once sculpting starts, the deposit is non-refundable. Since custom pets are unique pieces built specifically for you, they cannot be returned or refunded once shipped. However, I make sure you approve the product photo beforehand to guarantee you love it!</p>
+            <p>Once sculpting starts, the deposit is non-refundable. Since custom creations are unique pieces built specifically for you, they cannot be returned or refunded once shipped. However, I make sure you approve the product photo beforehand to guarantee you love it!</p>
           </div>
         </div>
 
@@ -511,16 +475,16 @@
         <div class="footer-links-column">
           <h4 class="footer-column-title">Quick Links</h4>
           <ul class="footer-links-list">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop Collections</a></li>
-            <li><a href="custom-pets.html">Custom Orders</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="shop">Shop Collections</a></li>
+            <li><a href="custom-orders">Custom Orders</a></li>
           </ul>
         </div>
         <div class="footer-links-column">
           <h4 class="footer-column-title">Our Policies</h4>
           <ul class="footer-links-list">
-            <li><a href="policies.html">Store Policies</a></li>
-            <li><a href="policies.html">Shipping & Returns</a></li>
+            <li><a href="policies">Store Policies</a></li>
+            <li><a href="policies">Shipping & Returns</a></li>
           </ul>
         </div>
       </div>
@@ -535,7 +499,7 @@
   <script src="products-data.js"></script>
   <script src="app.js"></script>
   <script src="cloudinary-config.js"></script>
-  <script src="custom-pets.js"></script>
+  <script src="custom-orders.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');

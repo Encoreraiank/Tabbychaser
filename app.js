@@ -375,14 +375,12 @@ window.renderCartItems = function() {
         if (marketingEl) marketingEl.style.display = 'none';
       }
     }
-  } else {
-    if (discountRow) discountRow.style.display = 'none';
-    if (marketingEl) {
+  } else     if (marketingEl) {
       marketingEl.style.display = 'block';
       if (subtotal > 500) {
-        marketingEl.innerHTML = `🎁 Want 10% off? <a href="index.html#policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;" onclick="window.toggleCartDrawer(false)">Subscribe to our welcome gift</a> to save ₹${Math.round(subtotal * 0.1)} on this order!`;
+        marketingEl.innerHTML = `🎁 Want 10% off? <a href="policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;" onclick="window.toggleCartDrawer(false)">Subscribe to our welcome gift</a> to save ₹${Math.round(subtotal * 0.1)} on this order!`;
       } else {
-        marketingEl.innerHTML = `🎁 Want 10% off? Add ₹${501 - subtotal} more and <a href="index.html#policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;" onclick="window.toggleCartDrawer(false)">subscribe to our welcome gift</a> to save!`;
+        marketingEl.innerHTML = `🎁 Want 10% off? Add ₹${501 - subtotal} more and <a href="policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;" onclick="window.toggleCartDrawer(false)">subscribe to our welcome gift</a> to save!`;
       }
     }
   }
@@ -412,24 +410,25 @@ window.renderCartItems = function() {
     }
   }
 
-  if (appliedCoupon) {
-    if (appliedCoupon.type === 'percent') {
-      discount = Math.round(subtotal * (appliedCoupon.value / 100));
-    } else if (appliedCoupon.type === 'flat') {
-      discount = appliedCoupon.value;
-    }
-    if (discountRow) {
-      discountRow.style.display = 'flex';
-      discountRow.innerHTML = `
-        <span style="display:flex;align-items:center;gap:6px;">
-          Coupon (${appliedCoupon.code}) 
-          <button onclick="window.removeCartCoupon()" style="border:none;background:none;color:#e53935;font-weight:800;cursor:pointer;font-size:0.78rem;padding:0;margin-left:4px;" title="Remove coupon">✕ Remove</button>
-        </span>
-        <span>-₹${discount}</span>
+  // Render applied coupon tag or input row
+  const cartCouponWrap = document.getElementById('cartCouponInput')?.parentElement;
+  if (cartCouponWrap) {
+    if (appliedCoupon) {
+      let discountText = appliedCoupon.type === 'percent' ? `${appliedCoupon.value}% OFF` : (appliedCoupon.type === 'free_shipping' ? 'FREE SHIPPING' : `₹${appliedCoupon.value} OFF`);
+      cartCouponWrap.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%; background:#e8f5e9; padding:8px 12px; border-radius:8px !important; border:1px solid #a5d6a7;">
+          <span style="font-weight:700; font-size:0.8rem; color:#2e7d32;">🏷️ ${appliedCoupon.code.toUpperCase()} (${discountText})</span>
+          <button type="button" onclick="window.removeCartCoupon()" style="background:none; border:none; color:#c62828; font-weight:800; font-size:1.1rem; cursor:pointer; line-height:1;">&times;</button>
+        </div>
       `;
     }
-  } else {
-    if (discountRow) discountRow.style.display = 'none';
+  }
+
+  if (discountRow && appliedCoupon && appliedCoupon.type === 'percent') {
+    const couponDiscount = Math.round(subtotal * (appliedCoupon.value / 100));
+    discount += couponDiscount;
+    discountRow.style.display = 'flex';
+    discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-₹${couponDiscount}</span>`;
   }
 
   // Dynamic shipping calculation
@@ -503,8 +502,8 @@ window.triggerCheckout = function() {
   const cart = window.getCart();
   if (cart.length === 0) return;
 
-  // Redirect to checkout.html for shipping info collection and payment
-  window.location.href = 'checkout.html';
+  // Redirect to clean checkout route for shipping info collection and payment
+  window.location.href = 'checkout';
 };
 
 // ==========================================================================

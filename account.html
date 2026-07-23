@@ -653,9 +653,15 @@
 
       const usedCoupons = JSON.parse(localStorage.getItem(`tabby_used_coupons_${userKey}`) || '[]');
       
-      // Strictly user-scoped subscription & review status
-      const isSubscribed = userEmail && localStorage.getItem(`tabby_subscribed_${userKey}`) === 'true';
-      const hasReviewed = userEmail && localStorage.getItem(`tabby_reviewed_${userKey}`) === 'true';
+      // Failsafe subscription & review check
+      const subscribedEmails = JSON.parse(localStorage.getItem('tabby_subscribed_emails') || '[]');
+      const isSubscribed = (userEmail && subscribedEmails.map(e => e.toLowerCase()).includes(userEmail)) ||
+                           (localStorage.getItem(`tabby_subscribed_${userKey}`) === 'true') ||
+                           ((localStorage.getItem('tabby_subscribed_email') || '').toLowerCase() === userEmail);
+
+      const reviewedOrders = JSON.parse(localStorage.getItem('tabby_reviewed_orders') || '{}');
+      const hasReviewed = (userEmail && localStorage.getItem(`tabby_reviewed_${userKey}`) === 'true') ||
+                          (typeof reviewedOrders === 'object' && Object.keys(reviewedOrders).length > 0 && Boolean(userEmail));
       const isFirstOrderCompleted = localStorage.getItem(`tabby_first_order_completed_${userKey}`) === 'true';
 
       // Load storewide coupons from local or Supabase

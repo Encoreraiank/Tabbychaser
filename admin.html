@@ -10,6 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="cloudinary-config.js"></script>
+  <script src="products-data.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1009,10 +1014,13 @@
   }
   window.switchTab = switchTab;
 
-  // SUPABASE HELPER
+  // SUPABASE HELPER (Instant Initialization)
   async function db() {
-    let t = 0;
-    while (!window.supabaseClient && t < 15) { await new Promise(r => setTimeout(r, 200)); t++; }
+    if (!window.supabaseClient && typeof window.supabase !== 'undefined') {
+      const url = localStorage.getItem('tabby_supabase_url') || 'https://bdwfwutvqvmyujwgrtwu.supabase.co';
+      const key = localStorage.getItem('tabby_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI';
+      window.supabaseClient = window.supabase.createClient(url, key);
+    }
     return window.supabaseClient;
   }
   const fmtINR = n => '₹' + (n || 0).toLocaleString('en-IN');

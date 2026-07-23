@@ -647,14 +647,19 @@
       const container = document.getElementById('couponsListContainer');
       if (!container) return;
 
-      const usedCoupons = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
-      const appliedCoupon = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
-      const reviewedOrders = JSON.parse(localStorage.getItem('tabby_reviewed_orders') || '{}');
-      const hasReviewed = Object.keys(reviewedOrders).length > 0;
-      const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
-      const isFirstOrderCompleted = localStorage.getItem('tabby_first_order_completed') === 'true';
+      const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
+      const userKey = session && session.email ? session.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : 'guest';
+      const userEmail = session?.email ? session.email.toLowerCase() : '';
 
-      // Load admin coupons from local or Supabase
+      const usedCoupons = JSON.parse(localStorage.getItem(`tabby_used_coupons_${userKey}`) || localStorage.getItem('tabby_used_coupons') || '[]');
+      const reviewedOrders = JSON.parse(localStorage.getItem(`tabby_reviewed_${userKey}`) || localStorage.getItem('tabby_reviewed_orders') || '{}');
+      const hasReviewed = (typeof reviewedOrders === 'object' && Object.keys(reviewedOrders).length > 0) || localStorage.getItem(`tabby_reviewed_${userKey}`) === 'true';
+
+      const isSubscribed = (localStorage.getItem(`tabby_subscribed_${userKey}`) === 'true') ||
+                           (userEmail && (localStorage.getItem('tabby_subscribed_email') || '').toLowerCase() === userEmail);
+      const isFirstOrderCompleted = localStorage.getItem(`tabby_first_order_completed_${userKey}`) === 'true' || localStorage.getItem('tabby_first_order_completed') === 'true';
+
+      // Load storewide coupons from local or Supabase
       let adminCoupons = [];
       try {
         const local = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
@@ -667,49 +672,49 @@
 
       let couponsHtml = '';
 
-      // 1. Welcome Coupon (10% OFF)
-      const isWelcomeUsed = usedCoupons.includes('WELCOME10') || isFirstOrderCompleted;
-      couponsHtml += `
-        <div style="border:1.5px solid ${isWelcomeUsed ? '#e2e8f0' : '#f47aab'}; border-radius:18px; padding:20px; margin-bottom:18px; background:${isWelcomeUsed ? '#fafafa' : '#fff8fc'}; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; opacity:${isWelcomeUsed ? '0.65' : '1'}; box-shadow:0 4px 14px rgba(0,0,0,0.02);">
-          <div style="flex:1; min-width:220px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-              <span style="font-size:0.72rem; font-weight:800; color:#d35d88; background:rgba(244,122,171,0.12); padding:3px 10px; border-radius:50px; text-transform:uppercase;">Welcome Gift 🎁</span>
-              <span style="font-size:0.72rem; font-weight:700; color:#888;">One-Time Use Per User</span>
+      // 1. Welcome Coupon (ONLY shown if user has actually subscribed / claimed!)
+      if (isSubscribed) {
+        const isWelcomeUsed = usedCoupons.includes('WELCOME10') || isFirstOrderCompleted;
+        couponsHtml += `
+          <div style="border:1.5px solid ${isWelcomeUsed ? '#e2e8f0' : '#f47aab'}; border-radius:18px; padding:20px; margin-bottom:18px; background:${isWelcomeUsed ? '#fafafa' : '#fff8fc'}; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; opacity:${isWelcomeUsed ? '0.65' : '1'}; box-shadow:0 4px 14px rgba(0,0,0,0.02);">
+            <div style="flex:1; min-width:220px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="font-size:0.72rem; font-weight:800; color:#d35d88; background:rgba(244,122,171,0.12); padding:3px 10px; border-radius:50px; text-transform:uppercase;">Welcome Gift 🎁</span>
+                <span style="font-size:0.72rem; font-weight:700; color:#2e7d32; background:#e8f5e9; padding:2px 8px; border-radius:50px;">Unlocked</span>
+              </div>
+              <div style="font-weight:800; font-size:1.25rem; color:var(--color-text-main); letter-spacing:1px; margin-bottom:4px;">WELCOME10</div>
+              <div style="font-size:0.88rem; color:#444; font-weight:600;">10% OFF on orders above ₹500</div>
+              <div style="font-size:0.78rem; color:#777; margin-top:4px;">One-time use per user • First order only • Never expires</div>
             </div>
-            <div style="font-weight:800; font-size:1.25rem; color:var(--color-text-main); letter-spacing:1px; margin-bottom:4px;">WELCOME10</div>
-            <div style="font-size:0.88rem; color:#444; font-weight:600;">10% OFF on orders above ₹500</div>
-            <div style="font-size:0.78rem; color:#777; margin-top:4px;">Auto-applies to your first order • No expiration</div>
-          </div>
-          <div style="text-align:right; display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
-            ${isWelcomeUsed 
-              ? '<span style="font-size:0.8rem; font-weight:700; color:#888; background:#eee; padding:6px 16px; border-radius:50px;">Claimed ✓</span>'
-              : (isSubscribed 
-                  ? `<button type="button" class="btn btn-pink-pill" onclick="copyCouponCode('WELCOME10')" style="padding:8px 18px; font-size:0.82rem;">Copy Code 📋</button>`
-                  : `<a href="/" class="btn btn-outline-white" style="padding:8px 18px; font-size:0.82rem; border-color:#d35d88; color:#d35d88;">Claim 10% OFF 🎁</a>`)}
-          </div>
-        </div>`;
+            <div style="text-align:right;">
+              ${isWelcomeUsed 
+                ? '<span style="font-size:0.8rem; font-weight:700; color:#888; background:#eee; padding:6px 16px; border-radius:50px;">Claimed ✓</span>'
+                : `<button type="button" class="btn btn-pink-pill" onclick="copyCouponCode('WELCOME10')" style="padding:8px 18px; font-size:0.82rem;">Copy Code 📋</button>`}
+            </div>
+          </div>`;
+      }
 
-      // 2. Review Reward Coupon (Flat ₹50 OFF)
-      const isReviewUsed = usedCoupons.includes('REVIEW50');
-      couponsHtml += `
-        <div style="border:1.5px solid ${isReviewUsed ? '#e2e8f0' : '#7b61ff'}; border-radius:18px; padding:20px; margin-bottom:18px; background:${isReviewUsed ? '#fafafa' : '#faf7ff'}; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; opacity:${isReviewUsed ? '0.65' : '1'}; box-shadow:0 4px 14px rgba(0,0,0,0.02);">
-          <div style="flex:1; min-width:220px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-              <span style="font-size:0.72rem; font-weight:800; color:#7b61ff; background:rgba(123,97,255,0.1); padding:3px 10px; border-radius:50px; text-transform:uppercase;">Review Reward 🌟</span>
-              <span style="font-size:0.72rem; font-weight:700; color:#888;">One-Time Use Per User</span>
+      // 2. Review Reward Coupon (ONLY shown if user has submitted a review!)
+      if (hasReviewed) {
+        const isReviewUsed = usedCoupons.includes('REVIEW50');
+        couponsHtml += `
+          <div style="border:1.5px solid ${isReviewUsed ? '#e2e8f0' : '#7b61ff'}; border-radius:18px; padding:20px; margin-bottom:18px; background:${isReviewUsed ? '#fafafa' : '#faf7ff'}; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; opacity:${isReviewUsed ? '0.65' : '1'}; box-shadow:0 4px 14px rgba(0,0,0,0.02);">
+            <div style="flex:1; min-width:220px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="font-size:0.72rem; font-weight:800; color:#7b61ff; background:rgba(123,97,255,0.1); padding:3px 10px; border-radius:50px; text-transform:uppercase;">Review Reward 🌟</span>
+                <span style="font-size:0.72rem; font-weight:700; color:#2e7d32; background:#e8f5e9; padding:2px 8px; border-radius:50px;">Unlocked</span>
+              </div>
+              <div style="font-weight:800; font-size:1.25rem; color:var(--color-text-main); letter-spacing:1px; margin-bottom:4px;">REVIEW50</div>
+              <div style="font-size:0.88rem; color:#444; font-weight:600;">Flat ₹50 OFF on your next order</div>
+              <div style="font-size:0.78rem; color:#777; margin-top:4px;">Earned by submitting order review • One-time use per user</div>
             </div>
-            <div style="font-weight:800; font-size:1.25rem; color:var(--color-text-main); letter-spacing:1px; margin-bottom:4px;">REVIEW50</div>
-            <div style="font-size:0.88rem; color:#444; font-weight:600;">Flat ₹50 OFF on your next order</div>
-            <div style="font-size:0.78rem; color:#777; margin-top:4px;">Earned by submitting order review • Valid on any order amount</div>
-          </div>
-          <div style="text-align:right; display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
-            ${isReviewUsed
-              ? '<span style="font-size:0.8rem; font-weight:700; color:#888; background:#eee; padding:6px 16px; border-radius:50px;">Claimed ✓</span>'
-              : (hasReviewed 
-                  ? `<button type="button" class="btn btn-pink-pill" onclick="copyCouponCode('REVIEW50')" style="padding:8px 18px; font-size:0.82rem; background:#7b61ff; border-color:#7b61ff;">Copy Code 📋</button>`
-                  : `<a href="review" class="btn btn-outline-white" style="padding:8px 18px; font-size:0.82rem; border-color:#7b61ff; color:#7b61ff;">Leave Review ✍️</a>`)}
-          </div>
-        </div>`;
+            <div style="text-align:right;">
+              ${isReviewUsed
+                ? '<span style="font-size:0.8rem; font-weight:700; color:#888; background:#eee; padding:6px 16px; border-radius:50px;">Claimed ✓</span>'
+                : `<button type="button" class="btn btn-pink-pill" onclick="copyCouponCode('REVIEW50')" style="padding:8px 18px; font-size:0.82rem; background:#7b61ff; border-color:#7b61ff;">Copy Code 📋</button>`}
+            </div>
+          </div>`;
+      }
 
       // 3. Admin storewide coupons
       adminCoupons.forEach(c => {
@@ -738,6 +743,22 @@
             </div>
           </div>`;
       });
+
+      // If no unlocked coupons, show clear CTA box explaining how to unlock!
+      if (!couponsHtml) {
+        couponsHtml = `
+          <div style="text-align:center; padding:40px 24px; background:#fff; border:1.5px dashed #f47aab; border-radius:20px;">
+            <div style="font-size:3rem; margin-bottom:12px;">🏷️</div>
+            <h3 style="font-weight:800; color:#333; margin-bottom:8px; font-family:var(--font-display);">No Unlocked Coupons Yet</h3>
+            <p style="color:#666; font-size:0.9rem; line-height:1.6; max-width:440px; margin:0 auto 20px;">
+              You haven't claimed any coupons yet! Subscribe to our welcome gift on the Home page to unlock <strong>10% OFF</strong> on your first order, or submit an order review to earn <strong>Flat ₹50 OFF</strong>!
+            </p>
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+              <a href="/" class="btn btn-pink-pill" style="padding:10px 22px; font-size:0.88rem;">Claim 10% Welcome Gift 🎁</a>
+              <a href="review" class="btn btn-outline-white" style="padding:10px 22px; font-size:0.88rem; border-color:#7b61ff; color:#7b61ff;">Leave Review (Flat ₹50 OFF) ✍️</a>
+            </div>
+          </div>`;
+      }
 
       container.innerHTML = couponsHtml;
     }

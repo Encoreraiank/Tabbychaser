@@ -82,12 +82,29 @@ function injectCartDrawer() {
 // CART DATA
 // ==========================================================================
 
+window.getUserStorageKey = function (baseKey) {
+  try {
+    const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
+    if (session && session.email && session.loggedIn) {
+      const safeEmail = session.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      return `${baseKey}_${safeEmail}`;
+    }
+  } catch (e) {}
+  return `${baseKey}_guest`;
+};
+
 window.getCart = function () {
-  try { return JSON.parse(localStorage.getItem('tabby_cart_items')) || []; } catch (e) { return []; }
+  try {
+    const key = window.getUserStorageKey('tabby_cart_items');
+    return JSON.parse(localStorage.getItem(key)) || [];
+  } catch (e) { return []; }
 };
 
 window.getWishlist = function () {
-  try { return JSON.parse(localStorage.getItem('tabby_wishlist_items')) || []; } catch (e) { return []; }
+  try {
+    const key = window.getUserStorageKey('tabby_wishlist_items');
+    return JSON.parse(localStorage.getItem(key)) || [];
+  } catch (e) { return []; }
 };
 
 window.toggleWishlist = function (id, name, price, img) {
@@ -102,12 +119,11 @@ window.toggleWishlist = function (id, name, price, img) {
     list.push({ id: id || Date.now(), name, price: parseInt(price) || 0, img: img || '' });
     isSaved = true;
   }
-  localStorage.setItem('tabby_wishlist_items', JSON.stringify(list));
+  const key = window.getUserStorageKey('tabby_wishlist_items');
+  localStorage.setItem(key, JSON.stringify(list));
 
-  // Show toast instead of blocking alert
   showToast(isSaved ? `Added to Wishlist 💕` : `Removed from Wishlist`);
 
-  // Update all heart buttons with matching data-wishlist-name
   document.querySelectorAll('[data-wishlist-name]').forEach(h => {
     if (h.getAttribute('data-wishlist-name') === name) {
       h.innerHTML = isSaved ? '♥' : '♡';
@@ -121,7 +137,8 @@ window.toggleWishlist = function (id, name, price, img) {
 };
 
 window.saveCart = function (cart) {
-  localStorage.setItem('tabby_cart_items', JSON.stringify(cart));
+  const key = window.getUserStorageKey('tabby_cart_items');
+  localStorage.setItem(key, JSON.stringify(cart));
   window.updateCartBadge();
   if (document.getElementById('cartDrawerContent')) window.renderCartItems();
 };
@@ -134,9 +151,8 @@ window.addGlobalCartItem = function (name, price, img) {
   } else {
     cart.push({ name, price: parseInt(price), img, quantity: 1 });
   }
-  localStorage.setItem('tabby_cart_items', JSON.stringify(cart));
-  window.updateCartBadge();
-  window.toggleCartDrawer(true); // This will inject if needed, then open
+  window.saveCart(cart);
+  window.toggleCartDrawer(true);
 };
 
 window.updateCartBadge = function () {

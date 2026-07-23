@@ -751,14 +751,17 @@
             </div>
 
             <!-- Quantity & Add to Cart -->
-            <div class="product-purchase-controls">
+            <div class="product-purchase-controls" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
               <div class="quantity-picker-box">
                 <button class="quantity-picker-btn" onclick="updateQty(-1)">&minus;</button>
                 <span class="quantity-picker-val" id="qtyVal">1</span>
                 <button class="quantity-picker-btn" onclick="updateQty(1)">&plus;</button>
               </div>
-              <button class="add-to-bag-large-btn" onclick="triggerAddToBag()">
+              <button class="add-to-bag-large-btn" onclick="triggerAddToBag()" style="flex:1; min-width:200px;">
                 Add to Shopping Bag 🛍️
+              </button>
+              <button class="product-wishlist-btn" id="prodWishlistBtn" onclick="toggleProductWishlist()" title="Add to Wishlist" style="width:48px; height:48px; border-radius:50%; border:1.5px solid #f47aab; background:#fff0f5; color:#d35d88; font-size:1.4rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.25s ease; flex-shrink:0;">
+                ♡
               </button>
             </div>
 
@@ -784,9 +787,37 @@
         </section>
       `;
       
-      // Update discount notice dynamically on render
+      // Update discount notice & wishlist button state dynamically on render
       updateProductDiscountNotice(prod, currentQty);
+      updateWishlistBtnState();
       renderProductReviews(prod);
+    }
+
+    function toggleProductWishlist() {
+      if (!loadedProduct) return;
+      const img = (loadedProduct.images && loadedProduct.images[0]) ? loadedProduct.images[0] : (loadedProduct.image || 'store-logo-c471e30d.webp');
+      if (window.toggleWishlist) {
+        window.toggleWishlist(loadedProduct.id, loadedProduct.name, loadedProduct.price, img);
+      }
+      updateWishlistBtnState();
+    }
+
+    function updateWishlistBtnState() {
+      const btn = document.getElementById('prodWishlistBtn');
+      if (!btn || !loadedProduct) return;
+      const wishlist = window.getWishlist ? window.getWishlist() : [];
+      const isAdded = wishlist.some(i => i.name === loadedProduct.name);
+      if (isAdded) {
+        btn.innerHTML = '♥';
+        btn.style.background = '#f47aab';
+        btn.style.color = '#fff';
+        btn.style.borderColor = '#f47aab';
+      } else {
+        btn.innerHTML = '♡';
+        btn.style.background = '#fff0f5';
+        btn.style.color = '#d35d88';
+        btn.style.borderColor = '#f47aab';
+      }
     }
 
     async function renderProductReviews(prod) {

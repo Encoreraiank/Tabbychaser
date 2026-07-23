@@ -493,8 +493,18 @@
       const session = JSON.parse(localStorage.getItem('tabby_user_session'));
       
       if (!session || !session.loggedIn) {
-        alert("Please log in to view your profile!");
-        window.location.href = 'index.html';
+        if (window.toggleLoginModal) window.toggleLoginModal(true);
+        // Show inline login notice if modal closed
+        const main = document.querySelector('.account-page-main');
+        if (main) {
+          main.innerHTML = `
+            <div class="container" style="text-align:center; padding: 100px 20px;">
+              <h2 style="font-size:2rem; font-family:var(--font-display); color:#333; margin-bottom:12px;">Welcome to Tabby Chaser 🐾</h2>
+              <p style="color:#666; margin-bottom:24px; font-size:1.05rem;">Please log in or create an account to view your profile and track orders.</p>
+              <button type="button" class="btn btn-pink-pill" onclick="window.toggleLoginModal(true)" style="padding:12px 32px; font-size:1rem;">Log In / Sign Up ✨</button>
+            </div>
+          `;
+        }
         return;
       }
 

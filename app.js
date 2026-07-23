@@ -237,6 +237,7 @@ window.updateCartBadge = function() {
 };
 
 window.toggleCartDrawer = function(open) {
+  if (typeof injectCartDrawer === 'function') injectCartDrawer();
   const overlay = document.getElementById('cartDrawerOverlay');
   const drawer = document.getElementById('cartDrawer');
   if (!overlay || !drawer) return;
@@ -245,7 +246,7 @@ window.toggleCartDrawer = function(open) {
     overlay.classList.add('active');
     drawer.classList.add('active');
     document.body.style.overflow = 'hidden';
-    window.renderCartItems();
+    if (window.renderCartItems) window.renderCartItems();
   } else {
     overlay.classList.remove('active');
     drawer.classList.remove('active');
@@ -889,6 +890,7 @@ window.showCuteDiscountModal = function() {
   const overlay = document.getElementById('cuteDiscountModalOverlay');
   if (overlay) {
     overlay.style.display = 'flex';
+    overlay.style.zIndex = '999999';
   }
 };
 

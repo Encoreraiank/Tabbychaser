@@ -335,6 +335,7 @@ a, a:hover, a:focus, a:visited {
 }
 
 .search-box-pill {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;

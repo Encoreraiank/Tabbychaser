@@ -590,20 +590,57 @@
         return;
       }
 
-      // 2. Fetch from Database
-      if (typeof PRODUCTS_DATA !== 'undefined') {
-        loadedProduct = PRODUCTS_DATA.find(p => p.id === prodId);
-        
-        if (!loadedProduct) {
+      // Check if product was explicitly deleted
+      const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+      if (deletedIds.includes(prodId)) {
+        renderNotFound();
+        return;
+      }
+
+      // 2. Fetch live product from Supabase / localStorage / PRODUCTS_DATA
+      (async () => {
+        let liveProducts = null;
+        if (window.supabaseClient) {
+          try {
+            const { data: dbProducts } = await window.supabaseClient.from('products').select('*');
+            if (dbProducts) liveProducts = dbProducts;
+          } catch(e) {}
+        }
+
+        if (liveProducts === null) {
+          const local = localStorage.getItem('tabby_products_local');
+          if (local !== null) {
+            try { liveProducts = JSON.parse(local); } catch(e){}
+          }
+        }
+
+        if (!liveProducts || liveProducts.length === 0) {
+          liveProducts = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
+        }
+
+        const found = liveProducts.find(p => p.id === prodId || p.slug === prodId);
+        if (!found) {
           renderNotFound();
           return;
         }
 
+        // Format product fields cleanly
+        loadedProduct = {
+          id: found.id,
+          name: found.name,
+          price: found.price,
+          compare_price: found.compare_price || null,
+          category: found.category || 'Handmade',
+          image: (found.images && found.images[0]) ? found.images[0] : (found.image || 'store-logo-c471e30d.webp'),
+          images: (found.images && found.images.length) ? found.images : [found.image || 'store-logo-c471e30d.webp'],
+          stock: found.stock === 0 ? 'out-of-stock' : (found.stock <= 3 ? 'low-stock' : 'in-stock'),
+          details: found.materials ? found.materials.split(',').map(s => s.trim()) : (found.details || ['Handcrafted polymer clay art', 'Coated with high gloss protective glaze', 'Pan India tracked shipping']),
+          description: found.description || ''
+        };
+
         renderProductDetails(loadedProduct);
         renderRelatedProducts(loadedProduct);
-      } else {
-        renderNotFound();
-      }
+      })();
     });
 
     function renderNotFound() {

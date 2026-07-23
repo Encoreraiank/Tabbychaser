@@ -142,12 +142,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadLiveStorefrontData() {
-  let products = [];
+  let products = null;
   const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
 
   // 1. Try Supabase
   let tries = 0;
-  while (!window.supabaseClient && tries < 5) {
+  while (!window.supabaseClient && tries < 4) {
     await new Promise(r => setTimeout(r, 150));
     tries++;
   }
@@ -155,18 +155,20 @@ async function loadLiveStorefrontData() {
   if (window.supabaseClient) {
     try {
       const { data: dbProducts } = await window.supabaseClient.from('products').select('*').eq('status', 'published');
-      if (dbProducts && dbProducts.length > 0) products = dbProducts;
+      if (dbProducts) products = dbProducts;
     } catch (err) {}
   }
 
   // 2. Fallback to localStorage
-  if (products.length === 0) {
-    const local = JSON.parse(localStorage.getItem('tabby_products_local') || 'null');
-    if (local && local.length > 0) products = local;
+  if (products === null) {
+    const local = localStorage.getItem('tabby_products_local');
+    if (local !== null) {
+      try { products = JSON.parse(local); } catch(e){}
+    }
   }
 
-  // 3. Fallback to PRODUCTS_DATA
-  if (products.length === 0 && typeof PRODUCTS_DATA !== 'undefined') {
+  const isInitialized = localStorage.getItem('tabby_products_initialized') === 'true';
+  if (!isInitialized && (!products || products.length === 0) && typeof PRODUCTS_DATA !== 'undefined') {
     products = PRODUCTS_DATA.map(p => ({
       id: p.id,
       name: p.name,
@@ -180,7 +182,7 @@ async function loadLiveStorefrontData() {
   }
 
   // Filter out any explicitly deleted products
-  const liveProducts = products.filter(p => !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
+  const liveProducts = (products || []).filter(p => !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
 
   // Render dynamic category pills & product cards
   renderDynamicCategoryPills(liveProducts);

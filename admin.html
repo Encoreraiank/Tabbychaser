@@ -774,7 +774,7 @@
       <div id="pTabBasic">
         <div class="form-group">
           <label class="form-label">Product Name *</label>
-          <input type="text" id="pName" class="form-control" placeholder="Ghostly Skull Charm" />
+          <input type="text" id="pName" class="form-control" placeholder="Ghostly Skull Charm" oninput="onProductNameInput()" />
         </div>
         <div class="form-group">
           <label class="form-label">Description</label>
@@ -822,7 +822,10 @@
         </div>
         <div class="grid-2">
           <div class="form-group">
-            <label class="form-label">SKU</label>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <label class="form-label" style="margin:0;">SKU (Auto-Generated)</label>
+              <button type="button" class="btn btn-outline btn-sm" onclick="autoGenerateSku(true)" style="padding:1px 8px;font-size:0.72rem;">⚡ Auto SKU</button>
+            </div>
             <input type="text" id="pSku" class="form-control" placeholder="TC-GHOST-01" />
           </div>
           <div class="form-group">
@@ -1163,8 +1166,27 @@
     `).join('') : `<div style="grid-column:1/-1;text-align:center;padding:30px;">No products found</div>`;
   }
 
+  function autoGenerateSku(force = false) {
+    const skuInput = document.getElementById('pSku');
+    if (!skuInput) return;
+    if (!force && skuInput.value.trim() !== '') return;
+
+    const name = (document.getElementById('pName')?.value || '').trim();
+    if (name) {
+      const clean = name.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 16);
+      skuInput.value = `TC-${clean}-01`;
+    } else {
+      const rnd = Math.floor(1000 + Math.random() * 9000);
+      skuInput.value = `TC-CHARM-${rnd}`;
+    }
+  }
+
+  function onProductNameInput() {
+    autoGenerateSku(false);
+  }
+
   function openProductModal(p = null) {
-    currentProductImgs = p?.images || [];
+    currentProductImgs = p?.images || (p?.image ? [p.image] : []);
     document.getElementById('pModalTitle').textContent = p ? 'Edit Product' : 'Add Product';
     document.getElementById('pId').value = p?.id || '';
     document.getElementById('pName').value = p?.name || '';
@@ -1172,7 +1194,7 @@
     document.getElementById('pPrice').value = p?.price || '';
     document.getElementById('pComparePrice').value = p?.compare_price || '';
     document.getElementById('pStock').value = p?.stock ?? 10;
-    document.getElementById('pCategory').value = p?.category || (allCategories[0]?.name || '');
+    document.getElementById('pCategory').value = p?.category || (allCategories[0]?.slug || 'charms');
     document.getElementById('pStatus').value = p?.status || 'published';
     document.getElementById('pBadge').value = p?.badge || '';
     document.getElementById('pSku').value = p?.sku || '';
@@ -1181,6 +1203,9 @@
     document.getElementById('pCare').value = p?.care_instructions || '';
     document.getElementById('pSeoTitle').value = p?.seo_title || '';
     document.getElementById('pSeoDesc').value = p?.seo_description || '';
+    
+    if (!p) autoGenerateSku(true);
+
     renderProductPreviews();
     document.getElementById('productModal').classList.add('open');
   }
@@ -1217,7 +1242,6 @@
           throw new Error('Cloudinary response missing url');
         }
       } catch(err) {
-        // Fallback to FileReader base64
         const r = new FileReader();
         r.onload = e => {
           currentProductImgs.push(e.target.result);
@@ -1235,23 +1259,27 @@
     const price = parseFloat(document.getElementById('pPrice').value);
     if (!name || isNaN(price)) { alert('Name and Price are required.'); return; }
 
-    const prodId = id || ('prod-' + Date.now());
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const prodId = id || slug || ('prod-' + Date.now());
+    let sku = document.getElementById('pSku').value.trim();
+    if (!sku) sku = 'TC-' + slug.toUpperCase().slice(0, 14) + '-01';
+
     const payload = {
       id: prodId,
-      name, price,
+      name, slug, price,
       description: document.getElementById('pDesc').value.trim(),
       compare_price: parseFloat(document.getElementById('pComparePrice').value) || null,
       stock: parseInt(document.getElementById('pStock').value) || 0,
       category: document.getElementById('pCategory').value,
-      status: document.getElementById('pStatus').value,
+      status: document.getElementById('pStatus').value || 'published',
       badge: document.getElementById('pBadge').value,
-      sku: document.getElementById('pSku').value.trim(),
+      sku: sku,
       handmade_duration: document.getElementById('pDuration').value.trim(),
       materials: document.getElementById('pMaterials').value.trim(),
       care_instructions: document.getElementById('pCare').value.trim(),
       seo_title: document.getElementById('pSeoTitle').value.trim(),
       seo_description: document.getElementById('pSeoDesc').value.trim(),
-      images: currentProductImgs,
+      images: currentProductImgs.length > 0 ? currentProductImgs : ['store-logo-c471e30d.webp'],
       updated_at: new Date().toISOString()
     };
 
@@ -1266,7 +1294,7 @@
     }
 
     // 2. Save to local state & localStorage
-    const idx = allProducts.findIndex(p => p.id === prodId || p.name === name);
+    const idx = allProducts.findIndex(p => p.id === prodId || p.name.toLowerCase() === name.toLowerCase());
     if (idx >= 0) allProducts[idx] = payload;
     else allProducts.unshift(payload);
     localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -603,26 +603,34 @@
 
       // 2. Fetch live product from Supabase / localStorage / PRODUCTS_DATA
       (async () => {
-        let liveProducts = null;
+        let dbProducts = [];
         if (window.supabaseClient) {
           try {
-            const { data: dbProducts } = await window.supabaseClient.from('products').select('*');
-            if (dbProducts) liveProducts = dbProducts;
+            const { data } = await window.supabaseClient.from('products').select('*');
+            if (data) dbProducts = data;
           } catch(e) {}
         }
 
-        if (liveProducts === null) {
-          const local = localStorage.getItem('tabby_products_local');
-          if (local !== null) {
-            try { liveProducts = JSON.parse(local); } catch(e){}
-          }
-        }
+        let localProducts = [];
+        try {
+          localProducts = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
+        } catch(e) {}
 
-        if (!liveProducts || liveProducts.length === 0) {
-          liveProducts = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
-        }
+        const defaultProducts = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
 
-        const found = liveProducts.find(p => p.id === prodId || p.slug === prodId);
+        // Merge: dbProducts + localProducts + defaultProducts
+        const allList = [...dbProducts, ...localProducts, ...defaultProducts];
+        const uniqueProducts = Array.from(new Set(allList.map(p => p.id || p.name)))
+          .map(key => allList.find(p => (p.id || p.name) === key));
+
+        const targetQuery = decodeURIComponent(prodId).toLowerCase().trim();
+        const found = uniqueProducts.find(p =>
+          (p.id && String(p.id).toLowerCase() === targetQuery) ||
+          (p.slug && String(p.slug).toLowerCase() === targetQuery) ||
+          (p.name && p.name.toLowerCase() === targetQuery) ||
+          (p.name && p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') === targetQuery)
+        );
+
         if (!found) {
           renderNotFound();
           return;

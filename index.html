@@ -829,28 +829,27 @@
         if (head) head.textContent = siteSettings.best_title;
       }
       // Fetch live products for Best Sellers Grid & Hero Slides
-      let products = null;
+      let dbProds = [];
       if (window.supabaseClient) {
         try {
-          const { data: dbProds } = await window.supabaseClient.from('products').select('*').eq('status', 'published');
-          if (dbProds) products = dbProds;
+          const { data } = await window.supabaseClient.from('products').select('*');
+          if (data && data.length > 0) dbProds = data;
         } catch(e) {}
       }
 
-      if (products === null) {
-        const local = localStorage.getItem('tabby_products_local');
-        if (local !== null) {
-          try { products = JSON.parse(local); } catch(e){}
-        }
-      }
+      let localProds = [];
+      try {
+        localProds = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
+      } catch(e) {}
 
-      const isInitialized = localStorage.getItem('tabby_products_initialized') === 'true';
-      if (!isInitialized && (!products || products.length === 0) && typeof PRODUCTS_DATA !== 'undefined') {
-        products = PRODUCTS_DATA;
-      }
+      const defaultProds = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
+
+      const allMerged = [...dbProds, ...localProds, ...defaultProds];
+      const uniqueProds = Array.from(new Set(allMerged.map(p => p.id || p.name)))
+        .map(key => allMerged.find(p => (p.id || p.name) === key));
 
       const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-      products = (products || []).filter(p => !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
+      let products = uniqueProds.filter(p => p.status !== 'draft' && !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
 
       // Render Dynamic 4 Hero Carousel Slides
       const slidesWrapper = document.getElementById('slidesWrapper') || document.querySelector('.hero-slides-wrapper');

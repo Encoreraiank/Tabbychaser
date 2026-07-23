@@ -406,12 +406,16 @@ function initGlobalSearch() {
       const query = e.target.value.trim().toLowerCase();
       if (!query) { dropdown.classList.remove('active'); dropdown.innerHTML = ''; return; }
 
-      let products = [];
-      try { products = JSON.parse(localStorage.getItem('tabby_products_local') || '[]'); } catch (ex) {}
-      if (!products.length && typeof PRODUCTS_DATA !== 'undefined') products = PRODUCTS_DATA;
+      let localProds = [];
+      try { localProds = JSON.parse(localStorage.getItem('tabby_products_local') || '[]'); } catch (ex) {}
+      const defaultProds = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
+
+      const allMerged = [...localProds, ...defaultProds];
+      const uniqueProds = Array.from(new Set(allMerged.map(p => p.id || p.name)))
+        .map(key => allMerged.find(p => (p.id || p.name) === key));
 
       const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-      products = products.filter(p => !deletedIds.includes(p.id) && p.stock !== 'out-of-stock');
+      const products = uniqueProds.filter(p => p.status !== 'draft' && !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
 
       const matches = products.filter(p =>
         (p.name || '').toLowerCase().includes(query) ||

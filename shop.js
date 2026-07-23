@@ -157,14 +157,11 @@ async function loadLiveStorefrontData() {
     tries++;
   }
 
-  // 1. Fetch live products and site settings from Supabase
+  let dbProducts = [];
   if (window.supabaseClient) {
     try {
-      const { data: dbProducts } = await window.supabaseClient.from('products').select('*');
-      if (dbProducts) {
-        products = dbProducts;
-        localStorage.setItem('tabby_products_local', JSON.stringify(dbProducts));
-      }
+      const { data } = await window.supabaseClient.from('products').select('*');
+      if (data && data.length > 0) dbProducts = data;
 
       const { data: dbSettings } = await window.supabaseClient.from('site_settings').select('*');
       if (dbSettings) {
@@ -178,36 +175,26 @@ async function loadLiveStorefrontData() {
     }
   }
 
-  // 2. Fallback to localStorage if offline
-  if (products === null) {
-    const local = localStorage.getItem('tabby_products_local');
-    if (local !== null) {
-      try { products = JSON.parse(local); } catch(e){}
-    }
-  }
+  let localProducts = [];
+  try {
+    localProducts = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
+  } catch(e) {}
+
+  const defaultProducts = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
+
+  const allList = [...dbProducts, ...localProducts, ...defaultProducts];
+  const uniqueProducts = Array.from(new Set(allList.map(p => p.id || p.name)))
+    .map(key => allList.find(p => (p.id || p.name) === key));
 
   const localDeletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
   const deletedIds = Array.from(new Set([...localDeletedIds, ...remoteDeletedIds]));
   localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
 
-  const isInitialized = localStorage.getItem('tabby_products_initialized') === 'true';
-  if (!isInitialized && (!products || products.length === 0) && typeof PRODUCTS_DATA !== 'undefined') {
-    products = PRODUCTS_DATA.map(p => ({
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      compare_price: p.compare_price || null,
-      category: p.category || 'charms',
-      stock: p.stock === 'out-of-stock' ? 0 : (p.stock === 'low-stock' ? 3 : 15),
-      badge: p.badge || null,
-      images: p.images || [p.image]
-    }));
-  }
+  const liveProducts = uniqueProducts.filter(p => p.status !== 'draft' && !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
 
-  // Filter out any explicitly deleted products or draft status
-  const liveProducts = (products || []).filter(p => p.status !== 'draft' && !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
+  // Save merged state to local storage
+  localStorage.setItem('tabby_products_local', JSON.stringify(uniqueProducts));
 
-  // Render dynamic category pills & product cards
   renderDynamicCategoryPills(liveProducts);
   renderDynamicProducts(liveProducts);
 }

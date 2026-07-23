@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -1101,18 +1101,101 @@
       const cart = window.getCart ? window.getCart() : [];
       if (cart.length === 0) {
         alert("Your shopping bag is empty. Redirecting to shop...");
-        window.location.href = 'shop.html';
+        window.location.href = 'shop';
         return;
       }
 
       renderCheckoutSummary(cart);
     });
 
-    // Coupon code stub
-    window.applyCoupon = function() {
-      const code = (document.getElementById('couponInput')?.value || '').trim().toUpperCase();
+    // Real Live Coupon Application Engine
+    window.applyCoupon = async function() {
+      const input = document.getElementById('couponInput');
+      const code = (input?.value || '').trim().toUpperCase();
       if (!code) return;
-      alert('Coupon code "' + code + '" is not valid or has expired.');
+
+      const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
+      const userEmail = session?.email ? session.email.toLowerCase().trim() : '';
+      const userKey = userEmail ? userEmail.replace(/[^a-z0-9]/g, '_') : 'guest';
+      const usedCoupons = JSON.parse(localStorage.getItem(`tabby_used_coupons_${userKey}`) || localStorage.getItem('tabby_used_coupons') || '[]');
+
+      if (usedCoupons.includes(code)) {
+        alert(`❌ Coupon code "${code}" has already been claimed on a previous order.`);
+        return;
+      }
+
+      if (code === 'WELCOME10') {
+        const isSubscribed = userEmail && localStorage.getItem(`tabby_subscribed_${userKey}`) === 'true';
+        if (!isSubscribed) {
+          alert('❌ WELCOME10 is reserved for welcome gift subscribers. Subscribe on the Home page to unlock!');
+          return;
+        }
+        if (checkoutSubtotal < 500) {
+          alert('❌ WELCOME10 requires a minimum order value of ₹500.');
+          return;
+        }
+        checkoutDiscount = Math.round(checkoutSubtotal * 0.1);
+        const discountRow = document.getElementById('summaryDiscountRow');
+        const discountVal = document.getElementById('summaryDiscount');
+        if (discountRow) discountRow.style.display = 'flex';
+        if (discountVal) discountVal.textContent = `-₹${checkoutDiscount}`;
+        updateTotalsDisplay();
+        alert(`✅ Coupon "WELCOME10" applied! You saved ₹${checkoutDiscount}! 🎉`);
+        return;
+      }
+
+      if (code === 'REVIEW50') {
+        const hasReviewed = userEmail && localStorage.getItem(`tabby_reviewed_${userKey}`) === 'true';
+        if (!hasReviewed) {
+          alert('❌ REVIEW50 is unlocked after submitting an order review. Leave a review to earn ₹50 OFF!');
+          return;
+        }
+        checkoutDiscount = 50;
+        const discountRow = document.getElementById('summaryDiscountRow');
+        const discountVal = document.getElementById('summaryDiscount');
+        if (discountRow) discountRow.style.display = 'flex';
+        if (discountVal) discountVal.textContent = `-₹${checkoutDiscount}`;
+        updateTotalsDisplay();
+        alert(`✅ Coupon "REVIEW50" applied! You saved ₹50! 🎉`);
+        return;
+      }
+
+      // Check storewide admin coupons
+      let adminCoupons = [];
+      try {
+        const local = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
+        adminCoupons = local;
+        if (window.supabaseClient) {
+          const { data } = await window.supabaseClient.from('coupons').select('*').eq('active', true);
+          if (data && data.length > 0) adminCoupons = data;
+        }
+      } catch(e) {}
+
+      const found = adminCoupons.find(c => (c.code || '').toUpperCase() === code);
+      if (found) {
+        const minVal = found.min_order_value || found.min_order || 0;
+        if (checkoutSubtotal < minVal) {
+          alert(`❌ Coupon "${code}" requires a minimum order value of ₹${minVal}.`);
+          return;
+        }
+        if (found.type === 'percent') {
+          checkoutDiscount = Math.round(checkoutSubtotal * (found.value / 100));
+        } else if (found.type === 'free_shipping') {
+          checkoutShipping = 0;
+          checkoutDiscount = 0;
+        } else {
+          checkoutDiscount = found.value || 0;
+        }
+        const discountRow = document.getElementById('summaryDiscountRow');
+        const discountVal = document.getElementById('summaryDiscount');
+        if (discountRow) discountRow.style.display = 'flex';
+        if (discountVal) discountVal.textContent = `-₹${checkoutDiscount}`;
+        updateTotalsDisplay();
+        alert(`✅ Coupon "${code}" applied successfully! 🎉`);
+        return;
+      }
+
+      alert(`❌ Coupon code "${code}" is invalid or expired.`);
     };
 
     function renderCheckoutSummary(cart) {
@@ -1139,9 +1222,13 @@
 
       summaryList.innerHTML = html;
 
-      // Calculate discount
-      const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
-      const isFirstOrderCompleted = localStorage.getItem('tabby_first_order_completed') === 'true';
+      // Calculate auto welcome discount if subscribed & first order
+      const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
+      const userEmail = session?.email ? session.email.toLowerCase().trim() : '';
+      const userKey = userEmail ? userEmail.replace(/[^a-z0-9]/g, '_') : 'guest';
+
+      const isSubscribed = userEmail && localStorage.getItem(`tabby_subscribed_${userKey}`) === 'true';
+      const isFirstOrderCompleted = localStorage.getItem(`tabby_first_order_completed_${userKey}`) === 'true';
       const discountRow = document.getElementById('summaryDiscountRow');
       const discountVal = document.getElementById('summaryDiscount');
 

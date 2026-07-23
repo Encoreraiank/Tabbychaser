@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -543,16 +543,16 @@
         <div class="footer-links-column">
           <h4 class="footer-column-title">Quick Links</h4>
           <ul class="footer-links-list">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop Collections</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="shop">Shop Collections</a></li>
             <li><a href="custom-pets.html">Custom Orders</a></li>
           </ul>
         </div>
         <div class="footer-links-column">
           <h4 class="footer-column-title">Our Policies</h4>
           <ul class="footer-links-list">
-            <li><a href="policies.html">Store Policies</a></li>
-            <li><a href="policies.html">Shipping & Returns</a></li>
+            <li><a href="policies">Store Policies</a></li>
+            <li><a href="policies">Shipping & Returns</a></li>
           </ul>
         </div>
       </div>
@@ -565,6 +565,8 @@
   </footer>
 
   <!-- JS Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="products-data.js"></script>
   <script src="app.js"></script>
 
@@ -652,7 +654,7 @@
           <span class="not-found-emoji">🐈</span>
           <h2 class="not-found-title">Oops! Product Not Found</h2>
           <p class="not-found-desc">We couldn't find the custom accessory you are looking for.</p>
-          <a href="shop.html" class="shop-now-btn">Back to Shop</a>
+          <a href="shop" class="shop-now-btn">Back to Shop</a>
         </div>
       `;
     }
@@ -747,7 +749,7 @@
             <div id="productStarsSummary" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:0.9rem;font-weight:700;color:#ffb703;">
               <span id="starRatingIcons">⭐⭐⭐⭐⭐</span>
               <span id="starRatingText" style="color:var(--color-text-main);">5.0 (5 reviews)</span>
-              <a href="review.html" style="color:var(--color-brand-pink);text-decoration:none;font-size:0.8rem;margin-left:8px;">Write a Review →</a>
+              <a href="review" style="color:var(--color-brand-pink);text-decoration:none;font-size:0.8rem;margin-left:8px;">Write a Review →</a>
             </div>
 
             <!-- Quantity & Add to Cart -->
@@ -961,24 +963,39 @@
       const shelf = document.getElementById('relatedSection');
       if (!grid || !shelf) return;
 
-      // Filter products from same category, exclude current
-      let matches = PRODUCTS_DATA.filter(p => p.category === curr.category && p.id !== curr.id);
-      
-      // If not enough matches, pad with other products
+      // Get deleted product IDs to exclude them
+      const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+
+      // Get live products from localStorage if available (admin may have added/removed)
+      let allProducts = PRODUCTS_DATA;
+      try {
+        const local = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
+        if (local.length > 0) allProducts = local;
+      } catch(e) {}
+
+      // Only show available (not deleted, not out-of-stock) products
+      const availableProducts = allProducts.filter(p =>
+        !deletedIds.includes(p.id) &&
+        p.stock !== 'out-of-stock' &&
+        p.id !== curr.id
+      );
+
+      // First try same category, then pad with other available products
+      let matches = availableProducts.filter(p => p.category === curr.category);
       if (matches.length < 3) {
-        const others = PRODUCTS_DATA.filter(p => p.id !== curr.id && !matches.includes(p));
+        const others = availableProducts.filter(p => p.category !== curr.category);
         matches = matches.concat(others);
       }
 
       // Take first 3 related
       const related = matches.slice(0, 3);
-      if (related.length === 0) return;
+      if (related.length === 0) { shelf.style.display = 'none'; return; }
 
       grid.innerHTML = related.map(p => `
-        <a href="product.html?id=${p.id}" class="showcase-product-card-link">
+        <a href="product?id=${p.id}" class="showcase-product-card-link">
           <article class="showcase-product-card">
             <div class="card-image-wrapper">
-              <img src="${p.image}" alt="${p.name}" />
+              <img src="${(p.images && p.images[0]) ? p.images[0] : p.image}" alt="${p.name}" />
             </div>
             <div class="card-meta-details">
               <div class="card-title-price-row">

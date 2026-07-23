@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -252,7 +252,7 @@
   <!-- Header Navigation -->
   <header class="site-header">
     <div class="header-container container">
-      <a href="index.html" class="brand-logo">
+      <a href="/" class="brand-logo">
         <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
         <span class="logo-text">Tabby Chaser</span>
       </a>
@@ -280,7 +280,7 @@
     <div class="container">
       
       <!-- Back to Shop -->
-      <a href="index.html" class="back-home-link">
+      <a href="/" class="back-home-link">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         Back to Tabby Chaser
       </a>
@@ -322,6 +322,11 @@
             Addresses
           </button>
           
+          <button class="account-tab-btn" onclick="switchAccountTab('coupons', this)">
+            <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            My Coupons
+          </button>
+
           <button class="account-tab-btn" onclick="switchAccountTab('wishlist', this)">
             <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -422,7 +427,15 @@
             </form>
           </div>
 
-          <!-- Tab 4: Wishlist -->
+          <!-- Tab 4: My Coupons -->
+          <div class="content-panel-view" id="panel-coupons" style="display:none;">
+            <h2 style="font-family:var(--font-display);margin-bottom:20px;">My Coupons 🏷️</h2>
+            <div id="couponsListContainer">
+              <p style="color:#888;font-size:0.9rem;">Loading your coupons...</p>
+            </div>
+          </div>
+
+          <!-- Tab 5: Wishlist -->
           <div class="content-panel-view" id="panel-wishlist">
             <div class="tab-empty-state">
               <div class="tab-empty-icon-wrap" style="background-color: rgba(244, 122, 171, 0.1); color: var(--color-pink-highlight);">
@@ -462,16 +475,16 @@
         <div class="footer-links-column">
           <h4 class="footer-column-title">Quick Links</h4>
           <ul class="footer-links-list">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop Collections</a></li>
-            <li><a href="custom-orders.html">Custom Orders</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="shop">Shop Collections</a></li>
+            <li><a href="custom-orders">Custom Orders</a></li>
           </ul>
         </div>
         <div class="footer-links-column">
           <h4 class="footer-column-title">Our Policies</h4>
           <ul class="footer-links-list">
-            <li><a href="policies.html">Store Policies</a></li>
-            <li><a href="policies.html">Shipping & Returns</a></li>
+            <li><a href="policies">Store Policies</a></li>
+            <li><a href="policies">Shipping & Returns</a></li>
           </ul>
         </div>
       </div>
@@ -484,6 +497,8 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="products-data.js"></script>
   <script src="app.js"></script>
   
@@ -618,22 +633,80 @@
     }
 
     function switchAccountTab(tabId, btn) {
-      // 1. Remove active button classes
-      const btns = document.querySelectorAll('.account-tab-btn');
-      btns.forEach(b => b.classList.remove('active'));
-      
-      // 2. Hide all panels
-      const panels = document.querySelectorAll('.content-panel-view');
-      panels.forEach(p => p.classList.remove('active'));
-
-      // 3. Highlight current
+      document.querySelectorAll('.account-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.content-panel-view').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       const panel = document.getElementById(`panel-${tabId}`);
       if (panel) panel.classList.add('active');
 
-      if (tabId === 'wishlist') {
-        renderWishlistTab();
+      if (tabId === 'wishlist') renderWishlistTab();
+      if (tabId === 'coupons') renderCouponsTab();
+    }
+
+    function renderCouponsTab() {
+      const container = document.getElementById('couponsListContainer');
+      if (!container) return;
+
+      const usedCoupons = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
+      const appliedCoupon = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+      const reviewedOrders = JSON.parse(localStorage.getItem('tabby_reviewed_orders') || '{}');
+      const hasReviewed = Object.keys(reviewedOrders).length > 0;
+      const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
+      const isFirstOrderCompleted = localStorage.getItem('tabby_first_order_completed') === 'true';
+
+      let couponsHtml = '';
+
+      // Welcome Coupon (10% OFF)
+      if (isSubscribed) {
+        const isUsed = usedCoupons.includes('WELCOME10') || isFirstOrderCompleted;
+        couponsHtml += `
+          <div style="border:1.5px solid ${isUsed ? '#ddd' : '#f47aab'}; border-radius:16px; padding:20px; margin-bottom:16px; background:${isUsed ? '#fafafa' : '#fff8fc'}; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; opacity:${isUsed ? '0.6' : '1'};">
+            <div>
+              <div style="font-size:0.7rem; font-weight:800; color:#999; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:4px;">Welcome Gift</div>
+              <div style="font-weight:800; font-size:1.1rem; color:#d35d88; letter-spacing:1px;">WELCOME10</div>
+              <div style="font-size:0.85rem; color:#666; margin-top:4px;">10% OFF on orders above ₹500</div>
+              <div style="font-size:0.75rem; color:#aaa; margin-top:2px;">One-time use • First order only</div>
+            </div>
+            <div style="text-align:right;">
+              ${isUsed 
+                ? '<span style="font-size:0.78rem; font-weight:700; color:#999; background:#eee; padding:4px 12px; border-radius:50px;">Used ✓</span>'
+                : '<span style="font-size:0.78rem; font-weight:700; color:#2e7d32; background:#e8f5e9; padding:4px 12px; border-radius:50px;">Active ✓</span>'}
+            </div>
+          </div>`;
       }
+
+      // Review Coupon (₹50 OFF)
+      if (hasReviewed) {
+        const isUsed = usedCoupons.includes('REVIEW50');
+        couponsHtml += `
+          <div style="border:1.5px solid ${isUsed ? '#ddd' : '#7b61ff'}; border-radius:16px; padding:20px; margin-bottom:16px; background:${isUsed ? '#fafafa' : '#faf7ff'}; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; opacity:${isUsed ? '0.6' : '1'};">
+            <div>
+              <div style="font-size:0.7rem; font-weight:800; color:#999; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:4px;">Review Reward 🌟</div>
+              <div style="font-weight:800; font-size:1.1rem; color:#7b61ff; letter-spacing:1px;">REVIEW50</div>
+              <div style="font-size:0.85rem; color:#666; margin-top:4px;">Flat ₹50 OFF on your next order</div>
+              <div style="font-size:0.75rem; color:#aaa; margin-top:2px;">One-time use • Active after admin approval</div>
+            </div>
+            <div style="text-align:right;">
+              ${isUsed
+                ? '<span style="font-size:0.78rem; font-weight:700; color:#999; background:#eee; padding:4px 12px; border-radius:50px;">Used ✓</span>'
+                : '<span style="font-size:0.78rem; font-weight:700; color:#2e7d32; background:#e8f5e9; padding:4px 12px; border-radius:50px;">Active ✓</span>'}
+            </div>
+          </div>`;
+      }
+
+      if (!couponsHtml) {
+        couponsHtml = `
+          <div style="text-align:center; padding:40px 20px; color:#aaa;">
+            <div style="font-size:2.5rem; margin-bottom:12px;">🏷️</div>
+            <h3 style="font-weight:700; color:#555; margin-bottom:8px;">No coupons yet</h3>
+            <p style="font-size:0.9rem; line-height:1.5;">
+              Subscribe to our newsletter for 10% OFF your first order.<br/>
+              Leave a review after receiving your order to earn ₹50 OFF!
+            </p>
+          </div>`;
+      }
+
+      container.innerHTML = couponsHtml;
     }
 
     function renderWishlistTab() {
@@ -652,7 +725,7 @@
             </div>
             <h3 class="tab-empty-title">Your wishlist is empty</h3>
             <p class="tab-empty-desc">Explore our collections and save your favorite cute items here! ♡</p>
-            <a href="shop.html" class="btn btn-pink-pill" style="margin-top:16px;">Explore Shop 🛍️</a>
+            <a href="shop" class="btn btn-pink-pill" style="margin-top:16px;">Explore Shop 🛍️</a>
           </div>
         `;
         return;

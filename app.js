@@ -1,116 +1,46 @@
 // ==========================================================================
-// Tabby Chaser E-Commerce Engine
-// smooth crossfade slideshow, global cart drawer, search suggestion, and login auth
+// Tabby Chaser E-Commerce Engine – v3
+// Supabase is loaded via static <script> tags in each page's <head>.
 // ==========================================================================
 
-// Load Supabase dynamically at the very top of app.js
-(function() {
-  if (document.getElementById('supabase-sdk-script')) return;
-  const cdn = document.createElement('script');
-  cdn.id = 'supabase-sdk-script';
-  cdn.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-  cdn.async = false;
-  cdn.onload = () => {
-    const config = document.createElement('script');
-    config.src = 'supabase-config.js';
-    config.async = false;
-    document.head.appendChild(config);
-  };
-  document.head.appendChild(cdn);
-})();
 
+// ==========================================================================
+// SLIDESHOW
+// ==========================================================================
 let currentSlideIdx = 0;
 let slideInterval;
 const totalSlides = 4;
 
-document.addEventListener('DOMContentLoaded', () => {
-  console.log("Tabby Chaser E-Commerce Engine initialized.");
-  
-  // Inject Cart Drawer HTML
-  injectCartDrawer();
-
-  // Set simple cart quantity
-  window.updateCartBadge();
-
-  // Inject Login Modal HTML
-  injectLoginModal();
-
-  // Initialize Login Button in Header
-  initHeaderAccountButton();
-
-  // Initialize Search suggestions dropdown
-  initGlobalSearch();
-
-  // Convert shop card placeholders to dynamic links on the fly
-  initShopCardLinks();
-
-  // Start Autoplay
-  startAutoPlay();
-});
-
-// Update active slide state
 function updateSlideshow(index) {
   const slidesWrapper = document.getElementById('slidesWrapper');
   const dotsContainer = document.getElementById('sliderDots');
   if (!slidesWrapper || !dotsContainer) return;
-
-  const slides = slidesWrapper.querySelectorAll('.hero-slide');
-  const dots = dotsContainer.querySelectorAll('.dot');
-
-  // Toggle active class on slides
-  slides.forEach((slide, idx) => {
-    if (idx === index) {
-      slide.classList.add('active');
-    } else {
-      slide.classList.remove('active');
-    }
-  });
-
-  // Toggle active class on indicators
-  dots.forEach((dot, idx) => {
-    if (idx === index) {
-      dot.classList.add('active');
-    } else {
-      dot.classList.remove('active');
-    }
-  });
+  slidesWrapper.querySelectorAll('.hero-slide').forEach((s, i) => s.classList.toggle('active', i === index));
+  dotsContainer.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === index));
 }
-
-// Global slide navigation hook
-window.goToSlide = function(index) {
+window.goToSlide = function (index) {
   currentSlideIdx = index;
-  updateSlideshow(currentSlideIdx);
-  resetAutoPlay();
-};
-
-// Autoplay slide rotation
-function startAutoPlay() {
-  slideInterval = setInterval(() => {
-    currentSlideIdx = (currentSlideIdx + 1) % totalSlides;
-    updateSlideshow(currentSlideIdx);
-  }, 5000); // Shift every 5 seconds
-}
-
-function resetAutoPlay() {
+  updateSlideshow(index);
   clearInterval(slideInterval);
-  startAutoPlay();
+  slideInterval = setInterval(() => { currentSlideIdx = (currentSlideIdx + 1) % totalSlides; updateSlideshow(currentSlideIdx); }, 5000);
+};
+function startAutoPlay() {
+  slideInterval = setInterval(() => { currentSlideIdx = (currentSlideIdx + 1) % totalSlides; updateSlideshow(currentSlideIdx); }, 5000);
 }
 
 // ==========================================================================
-// GLOBAL CART DRAWER LOGIC
+// CART DRAWER – SELF-INJECTING (fixes timing issue permanently)
 // ==========================================================================
 
 function injectCartDrawer() {
   if (document.getElementById('cartDrawer')) return;
 
-  // Create overlay
   const overlay = document.createElement('div');
   overlay.id = 'cartDrawerOverlay';
   overlay.className = 'cart-drawer-overlay';
   overlay.onclick = () => window.toggleCartDrawer(false);
   document.body.appendChild(overlay);
 
-  // Create drawer
   const drawer = document.createElement('div');
   drawer.id = 'cartDrawer';
   drawer.className = 'cart-drawer';
@@ -121,27 +51,17 @@ function injectCartDrawer() {
     </div>
     <div class="cart-drawer-content" id="cartDrawerContent"></div>
     <div class="cart-drawer-footer">
-      <div class="cart-summary-row">
-        <span>Subtotal</span>
-        <span id="cartSubtotal">₹0</span>
+      <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
+      <div class="cart-summary-row" id="cartDiscountRow" style="display:none; color:#2e7d32; font-weight:600;">
+        <span>Discount</span><span id="cartDiscount">-₹0</span>
       </div>
-      <div class="cart-summary-row" id="cartDiscountRow" style="display:none; color: #2e7d32; font-weight: 600;">
-        <span>10% Welcome Discount</span>
-        <span id="cartDiscount">-₹0</span>
-      </div>
-      <div class="cart-summary-row">
-        <span>Shipping</span>
-        <span id="cartShipping">₹59</span>
-      </div>
-      <div class="cart-summary-row total-row">
-        <span>Total Estimate</span>
-        <span id="cartTotal">₹0</span>
-      </div>
-      <div class="cart-marketing-text" id="cartMarketingText" style="display:none; font-size: 0.8rem; color: #d35d88; text-align: center; margin-bottom: 12px; font-weight: 600; line-height: 1.4; padding: 10px; background-color: rgba(244, 122, 171, 0.08); border-radius: 10px !important;">
+      <div class="cart-summary-row"><span>Shipping</span><span id="cartShipping">₹59</span></div>
+      <div class="cart-summary-row total-row"><span>Total Estimate</span><span id="cartTotal">₹0</span></div>
+      <div class="cart-marketing-text" id="cartMarketingText" style="display:none; font-size:0.8rem; color:#d35d88; text-align:center; margin-bottom:12px; font-weight:600; line-height:1.4; padding:10px; background:rgba(244,122,171,0.08); border-radius:10px !important;">
         🎁 Subscribe to our welcome gift to get 10% off on orders above ₹500!
       </div>
-      <div style="display:flex; gap:6px; margin-bottom:12px;">
-        <input type="text" id="cartCouponInput" placeholder="Coupon Code (e.g. PAWS15)" style="flex:1; border:1.5px solid #e8e0f0; border-radius:8px; padding:8px 10px; font-size:0.8rem; outline:none; text-transform:uppercase;" />
+      <div style="display:flex; gap:6px; margin-bottom:12px;" id="cartCouponWrap">
+        <input type="text" id="cartCouponInput" placeholder="Coupon Code (e.g. REVIEW50)" style="flex:1; border:1.5px solid #e8e0f0; border-radius:8px; padding:8px 10px; font-size:0.8rem; outline:none; text-transform:uppercase;" />
         <button type="button" onclick="window.applyCartCoupon()" style="padding:8px 12px; border:1px solid #ddd; background:#fff; border-radius:8px; font-size:0.78rem; font-weight:700; cursor:pointer;">Apply</button>
       </div>
       <button class="checkout-btn" onclick="window.triggerCheckout()">Proceed to Checkout ✨</button>
@@ -149,69 +69,64 @@ function injectCartDrawer() {
   `;
   document.body.appendChild(drawer);
 
-  // Bind click listeners globally for cart buttons
+  // Global click listener for all cart buttons
   document.addEventListener('click', (e) => {
     if (e.target.closest('.cart-pill-btn') || e.target.closest('#cartBtn')) {
       e.preventDefault();
       window.toggleCartDrawer(true);
     }
-  });
+  }, true); // Use capture phase to catch all events
 }
 
-window.getCart = function() {
-  try {
-    return JSON.parse(localStorage.getItem('tabby_cart_items')) || [];
-  } catch (e) {
-    return [];
-  }
+// ==========================================================================
+// CART DATA
+// ==========================================================================
+
+window.getCart = function () {
+  try { return JSON.parse(localStorage.getItem('tabby_cart_items')) || []; } catch (e) { return []; }
 };
 
-window.getWishlist = function() {
-  try {
-    return JSON.parse(localStorage.getItem('tabby_wishlist_items')) || [];
-  } catch(e) { return []; }
+window.getWishlist = function () {
+  try { return JSON.parse(localStorage.getItem('tabby_wishlist_items')) || []; } catch (e) { return []; }
 };
 
-window.toggleWishlist = function(idOrName, name, price, img, event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
+window.toggleWishlist = function (id, name, price, img) {
+  if (!name) return;
   let list = window.getWishlist();
-  const index = list.findIndex(item => item.name === name);
-  let isSaved = false;
-
-  if (index >= 0) {
-    list.splice(index, 1);
+  const idx = list.findIndex(item => item.name === name);
+  let isSaved;
+  if (idx >= 0) {
+    list.splice(idx, 1);
+    isSaved = false;
   } else {
-    list.push({ id: idOrName, name, price: parseInt(price), img });
+    list.push({ id: id || Date.now(), name, price: parseInt(price) || 0, img: img || '' });
     isSaved = true;
   }
-
   localStorage.setItem('tabby_wishlist_items', JSON.stringify(list));
-  
-  alert(isSaved ? `Added "${name}" to your Wishlist 💕` : `Removed "${name}" from your Wishlist`);
-  
-  // Update heart buttons across DOM
-  const hearts = document.querySelectorAll(`[data-wishlist-name="${CSS.escape(name)}"]`);
-  hearts.forEach(h => {
-    if (isSaved) {
-      h.classList.add('active');
-      h.innerHTML = '♥';
-    } else {
-      h.classList.remove('active');
-      h.innerHTML = '♡';
+
+  // Show toast instead of blocking alert
+  showToast(isSaved ? `Added to Wishlist 💕` : `Removed from Wishlist`);
+
+  // Update all heart buttons with matching data-wishlist-name
+  document.querySelectorAll('[data-wishlist-name]').forEach(h => {
+    if (h.getAttribute('data-wishlist-name') === name) {
+      h.innerHTML = isSaved ? '♥' : '♡';
+      h.style.background = isSaved ? '#f47aab' : '#fff0f5';
+      h.style.color = isSaved ? '#fff' : '#d35d88';
+      h.classList.toggle('active', isSaved);
     }
   });
+
+  return isSaved;
 };
 
-window.saveCart = function(cart) {
+window.saveCart = function (cart) {
   localStorage.setItem('tabby_cart_items', JSON.stringify(cart));
   window.updateCartBadge();
-  window.renderCartItems();
+  if (document.getElementById('cartDrawerContent')) window.renderCartItems();
 };
 
-window.addGlobalCartItem = function(name, price, img) {
+window.addGlobalCartItem = function (name, price, img) {
   let cart = window.getCart();
   const existing = cart.find(item => item.name === name);
   if (existing) {
@@ -219,25 +134,25 @@ window.addGlobalCartItem = function(name, price, img) {
   } else {
     cart.push({ name, price: parseInt(price), img, quantity: 1 });
   }
-  window.saveCart(cart);
-  window.toggleCartDrawer(true);
+  localStorage.setItem('tabby_cart_items', JSON.stringify(cart));
+  window.updateCartBadge();
+  window.toggleCartDrawer(true); // This will inject if needed, then open
 };
 
-window.updateCartBadge = function() {
+window.updateCartBadge = function () {
   const cart = window.getCart();
   const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
   localStorage.setItem('tabby_cart_qty', totalQty);
-  
-  const badges = document.querySelectorAll('.cart-badge');
-  badges.forEach(badge => {
+  document.querySelectorAll('.cart-badge').forEach(badge => {
     badge.textContent = totalQty;
     badge.style.transform = 'scale(1.2)';
     setTimeout(() => { badge.style.transform = 'scale(1)'; }, 200);
   });
 };
 
-window.toggleCartDrawer = function(open) {
-  if (typeof injectCartDrawer === 'function') injectCartDrawer();
+// KEY FIX: toggleCartDrawer ALWAYS injects first, then opens
+window.toggleCartDrawer = function (open) {
+  injectCartDrawer(); // Always ensure drawer exists
   const overlay = document.getElementById('cartDrawerOverlay');
   const drawer = document.getElementById('cartDrawer');
   if (!overlay || !drawer) return;
@@ -246,7 +161,7 @@ window.toggleCartDrawer = function(open) {
     overlay.classList.add('active');
     drawer.classList.add('active');
     document.body.style.overflow = 'hidden';
-    if (window.renderCartItems) window.renderCartItems();
+    window.renderCartItems();
   } else {
     overlay.classList.remove('active');
     drawer.classList.remove('active');
@@ -254,74 +169,61 @@ window.toggleCartDrawer = function(open) {
   }
 };
 
-window.changeQty = function(name, delta) {
+window.changeQty = function (name, delta) {
   let cart = window.getCart();
   const item = cart.find(i => i.name === name);
   if (item) {
     item.quantity += delta;
-    if (item.quantity <= 0) {
-      cart = cart.filter(i => i.name !== name);
-    }
+    if (item.quantity <= 0) cart = cart.filter(i => i.name !== name);
     window.saveCart(cart);
   }
 };
 
-window.removeItem = function(name) {
-  let cart = window.getCart();
-  cart = cart.filter(i => i.name !== name);
+window.removeItem = function (name) {
+  let cart = window.getCart().filter(i => i.name !== name);
   window.saveCart(cart);
 };
 
-window.renderCartItems = function() {
+window.renderCartItems = function () {
   const content = document.getElementById('cartDrawerContent');
+  if (!content) return;
+
   const subtotalEl = document.getElementById('cartSubtotal');
   const shippingEl = document.getElementById('cartShipping');
   const totalEl = document.getElementById('cartTotal');
   const discountRow = document.getElementById('cartDiscountRow');
   const marketingEl = document.getElementById('cartMarketingText');
-  if (!content) return;
 
   const cart = window.getCart();
+
   if (cart.length === 0) {
     const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
     const isFirstOrderCompleted = localStorage.getItem('tabby_first_order_completed') === 'true';
-    let marketingNote = '';
-    
+    let note = '';
     if (!isSubscribed) {
-      marketingNote = `
-        <div style="margin-top: 18px; font-size: 0.82rem; color: #d35d88; font-weight: 700; background-color: rgba(244, 122, 171, 0.05); padding: 14px; border-radius: 14px !important; border: 1.5px dashed rgba(244, 122, 171, 0.25); line-height: 1.45;">
-          🎁 Want 10% off? Subscribe to our welcome gift on the Home page to save on your first order above ₹500!
-        </div>
-      `;
+      note = `<div style="margin-top:18px;font-size:0.82rem;color:#d35d88;font-weight:700;background:rgba(244,122,171,0.05);padding:14px;border-radius:14px !important;border:1.5px dashed rgba(244,122,171,0.25);">🎁 Want 10% off? Subscribe on the Home page to save on your first order above ₹500!</div>`;
     } else if (isFirstOrderCompleted) {
-      marketingNote = `
-        <div style="margin-top: 18px; font-size: 0.82rem; color: #666; font-weight: 700; background-color: rgba(0, 0, 0, 0.02); padding: 14px; border-radius: 14px !important; border: 1.5px dashed rgba(0, 0, 0, 0.1); line-height: 1.45;">
-          Welcome discount was claimed on your first order. Thank you for supporting us! ❤️
-        </div>
-      `;
+      note = `<div style="margin-top:18px;font-size:0.82rem;color:#666;font-weight:700;background:rgba(0,0,0,0.02);padding:14px;border-radius:14px !important;border:1.5px dashed rgba(0,0,0,0.1);">Welcome discount was claimed on your first order. Thank you! ❤️</div>`;
     } else {
-      marketingNote = `
-        <div style="margin-top: 18px; font-size: 0.82rem; color: #2e7d32; font-weight: 700; background-color: rgba(46, 125, 50, 0.04); padding: 14px; border-radius: 14px !important; border: 1.5px dashed rgba(46, 125, 50, 0.2); line-height: 1.45;">
-          ✨ 10% welcome discount active! Add charms above ₹500 to save.
-        </div>
-      `;
+      note = `<div style="margin-top:18px;font-size:0.82rem;color:#2e7d32;font-weight:700;background:rgba(46,125,50,0.04);padding:14px;border-radius:14px !important;border:1.5px dashed rgba(46,125,50,0.2);">✨ 10% welcome discount active! Add charms above ₹500 to save.</div>`;
     }
-
     content.innerHTML = `
       <div class="cart-empty-state">
-        <div class="cart-empty-polaroid">
-          <img src="add-to-cart.jpg" alt="Empty Shopping Bag" />
-        </div>
+        <div class="cart-empty-polaroid"><img src="add-to-cart.jpg" alt="Empty bag" /></div>
         <p class="empty-msg">Your shopping bag is empty!</p>
-        <a href="shop.html" class="shop-now-btn" onclick="window.toggleCartDrawer(false)">Shop Our Charms</a>
-        ${marketingNote}
-      </div>
-    `;
+        <a href="shop" class="shop-now-btn" onclick="window.toggleCartDrawer(false)">Shop Our Charms</a>
+        ${note}
+      </div>`;
     if (subtotalEl) subtotalEl.textContent = '₹0';
     if (shippingEl) shippingEl.textContent = '₹0';
     if (totalEl) totalEl.textContent = '₹0';
     if (discountRow) discountRow.style.display = 'none';
     if (marketingEl) marketingEl.style.display = 'none';
+    // Reset coupon area
+    const couponWrap = document.getElementById('cartCouponWrap');
+    if (couponWrap) couponWrap.innerHTML = `
+      <input type="text" id="cartCouponInput" placeholder="Coupon Code (e.g. REVIEW50)" style="flex:1;border:1.5px solid #e8e0f0;border-radius:8px;padding:8px 10px;font-size:0.8rem;outline:none;text-transform:uppercase;" />
+      <button type="button" onclick="window.applyCartCoupon()" style="padding:8px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;">Apply</button>`;
     return;
   }
 
@@ -329,267 +231,220 @@ window.renderCartItems = function() {
   let subtotal = 0;
   cart.forEach(item => {
     subtotal += item.price * item.quantity;
-    const displayImg = item.img || 'store-logo-c471e30d.webp';
     html += `
       <div class="cart-item-card">
-        <img src="${displayImg}" alt="${item.name}" class="cart-item-img">
+        <img src="${item.img || 'store-logo-c471e30d.webp'}" alt="${item.name}" class="cart-item-img">
         <div class="cart-item-info">
           <h4 class="cart-item-name">${item.name}</h4>
           <div class="cart-item-price">₹${item.price}</div>
           <div class="cart-item-qty-row">
-            <button class="qty-btn" onclick="window.changeQty('${item.name}', -1)">&minus;</button>
+            <button class="qty-btn" onclick="window.changeQty('${item.name.replace(/'/g,"\\'")}', -1)">&minus;</button>
             <span class="qty-val">${item.quantity}</span>
-            <button class="qty-btn" onclick="window.changeQty('${item.name}', 1)">&plus;</button>
+            <button class="qty-btn" onclick="window.changeQty('${item.name.replace(/'/g,"\\'")}', 1)">&plus;</button>
           </div>
         </div>
-        <button class="cart-item-remove" onclick="window.removeItem('${item.name}')" title="Remove item">&times;</button>
-      </div>
-    `;
+        <button class="cart-item-remove" onclick="window.removeItem('${item.name.replace(/'/g,"\\'")}')">×</button>
+      </div>`;
   });
-
   content.innerHTML = html;
-  
+
+  // Welcome discount logic
   const isSubscribed = localStorage.getItem('tabby_subscribed') === 'true';
   const isFirstOrderCompleted = localStorage.getItem('tabby_first_order_completed') === 'true';
   let discount = 0;
-  
-  if (isSubscribed) {
-    if (isFirstOrderCompleted) {
-      if (discountRow) {
-        discountRow.style.display = 'flex';
-        discountRow.innerHTML = `<span style="color: #666; font-size: 0.8rem; font-weight: 700;">First order discount claimed! ❤️</span><span></span>`;
-      }
-      if (marketingEl) marketingEl.style.display = 'none';
-    } else {
-      if (subtotal > 500) {
-        discount = Math.round(subtotal * 0.1);
-        if (discountRow) {
-          discountRow.style.display = 'flex';
-          discountRow.innerHTML = `<span>10% Welcome Discount (Subscribed)</span><span>-₹${discount}</span>`;
-        }
-        if (marketingEl) marketingEl.style.display = 'none';
-      } else {
-        if (discountRow) {
-          discountRow.style.display = 'flex';
-          discountRow.innerHTML = `<span style="color: #ef6c00; font-size: 0.82rem; font-weight: 700;">Add ₹${501 - subtotal} more to unlock 10% welcome discount! 🎁</span><span></span>`;
-        }
-        if (marketingEl) marketingEl.style.display = 'none';
-      }
-    }
-  } else     if (marketingEl) {
-      marketingEl.style.display = 'block';
-      if (subtotal > 500) {
-        marketingEl.innerHTML = `🎁 Want 10% off? <a href="policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;" onclick="window.toggleCartDrawer(false)">Subscribe to our welcome gift</a> to save ₹${Math.round(subtotal * 0.1)} on this order!`;
-      } else {
-        marketingEl.innerHTML = `🎁 Want 10% off? Add ₹${501 - subtotal} more and <a href="policies" style="color: #d35d88; text-decoration: underline; font-weight: 800;" onclick="window.toggleCartDrawer(false)">subscribe to our welcome gift</a> to save!`;
-      }
-    }
+
+  if (isSubscribed && !isFirstOrderCompleted && subtotal > 500) {
+    discount = Math.round(subtotal * 0.1);
+    if (discountRow) { discountRow.style.display = 'flex'; discountRow.innerHTML = `<span>10% Welcome Discount 🎁</span><span>-₹${discount}</span>`; }
+    if (marketingEl) marketingEl.style.display = 'none';
+  } else if (!isSubscribed && marketingEl) {
+    marketingEl.style.display = 'block';
+    marketingEl.innerHTML = subtotal > 500
+      ? `🎁 Want 10% off? <a href="/" style="color:#d35d88;text-decoration:underline;font-weight:800;" onclick="window.toggleCartDrawer(false)">Subscribe on Home page</a> to save ₹${Math.round(subtotal*0.1)}!`
+      : `🎁 Want 10% off? Add ₹${501-subtotal} more & <a href="/" style="color:#d35d88;text-decoration:underline;font-weight:800;" onclick="window.toggleCartDrawer(false)">subscribe</a> to save!`;
+  } else if (discountRow) {
+    discountRow.style.display = 'none';
   }
 
-  // Check applied coupon & validate against active/used lists
-  let appliedCoupon = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+  // Applied coupon logic
+  let appliedCoupon = null;
+  try { appliedCoupon = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null'); } catch(e) {}
   const usedCoupons = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
-
-  if (appliedCoupon) {
-    const code = (appliedCoupon.code || '').toUpperCase();
-    
-    // Check if already used by user
-    if (usedCoupons.includes(code)) {
-      localStorage.removeItem('tabby_applied_coupon');
-      appliedCoupon = null;
-    } else {
-      // Validate against active coupons list
-      const localCoupons = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
-      const isKnownStatic = (code === 'WELCOME10' || code.startsWith('PAWS15'));
-      const isLocallyActive = localCoupons.some(c => c.code.toUpperCase() === code && c.active !== false);
-
-      if (!isKnownStatic && !isLocallyActive) {
-        // Clear inactive/deleted coupon
-        localStorage.removeItem('tabby_applied_coupon');
-        appliedCoupon = null;
-      }
-    }
+  if (appliedCoupon && usedCoupons.includes((appliedCoupon.code || '').toUpperCase())) {
+    localStorage.removeItem('tabby_applied_coupon');
+    appliedCoupon = null;
   }
 
-  // Render applied coupon tag or input row
-  const cartCouponWrap = document.getElementById('cartCouponInput')?.parentElement;
-  if (cartCouponWrap) {
+  const couponWrap = document.getElementById('cartCouponWrap');
+  if (couponWrap) {
     if (appliedCoupon) {
-      let discountText = appliedCoupon.type === 'percent' ? `${appliedCoupon.value}% OFF` : (appliedCoupon.type === 'free_shipping' ? 'FREE SHIPPING' : `₹${appliedCoupon.value} OFF`);
-      cartCouponWrap.innerHTML = `
-        <div style="display:flex; align-items:center; justify-content:space-between; width:100%; background:#e8f5e9; padding:8px 12px; border-radius:8px !important; border:1px solid #a5d6a7;">
-          <span style="font-weight:700; font-size:0.8rem; color:#2e7d32;">🏷️ ${appliedCoupon.code.toUpperCase()} (${discountText})</span>
-          <button type="button" onclick="window.removeCartCoupon()" style="background:none; border:none; color:#c62828; font-weight:800; font-size:1.1rem; cursor:pointer; line-height:1;">&times;</button>
-        </div>
-      `;
+      const discText = appliedCoupon.type === 'percent' ? `${appliedCoupon.value}% OFF` : `₹${appliedCoupon.value} OFF`;
+      couponWrap.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;background:#e8f5e9;padding:8px 12px;border-radius:8px !important;border:1px solid #a5d6a7;">
+          <span style="font-weight:700;font-size:0.8rem;color:#2e7d32;">🏷️ ${appliedCoupon.code.toUpperCase()} (${discText})</span>
+          <button type="button" onclick="window.removeCartCoupon()" style="background:none;border:none;color:#c62828;font-weight:800;font-size:1.1rem;cursor:pointer;">&times;</button>
+        </div>`;
+
+      let couponDiscount = 0;
+      if (appliedCoupon.type === 'percent') couponDiscount = Math.round(subtotal * (appliedCoupon.value / 100));
+      else if (appliedCoupon.type === 'flat') couponDiscount = appliedCoupon.value;
+
+      if (couponDiscount > 0) {
+        discount += couponDiscount;
+        if (discountRow) { discountRow.style.display = 'flex'; discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-₹${couponDiscount}</span>`; }
+      }
+    } else {
+      couponWrap.innerHTML = `
+        <input type="text" id="cartCouponInput" placeholder="Coupon Code (e.g. REVIEW50)" style="flex:1;border:1.5px solid #e8e0f0;border-radius:8px;padding:8px 10px;font-size:0.8rem;outline:none;text-transform:uppercase;" />
+        <button type="button" onclick="window.applyCartCoupon()" style="padding:8px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;">Apply</button>`;
     }
   }
 
-  if (discountRow && appliedCoupon) {
-    let couponDiscount = 0;
-    if (appliedCoupon.type === 'percent') {
-      couponDiscount = Math.round(subtotal * (appliedCoupon.value / 100));
-    } else if (appliedCoupon.type === 'flat') {
-      couponDiscount = appliedCoupon.value;
-    }
-    if (couponDiscount > 0) {
-      discount += couponDiscount;
-      discountRow.style.display = 'flex';
-      discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-₹${couponDiscount}</span>`;
-    }
-  }
-
-  // Dynamic shipping calculation
+  // Shipping
   const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
-  const stdShippingFee = parseInt(siteSettings.standard_shipping_fee || '59');
+  const stdFee = parseInt(siteSettings.standard_shipping_fee || '59');
   const freeThreshold = parseInt(siteSettings.free_shipping_threshold || '2000');
-
-  let shipping = stdShippingFee;
-  if (subtotal >= freeThreshold || (appliedCoupon && appliedCoupon.type === 'free_shipping')) {
-    shipping = 0;
-  }
+  const shipping = (subtotal >= freeThreshold || (appliedCoupon && appliedCoupon.type === 'free_shipping')) ? 0 : stdFee;
 
   const total = Math.max(0, subtotal - discount + shipping);
-
   if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN');
   if (shippingEl) shippingEl.textContent = shipping === 0 ? 'FREE 🚚' : '₹' + shipping;
   if (totalEl) totalEl.textContent = '₹' + total.toLocaleString('en-IN');
-}
+};
 
-// ---- REMOVE CART COUPON ----
-window.removeCartCoupon = function() {
+window.removeCartCoupon = function () {
   localStorage.removeItem('tabby_applied_coupon');
-  alert('Coupon removed from cart.');
+  showToast('Coupon removed.');
   window.renderCartItems();
 };
 
-// ---- APPLY CART COUPON ----
-window.applyCartCoupon = async function() {
+window.applyCartCoupon = async function () {
   const codeInput = document.getElementById('cartCouponInput');
   const code = (codeInput?.value || '').trim().toUpperCase();
   if (!code) return;
 
-  // Check one-time use restriction
   const usedCoupons = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
   if (usedCoupons.includes(code)) {
-    alert(`❌ You have already used coupon "${code}" on a previous order. Each coupon code can only be used once!`);
+    showToast(`❌ Coupon "${code}" was already used on a previous order.`);
     return;
   }
 
   let foundCoupon = null;
 
-  // 1. Try Supabase
   if (window.supabaseClient) {
     try {
       const { data } = await window.supabaseClient.from('coupons').select('*').eq('code', code).eq('active', true);
       if (data && data.length > 0) foundCoupon = data[0];
-    } catch(e) {}
+    } catch (e) {}
   }
 
-  // 2. Check LocalStorage fallback
   if (!foundCoupon) {
     const localCoupons = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
-    foundCoupon = localCoupons.find(c => c.code.toUpperCase() === code && c.active !== false);
+    foundCoupon = localCoupons.find(c => c.code.toUpperCase() === code && c.active !== false) || null;
   }
 
-  // Special welcome / review coupon check
   if (!foundCoupon) {
-    if (code === 'WELCOME10') {
-      foundCoupon = { code: 'WELCOME10', type: 'percent', value: 10, min_order: 500 };
-    } else if (code === 'REVIEW50' || code.startsWith('PAWS15')) {
-      foundCoupon = { code: code, type: 'flat', value: 50, min_order: 0 };
-    }
+    if (code === 'WELCOME10') foundCoupon = { code: 'WELCOME10', type: 'percent', value: 10, min_order: 500 };
+    else if (code === 'REVIEW50') foundCoupon = { code: 'REVIEW50', type: 'flat', value: 50, min_order: 0 };
   }
 
   if (foundCoupon) {
     localStorage.setItem('tabby_applied_coupon', JSON.stringify(foundCoupon));
-    alert(`🎉 Coupon "${foundCoupon.code}" applied successfully!`);
+    showToast(`🎉 Coupon "${foundCoupon.code}" applied!`);
     window.renderCartItems();
   } else {
-    alert(`❌ Coupon code "${code}" is invalid or inactive in store.`);
+    showToast(`❌ Invalid or inactive coupon code.`);
   }
-};;
+};
 
-window.triggerCheckout = function() {
+window.triggerCheckout = function () {
   const cart = window.getCart();
   if (cart.length === 0) return;
-
-  // Redirect to clean checkout route for shipping info collection and payment
   window.location.href = 'checkout';
 };
 
 // ==========================================================================
-// SEARCH SECTION LOGIC
+// TOAST NOTIFICATION (replaces all alert() calls)
+// ==========================================================================
+
+function showToast(message) {
+  let toast = document.getElementById('tabbyChaserToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'tabbyChaserToast';
+    toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#333;color:#fff;padding:12px 24px;border-radius:50px;font-size:0.88rem;font-weight:700;z-index:999999;opacity:0;transition:all 0.3s ease;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 2800);
+}
+window.showCuteToast = showToast;
+
+// ==========================================================================
+// SEARCH
 // ==========================================================================
 
 function initGlobalSearch() {
-  const searchPills = document.querySelectorAll('.search-box-pill');
-  searchPills.forEach(pill => {
+  document.querySelectorAll('.search-box-pill').forEach(pill => {
     if (pill.querySelector('.search-suggestions-dropdown')) return;
-    
-    // Create Dropdown Overlay
+
     const dropdown = document.createElement('div');
     dropdown.className = 'search-suggestions-dropdown';
-    dropdown.id = 'searchSuggestions';
     pill.appendChild(dropdown);
 
     const input = pill.querySelector('input');
-    if (input) {
-      input.removeAttribute('disabled'); // Allow searching
-      input.addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
-        if (!query) {
-          dropdown.classList.remove('active');
-          dropdown.innerHTML = '';
-          return;
-        }
+    if (!input) return;
 
-        // Search PRODUCTS_DATA if loaded
-        if (typeof PRODUCTS_DATA !== 'undefined') {
-          const matches = PRODUCTS_DATA.filter(p => 
-            p.name.toLowerCase().includes(query) || 
-            p.category.toLowerCase().includes(query)
-          ).slice(0, 5);
+    input.removeAttribute('disabled');
+    input.addEventListener('input', (e) => {
+      const query = e.target.value.trim().toLowerCase();
+      if (!query) { dropdown.classList.remove('active'); dropdown.innerHTML = ''; return; }
 
-          if (matches.length === 0) {
-            dropdown.innerHTML = `<div class="search-no-results">No results found 🐈</div>`;
-          } else {
-            dropdown.innerHTML = matches.map(p => `
-              <a href="product.html?id=${p.id}" class="search-suggestion-item">
-                <img src="${p.image}" alt="${p.name}" class="suggestion-img">
-                <div class="suggestion-info">
-                  <span class="suggestion-name">${p.name}</span>
-                  <span class="suggestion-price">₹${p.price}</span>
-                </div>
-              </a>
-            `).join('');
-          }
-          dropdown.classList.add('active');
-        }
-      });
+      let products = [];
+      try { products = JSON.parse(localStorage.getItem('tabby_products_local') || '[]'); } catch (ex) {}
+      if (!products.length && typeof PRODUCTS_DATA !== 'undefined') products = PRODUCTS_DATA;
 
-      // Close overlay on clicking outside
-      document.addEventListener('click', (event) => {
-        if (!pill.contains(event.target)) {
-          dropdown.classList.remove('active');
-        }
-      });
+      const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+      products = products.filter(p => !deletedIds.includes(p.id) && p.stock !== 'out-of-stock');
 
-      // Handle Enter key submit search
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          const query = input.value.trim();
-          if (query) {
-            window.location.href = `shop.html?search=${encodeURIComponent(query)}`;
-          }
-        }
-      });
-    }
+      const matches = products.filter(p =>
+        (p.name || '').toLowerCase().includes(query) ||
+        (p.category || '').toLowerCase().includes(query)
+      ).slice(0, 5);
+
+      if (matches.length === 0) {
+        dropdown.innerHTML = `<div style="padding:12px;text-align:center;color:#888;font-size:0.85rem;">No results found 🐈</div>`;
+      } else {
+        dropdown.innerHTML = matches.map(p => {
+          const img = (p.images && p.images[0]) ? p.images[0] : (p.image || 'store-logo-c471e30d.webp');
+          return `<a href="product?id=${p.id}" class="search-suggestion-item" style="display:flex;align-items:center;gap:10px;padding:10px 12px;text-decoration:none;color:#333;border-bottom:1px solid #f0f0f0;">
+            <img src="${img}" alt="${p.name}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:0.85rem;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
+              <div style="font-size:0.75rem;color:#d35d88;font-weight:700;">₹${p.price}</div>
+            </div>
+          </a>`;
+        }).join('');
+      }
+      dropdown.classList.add('active');
+    });
+
+    document.addEventListener('click', (e) => { if (!pill.contains(e.target)) dropdown.classList.remove('active'); });
+
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && input.value.trim()) window.location.href = `shop?search=${encodeURIComponent(input.value.trim())}`;
+    });
   });
 }
 
 // ==========================================================================
-// USER LOGIN MODAL LOGIC
+// LOGIN MODAL – SELF-INJECTING (fixes timing issue permanently)
 // ==========================================================================
 
 function injectLoginModal() {
@@ -598,15 +453,14 @@ function injectLoginModal() {
   const overlay = document.createElement('div');
   overlay.id = 'loginModalOverlay';
   overlay.className = 'modal-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) window.toggleLoginModal(false); };
   overlay.innerHTML = `
     <div class="login-modal-card">
-      <button type="button" class="modal-close-btn" onclick="window.toggleLoginModal(false)" aria-label="Close modal">&times;</button>
-      
-      <!-- Login Container -->
+      <button type="button" class="modal-close-btn" onclick="window.toggleLoginModal(false)">&times;</button>
+
       <div id="loginFormContainer">
-        <h2 class="login-modal-title">Welcome Back</h2>
+        <h2 class="login-modal-title">Welcome Back 🐾</h2>
         <p class="login-modal-subtitle">Sign in to your Tabby Chaser account</p>
-        
         <form id="loginForm" onsubmit="window.handleLoginSubmit(event)" class="login-modal-form">
           <div class="form-group">
             <label class="form-label" for="loginEmail">Email</label>
@@ -617,46 +471,22 @@ function injectLoginModal() {
             <div class="password-input-wrapper">
               <input type="password" id="loginPassword" required class="form-input" placeholder="••••••••" />
               <button type="button" class="password-toggle-eye" onclick="window.togglePasswordVisibility('loginPassword')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
-            <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
-              <a href="#" class="forgot-password-link" onclick="event.preventDefault(); alert('Reset password link sent to your email!')">Forgot Password?</a>
-            </div>
           </div>
-
-          <!-- Cloudflare Mock Verification -->
-          <div class="mock-cf-turnstile">
-            <div class="cf-check-wrap">
-              <span class="cf-check-circle">✓</span>
-              <span class="cf-success-text">Success!</span>
-            </div>
-            <div class="cf-logo-wrap">
-              <span class="cf-logo-text">CLOUDFLARE</span>
-              <a href="#" class="cf-privacy-link" onclick="event.preventDefault()">Privacy</a> • <a href="#" class="cf-privacy-link" onclick="event.preventDefault()">Help</a>
-            </div>
-          </div>
-          
           <button type="submit" class="btn btn-pink-pill login-submit-btn">Sign In</button>
         </form>
-        
-        <div class="login-footer-text">
-          Don't have an account? <a href="#" onclick="event.preventDefault(); window.toggleAuthMode('signup')">Sign Up</a>
-        </div>
+        <div class="login-footer-text">Don't have an account? <a href="#" onclick="event.preventDefault(); window.toggleAuthMode('signup')">Sign Up</a></div>
       </div>
 
-      <!-- Sign Up Container -->
       <div id="signupFormContainer" style="display:none;">
-        <h2 class="login-modal-title">Create Account</h2>
-        <p class="login-modal-subtitle">Sign up for a Tabby Chaser account</p>
-        
+        <h2 class="login-modal-title">Create Account ✨</h2>
+        <p class="login-modal-subtitle">Join Tabby Chaser today</p>
         <form id="signUpForm" onsubmit="window.handleSignUpSubmit(event)" class="login-modal-form">
           <div class="form-group">
             <label class="form-label" for="signUpName">Full Name</label>
-            <input type="text" id="signUpName" required class="form-input" placeholder="ENCORE" />
+            <input type="text" id="signUpName" required class="form-input" placeholder="Your name" />
           </div>
           <div class="form-group">
             <label class="form-label" for="signUpEmail">Email</label>
@@ -665,215 +495,188 @@ function injectLoginModal() {
           <div class="form-group">
             <label class="form-label" for="signUpPassword">Password</label>
             <div class="password-input-wrapper">
-              <input type="password" id="signUpPassword" required class="form-input" placeholder="••••••••" />
+              <input type="password" id="signUpPassword" required class="form-input" placeholder="Min. 6 characters" minlength="6" />
               <button type="button" class="password-toggle-eye" onclick="window.togglePasswordVisibility('signUpPassword')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
             </div>
           </div>
-          
-          <button type="submit" class="btn btn-pink-pill login-submit-btn">Sign Up</button>
+          <button type="submit" class="btn btn-pink-pill login-submit-btn">Create Account</button>
         </form>
-        
-        <div class="login-footer-text">
-          Already have an account? <a href="#" onclick="event.preventDefault(); window.toggleAuthMode('login')">Sign In</a>
-        </div>
+        <div class="login-footer-text">Already have an account? <a href="#" onclick="event.preventDefault(); window.toggleAuthMode('login')">Sign In</a></div>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
 }
 
-window.toggleLoginModal = function(open) {
+// KEY FIX: toggleLoginModal ALWAYS injects first, then opens
+window.toggleLoginModal = function (open) {
+  injectLoginModal(); // Always ensure modal exists
   const overlay = document.getElementById('loginModalOverlay');
   if (!overlay) return;
-  if (open) {
-    overlay.style.display = 'flex';
-  } else {
-    overlay.style.display = 'none';
-  }
+  overlay.style.display = open ? 'flex' : 'none';
+  if (open) overlay.style.zIndex = '999999';
 };
 
-window.toggleAuthMode = function(mode) {
-  const loginForm = document.getElementById('loginFormContainer');
-  const signupForm = document.getElementById('signupFormContainer');
-  if (mode === 'login') {
-    loginForm.style.display = 'block';
-    signupForm.style.display = 'none';
-  } else {
-    loginForm.style.display = 'none';
-    signupForm.style.display = 'block';
-  }
+window.toggleAuthMode = function (mode) {
+  const loginF = document.getElementById('loginFormContainer');
+  const signupF = document.getElementById('signupFormContainer');
+  if (!loginF || !signupF) return;
+  loginF.style.display = mode === 'login' ? 'block' : 'none';
+  signupF.style.display = mode === 'signup' ? 'block' : 'none';
 };
 
-window.togglePasswordVisibility = function(inputId) {
+window.togglePasswordVisibility = function (inputId) {
   const input = document.getElementById(inputId);
-  if (input) {
-    if (input.type === 'password') {
-      input.type = 'text';
-    } else {
-      input.type = 'password';
-    }
-  }
+  if (input) input.type = input.type === 'password' ? 'text' : 'password';
 };
 
-window.handleLoginSubmit = async function(event) {
+window.handleLoginSubmit = async function (event) {
   event.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword')?.value || 'dummyPassword123';
+  const password = document.getElementById('loginPassword')?.value || '';
+
+  const submitBtn = event.target.querySelector('[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Signing in...'; }
 
   let name = email.split('@')[0];
   let loggedIn = false;
 
   if (window.supabaseClient) {
     try {
-      const { data, error } = await window.supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-      if (error) throw error;
-
-      if (data.user) {
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+      if (!error && data.user) {
         loggedIn = true;
-        // Try fetching user name from profile
-        const { data: profile } = await window.supabaseClient
-          .from('profiles')
-          .select('name')
-          .eq('id', data.user.id)
-          .single();
-        if (profile && profile.name) {
-          name = profile.name;
-        }
+        // Try to get name from profile
+        const { data: profile } = await window.supabaseClient.from('profiles').select('name').eq('id', data.user.id).single();
+        if (profile?.name) name = profile.name;
+      } else if (error) {
+        showToast('❌ ' + (error.message || 'Login failed. Check your credentials.'));
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Sign In'; }
+        return;
       }
     } catch (err) {
-      console.warn('Supabase Login failed, using offline fallback:', err.message);
+      showToast('❌ Login failed. Please try again.');
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Sign In'; }
+      return;
     }
   }
 
-  localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true, offline: !loggedIn }));
+  localStorage.setItem('tabby_user_session', JSON.stringify({ name, email, loggedIn: true }));
   window.toggleLoginModal(false);
   initHeaderAccountButton();
-  window.location.href = 'account.html';
+  showToast(`Welcome back, ${name.split(' ')[0]}! 🐾`);
+  setTimeout(() => window.location.href = 'account', 800);
 };
 
-window.handleSignUpSubmit = async function(event) {
+window.handleSignUpSubmit = async function (event) {
   event.preventDefault();
   const name = document.getElementById('signUpName').value.trim();
   const email = document.getElementById('signUpEmail').value.trim();
-  const password = document.getElementById('signUpPassword')?.value || 'dummyPassword123';
+  const password = document.getElementById('signUpPassword')?.value || '';
+
+  const submitBtn = event.target.querySelector('[type="submit"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating account...'; }
 
   let loggedIn = false;
 
   if (window.supabaseClient) {
     try {
-      const { data, error } = await window.supabaseClient.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: { name: name }
-        }
-      });
-      if (error) throw error;
-
-      if (data.user) {
+      const { data, error } = await window.supabaseClient.auth.signUp({ email, password, options: { data: { name } } });
+      if (!error && data.user) {
         loggedIn = true;
-        // Insert into public profiles table
-        const { error: profileError } = await window.supabaseClient
-          .from('profiles')
-          .upsert({ id: data.user.id, name: name, email: email });
-        if (profileError) console.error('Error inserting profile:', profileError);
+        await window.supabaseClient.from('profiles').upsert({ id: data.user.id, name, email });
+      } else if (error) {
+        showToast('❌ ' + (error.message || 'Sign up failed.'));
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Create Account'; }
+        return;
       }
     } catch (err) {
-      console.warn('Supabase SignUp failed, using offline fallback:', err.message);
+      showToast('❌ Sign up failed. Please try again.');
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Create Account'; }
+      return;
     }
   }
 
-  localStorage.setItem('tabby_user_session', JSON.stringify({ name: name, email: email, loggedIn: true, offline: !loggedIn }));
+  localStorage.setItem('tabby_user_session', JSON.stringify({ name, email, loggedIn: true }));
   window.toggleLoginModal(false);
   initHeaderAccountButton();
-  window.location.href = 'account.html';
+  showToast(`Welcome to Tabby Chaser, ${name.split(' ')[0]}! 🎉`);
+  setTimeout(() => window.location.href = 'account', 800);
 };
 
+// ==========================================================================
+// HEADER ACCOUNT BUTTON
+// ==========================================================================
+
 function initHeaderAccountButton() {
-  const session = JSON.parse(localStorage.getItem('tabby_user_session'));
+  const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
 
+  // Bind ALL profile SVG icons in header
   document.querySelectorAll('.profile-header-btn').forEach(btn => {
-    btn.onclick = (e) => {
-      const currentSession = JSON.parse(localStorage.getItem('tabby_user_session'));
-      if (!currentSession || !currentSession.loggedIn) {
-        e.preventDefault();
-        window.toggleLoginModal(true);
-      }
-    };
+    if (session && session.loggedIn) {
+      btn.href = 'account';
+      btn.onclick = null;
+    } else {
+      btn.href = '#';
+      btn.onclick = (e) => { e.preventDefault(); window.toggleLoginModal(true); };
+    }
   });
-
-  const headerActions = document.querySelector('.header-actions');
-  if (!headerActions) return;
-
-  let loginBtn = document.getElementById('loginBtn');
-  if (!loginBtn) {
-    loginBtn = document.createElement('a');
-    loginBtn.id = 'loginBtn';
-    loginBtn.className = 'login-pill-btn';
-    loginBtn.href = 'account';
-    headerActions.insertBefore(loginBtn, headerActions.querySelector('.cart-pill-btn') || headerActions.firstChild);
-  }
-
-  if (session && session.loggedIn) {
-    loginBtn.textContent = `Hi, ${session.name.split(' ')[0]}`;
-    loginBtn.href = 'account';
-    loginBtn.onclick = null;
-  } else {
-    loginBtn.textContent = 'Login';
-    loginBtn.href = '#';
-    loginBtn.onclick = (e) => {
-      e.preventDefault();
-      window.toggleLoginModal(true);
-    };
-  }
 }
 
 function initShopCardLinks() {
+  if (typeof PRODUCTS_DATA === 'undefined') return;
   document.querySelectorAll('.shop-card').forEach(card => {
     const name = card.getAttribute('data-name');
-    if (name && typeof PRODUCTS_DATA !== 'undefined') {
-      const product = PRODUCTS_DATA.find(p => p.name === name);
-      if (product) {
-        const link = card.querySelector('.shop-card-link');
-        if (link) link.href = `product.html?id=${product.id}`;
-      }
+    if (!name) return;
+    const product = PRODUCTS_DATA.find(p => p.name === name);
+    if (product) {
+      const link = card.querySelector('.shop-card-link');
+      if (link) link.href = `product?id=${product.id}`;
     }
   });
 }
 
-// Handle Newsletter Subscription
-window.handleNewsletterSubscribe = function(event) {
+// ==========================================================================
+// NEWSLETTER / WELCOME GIFT – ONE TIME PER EMAIL
+// ==========================================================================
+
+window.handleNewsletterSubscribe = function (event) {
   event.preventDefault();
   const form = event.target;
   const input = form.querySelector('input[type="email"]');
   if (!input) return;
-  const email = input.value.trim();
+  const email = input.value.trim().toLowerCase();
   if (!email) return;
 
+  // Check if this email already subscribed
+  const subscribedEmails = JSON.parse(localStorage.getItem('tabby_subscribed_emails') || '[]');
+  if (subscribedEmails.includes(email)) {
+    showToast('You have already claimed your welcome gift! 🎁');
+    input.value = '';
+    return;
+  }
+
+  // Mark as subscribed (one-time per email)
+  subscribedEmails.push(email);
+  localStorage.setItem('tabby_subscribed_emails', JSON.stringify(subscribedEmails));
   localStorage.setItem('tabby_subscribed', 'true');
   localStorage.setItem('tabby_subscribed_email', email);
 
-  // Auto-apply 10% Welcome Coupon
+  // Auto-apply 10% Welcome Coupon (one-time)
   const welcomeCoupon = { code: 'WELCOME10', type: 'percent', value: 10, min_order: 500 };
   localStorage.setItem('tabby_applied_coupon', JSON.stringify(welcomeCoupon));
 
   input.value = '';
 
-  // Show cute modal discount unlocked message
+  // Show cute popup modal
   window.showCuteDiscountModal();
-
-  if (window.renderCartItems) {
-    window.renderCartItems();
-  }
 };
+
+// ==========================================================================
+// WELCOME GIFT MODAL – SELF-INJECTING
+// ==========================================================================
 
 function injectCuteDiscountModal() {
   if (document.getElementById('cuteDiscountModalOverlay')) return;
@@ -881,34 +684,31 @@ function injectCuteDiscountModal() {
   const overlay = document.createElement('div');
   overlay.id = 'cuteDiscountModalOverlay';
   overlay.className = 'modal-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) window.closeCuteDiscountModal(); };
   overlay.innerHTML = `
     <div class="cute-discount-card">
       <button type="button" class="modal-close-btn" onclick="window.closeCuteDiscountModal()">&times;</button>
-      <div class="cute-gift-polaroid">
-        <img src="ten-percent-gift.png" alt="Welcome Gift" />
-      </div>
-      <h2 class="login-modal-title" style="font-size: 1.65rem; margin-bottom: 10px;">Welcome Gift Unlocked!</h2>
-      <p class="cute-modal-desc">Thank you for joining our newsletter! You've received a special first-time welcome discount:</p>
+      <div style="font-size:3rem;margin-bottom:16px;">🎁</div>
+      <h2 class="login-modal-title" style="font-size:1.65rem;margin-bottom:10px;">Welcome Gift Unlocked!</h2>
+      <p class="cute-modal-desc">Thank you for joining! You've received a special one-time welcome discount:</p>
       <div class="cute-coupon-badge">
         <span class="coupon-code-text">10% OFF</span>
-        <span class="coupon-sub-text">on orders above ₹500</span>
+        <span class="coupon-sub-text">on orders above ₹500 • One-time use</span>
       </div>
-      <p class="cute-modal-note">This discount will be automatically applied to your cart on your first order. Happy shopping! 🌸</p>
-      <button type="button" class="btn btn-pink-pill cute-modal-btn" onclick="window.closeCuteDiscountModal()">YAY! Let's Shop 🛍️</button>
+      <p class="cute-modal-note">This discount is automatically applied to your cart for your first order. Valid once per email. Happy shopping! 🌸</p>
+      <button type="button" class="btn btn-pink-pill cute-modal-btn" onclick="window.closeCuteDiscountModal(); window.toggleCartDrawer(true)">YAY! Let's Shop 🛍️</button>
     </div>
   `;
   document.body.appendChild(overlay);
 }
 
-window.closeCuteDiscountModal = function() {
+window.closeCuteDiscountModal = function () {
   const overlay = document.getElementById('cuteDiscountModalOverlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-  }
+  if (overlay) overlay.style.display = 'none';
 };
 
-window.showCuteDiscountModal = function() {
-  injectCuteDiscountModal();
+window.showCuteDiscountModal = function () {
+  injectCuteDiscountModal(); // Always ensure modal exists
   const overlay = document.getElementById('cuteDiscountModalOverlay');
   if (overlay) {
     overlay.style.display = 'flex';
@@ -916,4 +716,39 @@ window.showCuteDiscountModal = function() {
   }
 };
 
+// ==========================================================================
+// MARK COUPON USED AFTER ORDER (called from checkout)
+// ==========================================================================
 
+window.markCouponUsedAfterOrder = function () {
+  const appliedCoupon = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+  if (appliedCoupon?.code) {
+    const usedCoupons = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
+    const code = appliedCoupon.code.toUpperCase();
+    if (!usedCoupons.includes(code)) {
+      usedCoupons.push(code);
+      localStorage.setItem('tabby_used_coupons', JSON.stringify(usedCoupons));
+    }
+    localStorage.removeItem('tabby_applied_coupon');
+  }
+  localStorage.setItem('tabby_first_order_completed', 'true');
+};
+
+// ==========================================================================
+// DOMContentLoaded – Initialize everything
+// ==========================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Tabby Chaser Engine v3 initialized.');
+
+  // Inject all modals upfront (prevents timing issues with inline onclick)
+  injectCartDrawer();
+  injectLoginModal();
+
+  // Initialize UI
+  window.updateCartBadge();
+  initHeaderAccountButton();
+  initGlobalSearch();
+  initShopCardLinks();
+  startAutoPlay();
+});

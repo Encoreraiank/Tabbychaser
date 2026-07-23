@@ -270,7 +270,7 @@ function renderDynamicProducts(products) {
         <button class="wishlist-heart-btn ${isWishlisted ? 'active' : ''}" data-wishlist-name="${p.name.replace(/"/g, '&quot;')}" onclick="window.toggleWishlist('${p.id || ''}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${img}', event)" title="Add to Wishlist">
           ${isWishlisted ? '♥' : '♡'}
         </button>
-        <a href="product.html?id=${p.id || ''}" class="shop-card-link">
+        <a href="product?id=${p.id || ''}" class="shop-card-link">
           <div class="shop-card-img-wrap">
             ${badgeHtml}
             <img src="${img}" alt="${p.name}" class="shop-card-img" loading="lazy" />

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Leave a Review – Tabby Chaser</title>
-  <meta name="description" content="Review your handmade Tabby Chaser order and get a 15% discount coupon!" />
+  <meta name="description" content="Review your handmade Tabby Chaser order and get Flat ₹50 OFF your next order!" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -61,7 +61,7 @@
   <div class="announcement-bar">
     <div class="marquee-track">
       <div class="marquee-content" id="announcementMarquee">
-        <span>🎁 Leave a review & get 15% OFF your next order! 🐾</span>
+        <span>🎁 Leave a review & get Flat ₹50 OFF your next order! 🐾</span>
         <span>🚚 Free shipping on orders above ₹2,000 | Handmade with love in Bangalore</span>
       </div>
     </div>
@@ -70,7 +70,7 @@
   <!-- Header -->
   <header class="site-header">
     <div class="header-container container">
-      <a href="index.html" class="brand-logo">
+      <a href="/" class="brand-logo">
         <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
         <span class="logo-text">Tabby Chaser</span>
       </a>
@@ -81,7 +81,7 @@
         <a href="policies" class="nav-link outline-pill">Policies</a>
       </nav>
       <div class="header-actions">
-        <a href="shop.html" class="login-pill-btn" style="text-decoration:none;">&larr; Back to Shop</a>
+        <a href="shop" class="login-pill-btn" style="text-decoration:none;">&larr; Back to Shop</a>
       </div>
     </div>
   </header>
@@ -147,6 +147,7 @@
       </div>
     </div>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script src="supabase-config.js"></script>
   <script src="cloudinary-config.js"></script>
@@ -314,7 +315,7 @@
             Your review for <strong>#${orderRef}</strong> has been submitted! Our team will verify it shortly.<br/>
             Once approved, your <strong>Flat ₹50 OFF coupon code (REVIEW50)</strong> will be active! 🎁
           </p>
-          <a href="shop.html" class="btn btn-pink-pill" style="display:inline-block;padding:12px 28px;text-decoration:none;">
+          <a href="shop" class="btn btn-pink-pill" style="display:inline-block;padding:12px 28px;text-decoration:none;">
             Back to Shop 🌸
           </a>
         </div>

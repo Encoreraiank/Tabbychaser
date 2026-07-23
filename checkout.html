@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -687,7 +687,7 @@
   <!-- Header -->
   <header class="site-header">
     <div class="header-container container">
-      <a href="index.html" class="brand-logo">
+      <a href="/" class="brand-logo">
         <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
         <span class="logo-text">Tabby Chaser</span>
       </a>
@@ -698,7 +698,7 @@
         <a href="policies" class="nav-link outline-pill">Policies</a>
       </nav>
       <div class="header-actions">
-        <a href="shop.html" class="login-pill-btn" style="text-decoration: none;">&larr; Back to Shop</a>
+        <a href="shop" class="login-pill-btn" style="text-decoration: none;">&larr; Back to Shop</a>
       </div>
     </div>
   </header>
@@ -845,9 +845,9 @@
           </p>
 
           <div style="display: flex; justify-content: center; gap: 16px; font-size: 0.72rem;">
-            <a href="policies.html" style="color: #aaa; text-decoration: none; font-weight: 600;">Store Policy</a>
+            <a href="policies" style="color: #aaa; text-decoration: none; font-weight: 600;">Store Policy</a>
             <span style="color: #ddd;">•</span>
-            <a href="policies.html#returns" style="color: #aaa; text-decoration: none; font-weight: 600;">Shipping &amp; Return Policy</a>
+            <a href="policies#returns" style="color: #aaa; text-decoration: none; font-weight: 600;">Shipping &amp; Return Policy</a>
           </div>
         </section>
 
@@ -1020,7 +1020,7 @@
           ✅ Simulate Success
         </button>
         <div class="rpay-terms">
-          By proceeding, I agree to Razorpay's Privacy Notice · <a href="policies.html" style="color:#aaa;">Edit Preferences</a>
+          By proceeding, I agree to Razorpay's Privacy Notice · <a href="policies" style="color:#aaa;">Edit Preferences</a>
         </div>
       </div>
 
@@ -1047,16 +1047,16 @@
         <div class="footer-links-column">
           <h4 class="footer-column-title">Quick Links</h4>
           <ul class="footer-links-list">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop Collections</a></li>
-            <li><a href="custom-orders.html">Custom Orders</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="shop">Shop Collections</a></li>
+            <li><a href="custom-orders">Custom Orders</a></li>
           </ul>
         </div>
         <div class="footer-links-column">
           <h4 class="footer-column-title">Our Policies</h4>
           <ul class="footer-links-list">
-            <li><a href="policies.html">Store Policies</a></li>
-            <li><a href="policies.html">Shipping & Returns</a></li>
+            <li><a href="policies">Store Policies</a></li>
+            <li><a href="policies">Shipping & Returns</a></li>
           </ul>
         </div>
       </div>
@@ -1069,6 +1069,8 @@
   </footer>
 
   <!-- scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
   <script src="products-data.js"></script>
   <script src="app.js"></script>
   <script>
@@ -1430,7 +1432,7 @@
             Redirecting to home page in <span id="successCountdown">5</span> seconds...
           </p>
           <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 12px;">
-            <a href="index.html" class="btn btn-pink-pill" style="display: inline-block; padding: 12px 28px;">
+            <a href="/" class="btn btn-pink-pill" style="display: inline-block; padding: 12px 28px;">
               Back to Home 🌸
             </a>
             <a href="track.html" class="btn" style="display: inline-block; padding: 12px 28px; border: 2px solid var(--color-brand-pink); border-radius: 50px; font-weight: 700; font-family: var(--font-display); color: var(--color-text-main); text-decoration: none; background: transparent;">

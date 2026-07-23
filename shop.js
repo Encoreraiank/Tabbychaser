@@ -169,6 +169,15 @@ async function loadLiveStorefrontData() {
         if (deletedRow && deletedRow.value) {
           try { remoteDeletedIds = JSON.parse(deletedRow.value); } catch(e){}
         }
+        const jsonRow = dbSettings.find(s => s.key === 'tabby_products_json');
+        if (jsonRow && jsonRow.value) {
+          try {
+            const jsonProds = JSON.parse(jsonRow.value);
+            if (Array.isArray(jsonProds) && jsonProds.length > 0) {
+              dbProducts = [...dbProducts, ...jsonProds];
+            }
+          } catch(e){}
+        }
       }
     } catch (err) {
       console.warn('Supabase storefront fetch error:', err);

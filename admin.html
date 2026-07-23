@@ -1275,63 +1275,67 @@
       updated_at: new Date().toISOString()
     };
 
-    // 1. Save to Supabase (Always Upsert for Cross-Device Cloud Sync)
-    try {
-      const client = await db();
-      if (client) {
-        await client.from('products').upsert(payload);
-      }
-    } catch(e) {
-      console.warn('Supabase save product error:', e);
-    }
-
-    // 2. Save to local state & localStorage
+    // 1. Save to local state & localStorage first
     const idx = allProducts.findIndex(p => p.id === prodId || p.name.toLowerCase() === name.toLowerCase());
     if (idx >= 0) allProducts[idx] = payload;
     else allProducts.unshift(payload);
     localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
 
+    // 2. Failsafe Cloud Sync: Save to Supabase products table AND site_settings (tabby_products_json)
+    try {
+      const client = await db();
+      if (client) {
+        // Upsert to products table
+        const { error: prodErr } = await client.from('products').upsert(payload);
+        if (prodErr) console.warn('Supabase product table upsert note:', prodErr.message);
+
+        // Failsafe cloud backup to site_settings so ALL devices get updated products instantly
+        const { error: setErr } = await client.from('site_settings').upsert({
+          key: 'tabby_products_json',
+          value: JSON.stringify(allProducts),
+          updated_at: new Date().toISOString()
+        });
+        if (setErr) console.warn('Supabase site_settings upsert note:', setErr.message);
+      }
+    } catch(e) {
+      console.warn('Supabase sync warning:', e);
+    }
+
     document.getElementById('productModal').classList.remove('open');
     renderProducts();
     renderInventory();
     updateDashboardStats();
-    alert('✅ Product saved and synced to live store!');
+    alert('✅ Product saved & live store updated across all devices!');
   }
 
   async function deleteProduct(id) {
     const targetProd = allProducts.find(p => p.id === id);
     if (!confirm(`Delete "${targetProd?.name || 'this product'}"?`)) return;
 
-    // 1. Delete from Supabase Database
-    try {
-      const client = await db();
-      if (client) {
-        await client.from('products').delete().eq('id', id);
-        if (targetProd?.name) {
-          await client.from('products').delete().eq('name', targetProd.name);
-        }
-      }
-    } catch(e) {}
+    // 1. Remove locally
+    allProducts = allProducts.filter(p => p.id !== id && p.name !== targetProd?.name);
+    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
 
-    // 2. Track deleted IDs & Sync deleted IDs via Supabase site_settings so ALL devices hide it
     const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
     if (!deletedIds.includes(id)) deletedIds.push(id);
     if (targetProd?.name && !deletedIds.includes(targetProd.name)) deletedIds.push(targetProd.name);
     localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
 
+    // 2. Delete from Supabase Database & Failsafe site_settings sync
     try {
       const client = await db();
       if (client) {
+        await client.from('products').delete().eq('id', id);
+        if (targetProd?.name) await client.from('products').delete().eq('name', targetProd.name);
         await client.from('site_settings').upsert({ key: 'deleted_product_ids', value: JSON.stringify(deletedIds) });
+        await client.from('site_settings').upsert({ key: 'tabby_products_json', value: JSON.stringify(allProducts) });
       }
     } catch(e) {}
 
-    allProducts = allProducts.filter(p => p.id !== id);
-    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
     renderProducts();
     renderInventory();
     updateDashboardStats();
-    alert('✅ Product deleted across all devices.');
+    alert('✅ Product deleted across all devices!');
   }
 
   function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }

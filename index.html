@@ -834,6 +834,19 @@
         try {
           const { data } = await window.supabaseClient.from('products').select('*');
           if (data && data.length > 0) dbProds = data;
+
+          const { data: dbSettings } = await window.supabaseClient.from('site_settings').select('*');
+          if (dbSettings) {
+            const jsonRow = dbSettings.find(s => s.key === 'tabby_products_json');
+            if (jsonRow && jsonRow.value) {
+              try {
+                const jsonProds = JSON.parse(jsonRow.value);
+                if (Array.isArray(jsonProds) && jsonProds.length > 0) {
+                  dbProds = [...dbProds, ...jsonProds];
+                }
+              } catch(e){}
+            }
+          }
         } catch(e) {}
       }
 

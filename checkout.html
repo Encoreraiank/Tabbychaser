@@ -1385,7 +1385,7 @@
         }
       } catch(e) {}
 
-      const rawKey = cloudRazorpayKey || localStorage.getItem('tabby_razorpay_key_id') || '';
+      const rawKey = window.cloudRazorpayKey || cloudRazorpayKey || localStorage.getItem('tabby_razorpay_key_id') || '';
       const razorpayKey = rawKey.trim().replace(/['"]/g, '');
       const cleanPhone = phone.replace(/[^0-9]/g, '');
 
@@ -1397,7 +1397,7 @@
           currency: "INR",
           name: "Tabby Chaser",
           description: `Handmade Charm Order #${orderRef}`,
-          image: "store-logo-c471e30d.webp",
+          image: window.location.origin + "/store-logo-c471e30d.webp",
           handler: function (response) {
             const payId = response.razorpay_payment_id || `pay_${Date.now()}`;
             simulateCheckoutSuccessDirect('razorpay', payId);

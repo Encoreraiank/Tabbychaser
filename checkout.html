@@ -1480,32 +1480,48 @@
       
       const cart = window.getCart ? window.getCart() : [];
 
-      // Save order record to Supabase orders table
+      const orderRecord = {
+        id: 'ord_' + Date.now(),
+        order_reference: orderId,
+        email: email,
+        name: name,
+        phone: '+91' + phone,
+        address: address,
+        instagram: instagram ? '@' + instagram : null,
+        notes: notes || null,
+        items: cart,
+        subtotal: checkoutSubtotal,
+        discount: checkoutDiscount,
+        shipping: checkoutShipping,
+        total: checkoutTotal,
+        payment_method: method || 'razorpay',
+        payment_id: paymentId || null,
+        status: 'paid',
+        created_at: new Date().toISOString()
+      };
+
+      // 1. Save order locally for instant rendering on My Account & Admin
+      try {
+        const userEmailKey = email ? email.toLowerCase().replace(/[^a-z0-9]/g, '_') : 'guest';
+        const existingLocalOrders = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
+        existingLocalOrders.unshift(orderRecord);
+        localStorage.setItem('tabby_orders_local', JSON.stringify(existingLocalOrders));
+
+        const userOrders = JSON.parse(localStorage.getItem(`tabby_user_orders_${userEmailKey}`) || '[]');
+        userOrders.unshift(orderRecord);
+        localStorage.setItem(`tabby_user_orders_${userEmailKey}`, JSON.stringify(userOrders));
+      } catch(e) {}
+
+      // 2. Save order record to Supabase orders table
       if (window.supabaseClient) {
         (async () => {
           try {
             const { data: { user } } = await window.supabaseClient.auth.getUser();
-            const orderRecord = {
-              order_reference: orderId,
-              user_id: user ? user.id : null,
-              email: email,
-              name: name,
-              phone: '+91' + phone,
-              address: address,
-              instagram: instagram ? '@' + instagram : null,
-              notes: notes || null,
-              items: cart,
-              subtotal: checkoutSubtotal,
-              discount: checkoutDiscount,
-              shipping: checkoutShipping,
-              total: checkoutTotal,
-              payment_method: method || 'razorpay',
-              payment_id: paymentId || null,
-              status: 'paid'
-            };
+            const dbRecord = { ...orderRecord, user_id: user ? user.id : null };
+            delete dbRecord.id;
             const { error } = await window.supabaseClient
               .from('orders')
-              .insert(orderRecord);
+              .insert(dbRecord);
             if (error) throw error;
             console.log('✅ Order saved to Supabase database!');
           } catch (err) {

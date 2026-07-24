@@ -1066,9 +1066,24 @@
 
   // 1. DASHBOARD & ORDERS
   async function loadOrders() {
-    const client = await db(); if (!client) return;
-    const { data } = await client.from('orders').select('*').order('created_at', { ascending: false });
-    allOrders = data || [];
+    let dbOrders = [];
+    try {
+      const client = await db();
+      if (client) {
+        const { data } = await client.from('orders').select('*').order('created_at', { ascending: false });
+        if (data && data.length > 0) dbOrders = data;
+      }
+    } catch(e) {}
+
+    let localOrders = [];
+    try {
+      localOrders = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
+    } catch(e) {}
+
+    const allCombined = [...dbOrders, ...localOrders];
+    allOrders = Array.from(new Set(allCombined.map(o => o.order_reference || o.id)))
+      .map(ref => allCombined.find(o => (o.order_reference || o.id) === ref));
+
     renderOrders();
     updateDashboardStats();
   }

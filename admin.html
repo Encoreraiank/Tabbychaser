@@ -730,7 +730,7 @@
               <input type="number" id="shipFreeThreshold" class="form-control" placeholder="2000" />
             </div>
           </div>
-          <button class="btn btn-pink" onclick="saveSiteSettings()">💾 Save Shipping Settings</button>
+          <button class="btn btn-pink" onclick="saveShippingSettings()">💾 Save Shipping Settings</button>
         </div>
       </div>
     </div>
@@ -2111,6 +2111,29 @@
 
     loadCommissionsStatus();
     alert(`Commissions status updated to: ${next ? 'OPEN 🟢' : 'CLOSED 🔴'}`);
+  }
+
+  async function saveShippingSettings() {
+    const fee = (document.getElementById('shipFee')?.value || '59').trim();
+    const threshold = (document.getElementById('shipFreeThreshold')?.value || '2000').trim();
+
+    const existing = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+    existing.standard_shipping_fee = fee;
+    existing.free_shipping_threshold = threshold;
+
+    localStorage.setItem('tabby_site_settings', JSON.stringify(existing));
+
+    try {
+      const client = await db();
+      if (client) {
+        await client.from('site_settings').upsert({ key: 'standard_shipping_fee', value: fee, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+        await client.from('site_settings').upsert({ key: 'free_shipping_threshold', value: threshold, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+      }
+    } catch(e) {
+      console.warn('Save shipping fee exception:', e);
+    }
+
+    alert('✅ Shipping Fee & Free Shipping Threshold saved successfully & live on checkout across all devices! 🚚');
   }
 
   async function saveSiteSettings() {

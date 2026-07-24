@@ -1081,7 +1081,31 @@
     let checkoutTotal = 0;
     let countdownInterval = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    let freeShippingThreshold = 2000;
+    let standardShippingFee = 59;
+
+    async function loadShippingSettingsForCheckout() {
+      try {
+        const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+        if (siteSettings.standard_shipping_fee) standardShippingFee = parseInt(siteSettings.standard_shipping_fee);
+        if (siteSettings.free_shipping_threshold) freeShippingThreshold = parseInt(siteSettings.free_shipping_threshold);
+      } catch(e) {}
+
+      try {
+        if (window.supabaseClient) {
+          const { data } = await window.supabaseClient.from('site_settings').select('*');
+          if (data && data.length > 0) {
+            const shipRow = data.find(s => s.key === 'standard_shipping_fee');
+            if (shipRow && shipRow.value) standardShippingFee = parseInt(shipRow.value);
+
+            const freeRow = data.find(s => s.key === 'free_shipping_threshold');
+            if (freeRow && freeRow.value) freeShippingThreshold = parseInt(freeRow.value);
+          }
+        }
+      } catch(e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
       // Load user session details if logged in
       const session = JSON.parse(localStorage.getItem('tabby_user_session'));
       const noteEl = document.getElementById('checkoutSignedInNote');
@@ -1105,6 +1129,7 @@
         return;
       }
 
+      await loadShippingSettingsForCheckout();
       renderCheckoutSummary(cart);
     });
 
@@ -1250,6 +1275,12 @@
       const totalEl = document.getElementById('summaryTotal');
       const codRow = document.getElementById('summaryCodRow');
 
+      if (checkoutSubtotal >= freeShippingThreshold && freeShippingThreshold > 0) {
+        checkoutShipping = 0;
+      } else {
+        checkoutShipping = standardShippingFee;
+      }
+
       let currentShipping = checkoutShipping;
       if (activePaymentMethod === 'cod') {
         if (codRow) codRow.style.display = 'flex';
@@ -1260,7 +1291,7 @@
       }
 
       if (subtotalEl) subtotalEl.textContent = `₹${checkoutSubtotal.toLocaleString('en-IN')}`;
-      if (shippingEl) shippingEl.textContent = `₹${currentShipping}`;
+      if (shippingEl) shippingEl.textContent = checkoutShipping === 0 ? 'FREE' : `₹${currentShipping}`;
       if (totalEl) totalEl.textContent = `₹${checkoutTotal.toLocaleString('en-IN')}`;
     }
 

@@ -1075,6 +1075,19 @@
       }
     } catch(e) {}
 
+    if (dbOrders.length === 0) {
+      try {
+        const res = await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/orders?select=*&order=created_at.desc', {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI'
+          }
+        });
+        const data = await res.json();
+        if (data && data.length > 0) dbOrders = data;
+      } catch(e) {}
+    }
+
     let localOrders = [];
     try {
       localOrders = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');

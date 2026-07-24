@@ -1517,6 +1517,12 @@
       updated_at: fullPayload.updated_at
     };
 
+    // Unban keys in deletedIds if re-adding or editing product
+    let deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+    const unbanKeys = [prodId.toLowerCase(), name.toLowerCase(), slug.toLowerCase()];
+    deletedIds = deletedIds.filter(k => !unbanKeys.includes(String(k).toLowerCase()));
+    localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
+
     // 1. Update local state & localStorage first
     const idx = allProducts.findIndex(p => p.id === prodId || p.name.toLowerCase() === name.toLowerCase());
     if (idx >= 0) allProducts[idx] = fullPayload;
@@ -1529,6 +1535,12 @@
       if (client) {
         const { error: pErr } = await client.from('products').upsert(cleanDbPayload, { onConflict: 'id' });
         if (pErr) console.warn('Supabase products upsert note:', pErr.message);
+
+        const { error: dErr } = await client.from('site_settings').upsert({
+          key: 'deleted_product_ids',
+          value: JSON.stringify(deletedIds),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
 
         const { error: sErr } = await client.from('site_settings').upsert({
           key: 'tabby_products_json',
@@ -1545,45 +1557,58 @@
     renderProducts();
     renderInventory();
     updateDashboardStats();
-    alert('✅ Product saved & live store updated across all devices!');
+    alert(`✅ Product "${name}" saved & live store updated across all devices!`);
   }
 
   async function deleteProduct(id) {
-    const targetProd = allProducts.find(p => p.id === id || p.slug === id || p.name === id);
+    const targetProd = allProducts.find(p => String(p.id).toLowerCase() === String(id).toLowerCase() || String(p.slug).toLowerCase() === String(id).toLowerCase() || String(p.name).toLowerCase() === String(id).toLowerCase());
     const targetName = targetProd?.name || id;
+    const targetId = targetProd?.id || id;
+    const targetSlug = targetProd?.slug || targetId;
+
     if (!confirm(`Delete "${targetName}"?`)) return;
 
-    const pid = String(id).toLowerCase();
-    const pname = String(targetName).toLowerCase();
-    const pclean = pname.replace(/[^a-z0-9]+/g, '-');
+    const keysToBanish = Array.from(new Set([
+      String(id).toLowerCase().trim(),
+      String(targetId).toLowerCase().trim(),
+      String(targetName).toLowerCase().trim(),
+      String(targetSlug).toLowerCase().trim(),
+      String(targetName).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    ])).filter(Boolean);
 
-    // 1. Remove locally
+    // 1. Remove from allProducts in memory immediately
     allProducts = allProducts.filter(p => {
-      const curId = String(p.id || '').toLowerCase();
-      const curName = String(p.name || '').toLowerCase();
-      return curId !== pid && curName !== pname;
+      const pid = String(p.id || '').toLowerCase().trim();
+      const pname = String(p.name || '').toLowerCase().trim();
+      const pslug = String(p.slug || '').toLowerCase().trim();
+      const pclean = pname.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      return !keysToBanish.includes(pid) && !keysToBanish.includes(pname) && !keysToBanish.includes(pslug) && !keysToBanish.includes(pclean);
     });
-    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
 
     const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-    [pid, pname, pclean].forEach(k => { if (k && !deletedIds.includes(k)) deletedIds.push(k); });
+    keysToBanish.forEach(k => { if (!deletedIds.includes(k)) deletedIds.push(k); });
     localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
+    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
 
     // 2. Delete from Supabase Database & site_settings backup
     try {
       const client = await db();
       if (client) {
-        await client.from('products').delete().eq('id', id);
-        if (targetName) await client.from('products').delete().eq('name', targetName);
+        await client.from('products').delete().eq('id', targetId);
+        if (targetName && targetName !== targetId) {
+          await client.from('products').delete().eq('name', targetName);
+        }
         await client.from('site_settings').upsert({ key: 'deleted_product_ids', value: JSON.stringify(deletedIds) }, { onConflict: 'key' });
         await client.from('site_settings').upsert({ key: 'tabby_products_json', value: JSON.stringify(allProducts) }, { onConflict: 'key' });
       }
-    } catch(e) {}
+    } catch(e) {
+      console.warn('Delete cloud note:', e);
+    }
 
     renderProducts();
     renderInventory();
     updateDashboardStats();
-    alert('✅ Product deleted across all devices!');
+    alert(`✅ Product "${targetName}" deleted permanently across all devices!`);
   }
 
   function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }

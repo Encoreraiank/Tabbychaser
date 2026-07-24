@@ -1071,7 +1071,7 @@
       const client = await db();
       if (client) {
         const { data } = await client.from('orders').select('*').order('created_at', { ascending: false });
-        if (data && data.length > 0) dbOrders = data;
+        if (data && Array.isArray(data)) dbOrders = data;
       }
     } catch(e) {}
 
@@ -1084,7 +1084,7 @@
           }
         });
         const data = await res.json();
-        if (data && data.length > 0) dbOrders = data;
+        if (data && Array.isArray(data)) dbOrders = data;
       } catch(e) {}
     }
 
@@ -1093,51 +1093,76 @@
       localOrders = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
     } catch(e) {}
 
-    const allCombined = [...dbOrders, ...localOrders];
-    allOrders = Array.from(new Set(allCombined.map(o => o.order_reference || o.id)))
-      .map(ref => allCombined.find(o => (o.order_reference || o.id) === ref));
+    const rawCombined = [...dbOrders, ...(Array.isArray(localOrders) ? localOrders : [])].filter(o => o && (o.order_reference || o.id));
+    const seenRefs = new Set();
+    allOrders = [];
+    rawCombined.forEach(o => {
+      const refKey = (o.order_reference || o.id || '').toString();
+      if (refKey && !seenRefs.has(refKey)) {
+        seenRefs.add(refKey);
+        allOrders.push(o);
+      }
+    });
 
     renderOrders();
     updateDashboardStats();
   }
 
   function renderOrders() {
-    const query = (document.getElementById('searchOrders')?.value || '').toLowerCase();
+    const query = (document.getElementById('searchOrders')?.value || '').toLowerCase().trim();
     const statusFilter = document.getElementById('filterOrderStatus')?.value || '';
-    const filtered = allOrders.filter(o =>
-      (!query || o.order_reference.toLowerCase().includes(query) || o.name.toLowerCase().includes(query)) &&
-      (!statusFilter || o.status === statusFilter)
-    );
+    const filtered = allOrders.filter(o => {
+      if (!o) return false;
+      const ref = (o.order_reference || o.id || '').toString().toLowerCase();
+      const name = (o.name || '').toString().toLowerCase();
+      const email = (o.email || '').toString().toLowerCase();
+      const matchesQuery = !query || ref.includes(query) || name.includes(query) || email.includes(query);
+      const matchesStatus = !statusFilter || (o.status || 'pending') === statusFilter;
+      return matchesQuery && matchesStatus;
+    });
 
-    document.getElementById('badgeOrders').textContent = allOrders.filter(o => o.status === 'pending').length;
+    const badgeEl = document.getElementById('badgeOrders');
+    if (badgeEl) badgeEl.textContent = allOrders.filter(o => o && o.status === 'pending').length;
 
-    document.getElementById('ordersTableBody').innerHTML = filtered.length ? filtered.map(o => `
-      <tr>
-        <td style="font-weight:700;">#${o.order_reference}</td>
-        <td>
-          <div style="font-weight:600;">${o.name}</div>
-          <div style="font-size:0.72rem;color:var(--muted);">${o.email}</div>
-        </td>
-        <td style="font-weight:700;">${fmtINR(o.total)}</td>
-        <td>
-          <select class="form-control" style="font-size:0.75rem;padding:3px 6px;" onchange="updateOrderStatus('${o.id}', this.value)">
-            ${['pending','confirmed','making','packed','shipped','delivered','cancelled'].map(s =>
-              `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
-            ).join('')}
-          </select>
-        </td>
-        <td>
-          <input type="text" class="form-control" placeholder="Tracking #" value="${o.tracking_id || ''}" style="font-size:0.75rem;padding:3px 6px;" onblur="updateTracking('${o.id}', this.value)" />
-        </td>
-        <td style="font-size:0.75rem;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
-        <td>
-          <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-            <button class="btn btn-outline btn-sm" onclick="printInvoice('${o.id || o.order_reference}')" style="padding:3px 8px; font-size:0.75rem;">🧾 Invoice</button>
-            ${o.phone ? `<a href="https://wa.me/${o.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(o.name)}!%20Thank%20you%20for%20your%20order%20%23${o.order_reference}%20on%20Tabby%20Chaser!%20🐾" target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; padding:3px 8px; font-size:0.75rem; text-decoration:none; border-radius:6px; font-weight:700;">📲 WhatsApp</a>` : ''}
-          </div>
-        </td>
-      </tr>
-    `).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;">No orders found</td></tr>`;
+    const tbody = document.getElementById('ordersTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = filtered.length ? filtered.map(o => {
+      const refStr = o.order_reference || o.id || 'TC-100';
+      const nameStr = o.name || 'Valued Customer';
+      const emailStr = o.email || '—';
+      const phoneStr = o.phone || '';
+      const totalVal = parseFloat(o.total || 0);
+      const dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN') : 'Recently';
+
+      return `
+        <tr>
+          <td style="font-weight:700;">#${refStr}</td>
+          <td>
+            <div style="font-weight:600;">${nameStr}</div>
+            <div style="font-size:0.72rem;color:var(--muted);">${emailStr}</div>
+          </td>
+          <td style="font-weight:700;">${fmtINR(totalVal)}</td>
+          <td>
+            <select class="form-control" style="font-size:0.75rem;padding:3px 6px;" onchange="updateOrderStatus('${o.id || refStr}', this.value)">
+              ${['pending','confirmed','making','packed','shipped','delivered','cancelled'].map(s =>
+                `<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
+              ).join('')}
+            </select>
+          </td>
+          <td>
+            <input type="text" class="form-control" placeholder="Tracking #" value="${o.tracking_id || ''}" style="font-size:0.75rem;padding:3px 6px;" onblur="updateTracking('${o.id || refStr}', this.value)" />
+          </td>
+          <td style="font-size:0.75rem;">${dateStr}</td>
+          <td>
+            <div style="display:flex; gap:6px; flex-wrap:nowrap;">
+              <button class="btn btn-outline btn-sm" onclick="printInvoice('${o.id || refStr}')" style="padding:3px 8px; font-size:0.75rem;">🧾 Invoice</button>
+              ${phoneStr ? `<a href="https://wa.me/${phoneStr.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(nameStr)}!%20Thank%20you%20for%20your%20order%20%23${refStr}%20on%20Tabby%20Chaser!%20🐾" target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; padding:3px 8px; font-size:0.75rem; text-decoration:none; border-radius:6px; font-weight:700;">📲 WhatsApp</a>` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;">No orders found</td></tr>`;
   }
 
   async function updateOrderStatus(id, status) {

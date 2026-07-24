@@ -745,7 +745,7 @@
                 <div style="display: flex; align-items: center; gap: 5px; padding: 0 12px; background: #f7f3fb; border-right: 1.5px solid #e8e0f0; font-size: 0.82rem; font-weight: 700; color: #555; white-space: nowrap; flex-shrink: 0;">
                   🇮🇳 +91
                 </div>
-                <input type="tel" id="checkoutPhone" required placeholder="Phone number" style="flex: 1; border: none; outline: none; padding: 13px 14px; font-family: var(--font-body); font-size: 0.9rem; background: transparent; color: var(--color-text-main);" pattern="[0-9]{10}" title="Please enter a 10-digit phone number." />
+                <input type="tel" id="checkoutPhone" required placeholder="Phone number" style="flex: 1; border: none; outline: none; padding: 13px 14px; font-family: var(--font-body); font-size: 0.9rem; background: transparent; color: var(--color-text-main);" pattern="[\d\s\+\-]{10,15}" title="Please enter a valid mobile number." />
               </div>
             </div>
 
@@ -764,7 +764,7 @@
                 <input type="text" id="checkoutState" required class="form-input" placeholder="State" style="margin-bottom: 0;" />
               </div>
               <div>
-                <input type="text" id="checkoutPin" required class="form-input" placeholder="Pincode" pattern="[0-9]{6}" title="Please enter a 6-digit PIN code." style="margin-bottom: 0;" />
+                <input type="text" id="checkoutPin" required class="form-input" placeholder="Pincode" pattern="[\d\s]{6,8}" title="Please enter a valid PIN code." style="margin-bottom: 0;" />
               </div>
             </div>
 
@@ -829,7 +829,7 @@
           </div>
 
           <!-- Pay Now button -->
-          <button type="button" onclick="document.getElementById('hiddenSubmitBtn').click()" style="width: 100%; background: linear-gradient(135deg, var(--color-brand-pink), #f093b4); border: none; border-radius: 50px !important; padding: 16px; font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--color-text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 24px rgba(244,122,171,0.35); transition: all 0.2s ease; margin-bottom: 16px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 30px rgba(244,122,171,0.45)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(244,122,171,0.35)'">
+          <button type="button" onclick="window.triggerCheckoutSubmit()" style="width: 100%; background: linear-gradient(135deg, var(--color-brand-pink), #f093b4); border: none; border-radius: 50px !important; padding: 16px; font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--color-text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 24px rgba(244,122,171,0.35); transition: all 0.2s ease; margin-bottom: 16px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 30px rgba(244,122,171,0.45)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(244,122,171,0.35)'">
             🔒 Pay Now
           </button>
 
@@ -1320,15 +1320,37 @@
       updateTotalsDisplay();
     };
 
-    window.handlePlaceOrder = async function(event) {
-      event.preventDefault();
+    window.triggerCheckoutSubmit = function() {
+      const form = document.getElementById('shippingDetailsForm');
+      if (form) {
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+      }
+      const submitBtn = document.getElementById('hiddenSubmitBtn');
+      if (submitBtn) {
+        submitBtn.click();
+      } else {
+        const fakeEvt = { preventDefault: () => {} };
+        window.handlePlaceOrder(fakeEvt);
+      }
+    };
 
-      const name = document.getElementById('checkoutName').value.trim();
-      const email = document.getElementById('checkoutEmail').value.trim();
-      const phone = document.getElementById('checkoutPhone').value.trim();
+    window.handlePlaceOrder = async function(event) {
+      if (event && event.preventDefault) event.preventDefault();
+
+      const name = (document.getElementById('checkoutName')?.value || '').trim();
+      const email = (document.getElementById('checkoutEmail')?.value || '').trim();
+      const phone = (document.getElementById('checkoutPhone')?.value || '').trim();
 
       if (!name || !email || !phone) {
         alert("Please fill in your Name, Email, and Phone number.");
+        return;
+      }
+
+      if (checkoutTotal <= 0) {
+        alert("Your shopping bag total is ₹0. Please add items to your cart before proceeding.");
         return;
       }
 
@@ -1345,7 +1367,9 @@
         }
       } catch(e) {}
 
-      const razorpayKey = cloudRazorpayKey || (localStorage.getItem('tabby_razorpay_key_id') || '').trim();
+      const rawKey = cloudRazorpayKey || localStorage.getItem('tabby_razorpay_key_id') || '';
+      const razorpayKey = rawKey.trim().replace(/['"]/g, '');
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
 
       // Trigger official Razorpay Popup Checkout SDK if a real Razorpay key is configured
       if (typeof Razorpay !== 'undefined' && razorpayKey && (razorpayKey.startsWith('rzp_live_') || razorpayKey.startsWith('rzp_test_')) && razorpayKey.length >= 15) {
@@ -1363,7 +1387,7 @@
           prefill: {
             name: name,
             email: email,
-            contact: phone
+            contact: cleanPhone
           },
           theme: {
             color: "#f47aab"

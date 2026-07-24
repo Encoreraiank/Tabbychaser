@@ -1372,6 +1372,11 @@
         return;
       }
 
+      // Generate order ID
+      const orderNum = Math.floor(100000 + Math.random() * 900000);
+      const orderRef = `TC-${orderNum}`;
+      localStorage.setItem('tabby_latest_order_id', orderRef);
+
       const street = (document.getElementById('checkoutAddress')?.value || '').trim();
       const city = (document.getElementById('checkoutCity')?.value || '').trim();
       const state = (document.getElementById('checkoutState')?.value || '').trim();

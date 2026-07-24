@@ -368,6 +368,61 @@
           <option value="cancelled">Cancelled</option>
         </select>
         <button class="btn btn-outline" onclick="loadOrders()">↻ Refresh</button>
+        <button class="btn" onclick="openAddOrderModal()" style="background:var(--pink); color:#fff; font-weight:700; border-radius:8px; padding:8px 16px;">➕ Add / Recover Order</button>
+      </div>
+
+      <!-- Modal for Adding Missing Order -->
+      <div id="addOrderModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:#fff; border-radius:16px; max-width:550px; width:100%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.2); max-height:90vh; overflow-y:auto;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #eee; padding-bottom:10px;">
+            <h3 style="margin:0; color:#333;">➕ Add / Recover Missing Order</h3>
+            <button onclick="document.getElementById('addOrderModal').style.display='none'" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#777;">✕</button>
+          </div>
+          <p style="font-size:0.82rem; color:#666; margin-bottom:16px;">
+            Found a payment on Razorpay Dashboard that was missing here? Fill in the details below to add it to your Admin Panel and sync it with customer orders!
+          </p>
+          <div style="display:grid; gap:12px;">
+            <div>
+              <label style="font-size:0.8rem; font-weight:700; color:#444;">Customer Full Name *</label>
+              <input type="text" id="manualName" class="form-control" placeholder="e.g. Anjali Sharma" required />
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div>
+                <label style="font-size:0.8rem; font-weight:700; color:#444;">Customer Email *</label>
+                <input type="email" id="manualEmail" class="form-control" placeholder="email@gmail.com" required />
+              </div>
+              <div>
+                <label style="font-size:0.8rem; font-weight:700; color:#444;">Mobile Phone *</label>
+                <input type="text" id="manualPhone" class="form-control" placeholder="+91 9876543210" required />
+              </div>
+            </div>
+            <div>
+              <label style="font-size:0.8rem; font-weight:700; color:#444;">Delivery Address *</label>
+              <textarea id="manualAddress" class="form-control" rows="2" placeholder="Full street address, city, state, pincode"></textarea>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div>
+                <label style="font-size:0.8rem; font-weight:700; color:#444;">Total Amount Paid (₹) *</label>
+                <input type="number" id="manualTotal" class="form-control" placeholder="e.g. 199" required />
+              </div>
+              <div>
+                <label style="font-size:0.8rem; font-weight:700; color:#444;">Payment Method</label>
+                <select id="manualMethod" class="form-control">
+                  <option value="razorpay">Razorpay Online</option>
+                  <option value="cod">Cash on Delivery</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:0.8rem; font-weight:700; color:#444;">Items Purchased / Notes</label>
+              <input type="text" id="manualItems" class="form-control" placeholder="e.g. Ghostly Skull Charm (Qty: 1)" />
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+              <button class="btn btn-outline" onclick="document.getElementById('addOrderModal').style.display='none'">Cancel</button>
+              <button class="btn" onclick="saveManualOrder()" style="background:var(--pink); color:#fff; font-weight:700;">Save Order to Admin 🚀</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -1174,6 +1229,69 @@
   async function updateTracking(id, tracking_id) {
     const client = await db();
     await client.from('orders').update({ tracking_id }).eq('id', id);
+  }
+
+  function openAddOrderModal() {
+    document.getElementById('addOrderModal').style.display = 'flex';
+  }
+
+  async function saveManualOrder() {
+    const name = (document.getElementById('manualName')?.value || '').trim();
+    const email = (document.getElementById('manualEmail')?.value || '').trim();
+    const phone = (document.getElementById('manualPhone')?.value || '').trim();
+    const address = (document.getElementById('manualAddress')?.value || '').trim();
+    const total = parseFloat(document.getElementById('manualTotal')?.value || 0);
+    const method = document.getElementById('manualMethod')?.value || 'razorpay';
+    const itemNotes = (document.getElementById('manualItems')?.value || '').trim();
+
+    if (!name || !email || !phone || total <= 0) {
+      alert("Please fill in Customer Name, Email, Phone, and Total Amount.");
+      return;
+    }
+
+    const orderNum = Math.floor(100000 + Math.random() * 900000);
+    const orderRef = `TC-${orderNum}`;
+
+    const orderRecord = {
+      order_reference: orderRef,
+      name: name,
+      email: email,
+      phone: phone.startsWith('+91') ? phone : '+91' + phone,
+      address: address || 'Address provided at checkout',
+      items: [{ name: itemNotes || 'Handmade Product', price: total, qty: 1 }],
+      subtotal: total,
+      discount: 0,
+      shipping: 0,
+      total: total,
+      payment_method: method,
+      status: 'paid',
+      created_at: new Date().toISOString()
+    };
+
+    // 1. Save locally
+    try {
+      const existingLocal = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
+      existingLocal.unshift(orderRecord);
+      localStorage.setItem('tabby_orders_local', JSON.stringify(existingLocal));
+    } catch(e) {}
+
+    // 2. Save to Supabase DB via REST API
+    try {
+      await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/orders', {
+        method: 'POST',
+        headers: {
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(orderRecord)
+      });
+    } catch(e) {}
+
+    document.getElementById('addOrderModal').style.display = 'none';
+    alert(`Order #${orderRef} added & synced successfully! 🎉`);
+    loadOrders();
   }
 
   // 2. CUSTOM ORDERS

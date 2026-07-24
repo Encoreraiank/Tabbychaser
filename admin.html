@@ -1086,15 +1086,15 @@
   });
 
   async function initDashboard() {
-    try { await loadCategories(); } catch(e) { console.error('loadCategories note:', e); }
-    try { await loadProducts(); } catch(e) { console.error('loadProducts note:', e); }
-    try { await loadOrders(); } catch(e) { console.error('loadOrders note:', e); }
-    try { await loadCustomOrders(); } catch(e) { console.error('loadCustomOrders note:', e); }
-    try { await loadCustomOrderSizes(); } catch(e) { console.error('loadCustomOrderSizes note:', e); }
-    try { await loadCustomers(); } catch(e) { console.error('loadCustomers note:', e); }
-    try { await loadCoupons(); } catch(e) { console.error('loadCoupons note:', e); }
-    try { await loadReviews(); } catch(e) { console.error('loadReviews note:', e); }
-    try { await loadSiteSettings(); } catch(e) { console.error('loadSiteSettings note:', e); }
+    loadOrders();
+    loadProducts();
+    loadCategories();
+    loadCustomOrders();
+    loadCustomOrderSizes();
+    loadCustomers();
+    loadCoupons();
+    loadReviews();
+    loadSiteSettings();
   }
 
   // NAVIGATION
@@ -2409,29 +2409,66 @@
 
   // STATS UPDATE
   function updateDashboardStats() {
-    const rev = allOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-    document.getElementById('dRev').textContent = fmtINR(rev);
-    document.getElementById('dOrders').textContent = allOrders.length;
-    document.getElementById('dPending').textContent = `${allOrders.filter(o => o.status === 'pending').length} pending`;
-    document.getElementById('dCustom').textContent = allCustom.length;
-    document.getElementById('dCustomPending').textContent = `${allCustom.filter(o => o.status === 'pending').length} pending`;
-    document.getElementById('dProducts').textContent = allProducts.length;
-    document.getElementById('dLowStock').textContent = `${allProducts.filter(p => p.stock <= 5).length} low stock`;
+    try {
+      const rev = allOrders.reduce((sum, o) => sum + (parseFloat(o?.total || 0) || 0), 0);
+      const dRevEl = document.getElementById('dRev');
+      if (dRevEl) dRevEl.textContent = fmtINR(rev);
 
-    // Render recent dashboards
-    document.getElementById('dashOrdersBody').innerHTML = allOrders.slice(0,5).map(o => `
-      <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <div><strong>#${o.order_reference}</strong> · ${o.name}</div>
-        <div><strong>${fmtINR(o.total)}</strong> <span class="badge-status st-${o.status}">${o.status}</span></div>
-      </div>
-    `).join('') || '<div style="padding:14px;">No recent orders</div>';
+      const dOrdersEl = document.getElementById('dOrders');
+      if (dOrdersEl) dOrdersEl.textContent = allOrders.length;
 
-    document.getElementById('dashCustomBody').innerHTML = allCustom.slice(0,5).map(o => `
-      <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-        <div><strong>${o.pet_name}</strong> (${o.pet_type})</div>
-        <div><strong>${fmtINR(o.total)}</strong> <span class="badge-status st-${o.status}">${o.status}</span></div>
-      </div>
-    `).join('') || '<div style="padding:14px;">No recent custom requests</div>';
+      const dPendingEl = document.getElementById('dPending');
+      if (dPendingEl) dPendingEl.textContent = `${allOrders.filter(o => o && o.status === 'pending').length} pending`;
+
+      const dCustomEl = document.getElementById('dCustom');
+      if (dCustomEl) dCustomEl.textContent = allCustom.length;
+
+      const dCustomPendingEl = document.getElementById('dCustomPending');
+      if (dCustomPendingEl) dCustomPendingEl.textContent = `${allCustom.filter(o => o && o.status === 'pending').length} pending`;
+
+      const dProductsEl = document.getElementById('dProducts');
+      if (dProductsEl) dProductsEl.textContent = allProducts.length;
+
+      const dLowStockEl = document.getElementById('dLowStock');
+      if (dLowStockEl) dLowStockEl.textContent = `${allProducts.filter(p => p && (p.stock || 0) <= 5).length} low stock`;
+
+      // Render recent dashboards
+      const dashOrdersBody = document.getElementById('dashOrdersBody');
+      if (dashOrdersBody) {
+        dashOrdersBody.innerHTML = allOrders.slice(0,5).map(o => {
+          const refStr = o?.order_reference || o?.id || 'TC-100';
+          const nameStr = o?.name || 'Valued Customer';
+          const totalVal = parseFloat(o?.total || 0);
+          const statusStr = o?.status || 'pending';
+
+          return `
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+              <div><strong>#${refStr}</strong> · ${nameStr}</div>
+              <div><strong>${fmtINR(totalVal)}</strong> <span class="badge-status st-${statusStr}">${statusStr}</span></div>
+            </div>
+          `;
+        }).join('') || '<div style="padding:14px;">No recent orders</div>';
+      }
+
+      const dashCustomBody = document.getElementById('dashCustomBody');
+      if (dashCustomBody) {
+        dashCustomBody.innerHTML = allCustom.slice(0,5).map(o => {
+          const petName = o?.pet_name || 'Custom Request';
+          const petType = o?.pet_type || 'Pet';
+          const totalVal = parseFloat(o?.total || 0);
+          const statusStr = o?.status || 'pending';
+
+          return `
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+              <div><strong>${petName}</strong> (${petType})</div>
+              <div><strong>${fmtINR(totalVal)}</strong> <span class="badge-status st-${statusStr}">${statusStr}</span></div>
+            </div>
+          `;
+        }).join('') || '<div style="padding:14px;">No recent custom requests</div>';
+      }
+    } catch(err) {
+      console.error('updateDashboardStats error:', err);
+    }
   }
 
   function generateOrderInvoiceHTML(order) {

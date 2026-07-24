@@ -1372,10 +1372,36 @@
         return;
       }
 
-      // Generate order ID
-      const orderNum = Math.floor(100000 + Math.random() * 900000);
-      const orderRef = `TC-${orderNum}`;
-      localStorage.setItem('tabby_latest_order_id', orderRef);
+      const street = (document.getElementById('checkoutAddress')?.value || '').trim();
+      const city = (document.getElementById('checkoutCity')?.value || '').trim();
+      const state = (document.getElementById('checkoutState')?.value || '').trim();
+      const pin = (document.getElementById('checkoutPin')?.value || '').trim();
+      const instagram = (document.getElementById('checkoutInstagram')?.value || '').trim();
+      const notes = (document.getElementById('checkoutNotes')?.value || '').trim();
+      const address = `${street}, ${city}, ${state} - ${pin}`;
+      const cart = window.getCart ? window.getCart() : [];
+
+      window.currentCheckoutDetails = {
+        orderRef,
+        name,
+        email,
+        phone,
+        street,
+        city,
+        state,
+        pin,
+        address,
+        instagram,
+        notes,
+        cart: [...cart],
+        subtotal: checkoutSubtotal,
+        discount: checkoutDiscount,
+        shipping: checkoutShipping,
+        total: checkoutTotal
+      };
+      try {
+        localStorage.setItem('tabby_pending_checkout', JSON.stringify(window.currentCheckoutDetails));
+      } catch(e) {}
 
       let cloudRazorpayKey = '';
       try {
@@ -1506,110 +1532,112 @@
     };
 
     function simulateCheckoutSuccessDirect(method, paymentId = null) {
-      const container = document.getElementById('checkoutLayoutContainer');
-      const orderId = localStorage.getItem('tabby_latest_order_id') || 'TC-928471';
-      
-      const name = document.getElementById('checkoutName').value.trim();
-      const email = document.getElementById('checkoutEmail').value.trim();
-      const instagram = (document.getElementById('checkoutInstagram')?.value || '').trim();
-      const notes = (document.getElementById('checkoutNotes')?.value || '').trim();
-      const phone = document.getElementById('checkoutPhone').value.trim();
-      const street = document.getElementById('checkoutAddress').value.trim();
-      const city = document.getElementById('checkoutCity').value.trim();
-      const state = document.getElementById('checkoutState').value.trim();
-      const pin = document.getElementById('checkoutPin').value.trim();
-      const address = `${street}, ${city}, ${state} - ${pin}`;
-      
-      const cart = window.getCart ? window.getCart() : [];
-
-      const orderRecord = {
-        id: 'ord_' + Date.now(),
-        order_reference: orderId,
-        email: email,
-        name: name,
-        phone: '+91' + phone,
-        address: address,
-        instagram: instagram ? '@' + instagram : null,
-        notes: notes || null,
-        items: cart,
-        subtotal: checkoutSubtotal,
-        discount: checkoutDiscount,
-        shipping: checkoutShipping,
-        total: checkoutTotal,
-        payment_method: method || 'razorpay',
-        payment_id: paymentId || null,
-        status: 'paid',
-        created_at: new Date().toISOString()
-      };
-
-      // 1. Save order locally for instant rendering on My Account & Admin
       try {
-        const userEmailKey = email ? email.toLowerCase().replace(/[^a-z0-9]/g, '_') : 'guest';
-        const existingLocalOrders = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
-        existingLocalOrders.unshift(orderRecord);
-        localStorage.setItem('tabby_orders_local', JSON.stringify(existingLocalOrders));
+        const details = window.currentCheckoutDetails || JSON.parse(localStorage.getItem('tabby_pending_checkout') || '{}');
+        const container = document.getElementById('checkoutLayoutContainer');
+        const orderId = details.orderRef || localStorage.getItem('tabby_latest_order_id') || ('TC-' + Math.floor(100000 + Math.random() * 900000));
+        
+        const name = details.name || (document.getElementById('checkoutName')?.value || '').trim() || 'Valued Customer';
+        const email = details.email || (document.getElementById('checkoutEmail')?.value || '').trim() || '';
+        const phone = details.phone || (document.getElementById('checkoutPhone')?.value || '').trim() || '';
+        const address = details.address || 'Address provided at checkout';
+        const instagram = details.instagram || (document.getElementById('checkoutInstagram')?.value || '').trim() || '';
+        const notes = details.notes || (document.getElementById('checkoutNotes')?.value || '').trim() || '';
+        const cart = (details.cart && details.cart.length > 0) ? details.cart : (window.getCart ? window.getCart() : []);
 
-        const userOrders = JSON.parse(localStorage.getItem(`tabby_user_orders_${userEmailKey}`) || '[]');
-        userOrders.unshift(orderRecord);
-        localStorage.setItem(`tabby_user_orders_${userEmailKey}`, JSON.stringify(userOrders));
-      } catch(e) {}
+        const subtotal = details.subtotal || checkoutSubtotal || 0;
+        const discount = details.discount || checkoutDiscount || 0;
+        const shipping = details.shipping !== undefined ? details.shipping : checkoutShipping;
+        const total = details.total || checkoutTotal || 0;
 
-      // Send instant order alert email to store owner (tabbychaser2@gmail.com)
-      try {
-        const itemSummary = cart.map(i => `• ${i.name} (Qty: ${i.qty || i.quantity || 1} × ₹${i.price})`).join('\n');
-        fetch('https://formsubmit.co/ajax/tabbychaser2@gmail.com', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            _subject: `🎀 NEW STORE ORDER #${orderId} Received! (₹${checkoutTotal})`,
-            _captcha: 'false',
-            'Order Reference': '#' + orderId,
-            'Customer Name': name,
-            'Customer Email': email,
-            'Customer Phone': '+91 ' + phone,
-            'Instagram Handle': instagram ? '@' + instagram : 'None',
-            'Shipping Address': address,
-            'Items Ordered': itemSummary || 'Handmade Products',
-            'Subtotal': `₹${checkoutSubtotal}`,
-            'Discount': `₹${checkoutDiscount}`,
-            'Shipping Fee': `₹${checkoutShipping}`,
-            'Total Paid': `₹${checkoutTotal}`,
-            'Payment Method': method === 'cod' ? 'Cash on Delivery' : 'Paid via Razorpay',
-            'Order Notes': notes || 'None'
-          })
-        }).catch(err => console.warn('Order email notification error:', err));
-      } catch(e) {}
+        const orderRecord = {
+          id: 'ord_' + Date.now(),
+          order_reference: orderId,
+          email: email,
+          name: name,
+          phone: phone ? (phone.startsWith('+91') ? phone : '+91' + phone) : '',
+          address: address,
+          instagram: instagram ? (instagram.startsWith('@') ? instagram : '@' + instagram) : null,
+          notes: notes || null,
+          items: cart,
+          subtotal: subtotal,
+          discount: discount,
+          shipping: shipping,
+          total: total,
+          payment_method: method || 'razorpay',
+          payment_id: paymentId || null,
+          status: 'paid',
+          created_at: new Date().toISOString()
+        };
 
-      // 2. Save order record to Supabase orders table via SDK & Direct REST API
-      const dbRecord = { ...orderRecord };
-      delete dbRecord.id;
-
-      (async () => {
+        // 1. Save order locally for instant rendering on My Account & Admin
         try {
-          if (window.supabaseClient) {
-            await window.supabaseClient.from('orders').insert(dbRecord);
-          }
+          const userEmailKey = email ? email.toLowerCase().replace(/[^a-z0-9]/g, '_') : 'guest';
+          const existingLocalOrders = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
+          existingLocalOrders.unshift(orderRecord);
+          localStorage.setItem('tabby_orders_local', JSON.stringify(existingLocalOrders));
+
+          const userOrders = JSON.parse(localStorage.getItem(`tabby_user_orders_${userEmailKey}`) || '[]');
+          userOrders.unshift(orderRecord);
+          localStorage.setItem(`tabby_user_orders_${userEmailKey}`, JSON.stringify(userOrders));
         } catch(e) {}
 
+        // Send instant order alert email to store owner (tabbychaser2@gmail.com)
         try {
-          await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/orders', {
+          const itemSummary = cart.map(i => `• ${i.name} (Qty: ${i.qty || i.quantity || 1} × ₹${i.price})`).join('\n');
+          fetch('https://formsubmit.co/ajax/tabbychaser2@gmail.com', {
             method: 'POST',
             headers: {
-              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
               'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
+              'Accept': 'application/json'
             },
-            body: JSON.stringify(dbRecord)
-          });
-          console.log('✅ Order synced to cloud database!');
-        } catch(err) {
-          console.error('Cloud DB insert error:', err);
-        }
-      })();
+            body: JSON.stringify({
+              _subject: `🎀 NEW STORE ORDER #${orderId} Received! (₹${total})`,
+              _captcha: 'false',
+              'Order Reference': '#' + orderId,
+              'Customer Name': name,
+              'Customer Email': email,
+              'Customer Phone': phone,
+              'Instagram Handle': instagram || 'None',
+              'Shipping Address': address,
+              'Items Ordered': itemSummary || 'Handmade Products',
+              'Subtotal': `₹${subtotal}`,
+              'Discount': `₹${discount}`,
+              'Shipping Fee': `₹${shipping}`,
+              'Total Paid': `₹${total}`,
+              'Payment Method': method === 'cod' ? 'Cash on Delivery' : 'Paid via Razorpay',
+              'Order Notes': notes || 'None'
+            })
+          }).catch(err => console.warn('Order email notification error:', err));
+        } catch(e) {}
+
+        // 2. Save order record to Supabase orders table via SDK & Direct REST API
+        const dbRecord = { ...orderRecord };
+        delete dbRecord.id;
+
+        (async () => {
+          try {
+            if (window.supabaseClient) {
+              await window.supabaseClient.from('orders').insert(dbRecord);
+            }
+          } catch(e) {}
+
+          try {
+            const apiRes = await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/orders', {
+              method: 'POST',
+              headers: {
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+              },
+              body: JSON.stringify(dbRecord)
+            });
+            console.log('✅ Order synced to cloud database! Status:', apiRes.status);
+          } catch(err) {
+            console.error('Cloud DB insert error:', err);
+          }
+        })();
 
       // Save applied coupon as used for this user & clear applied coupon
       const applied = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
@@ -1675,6 +1703,9 @@
           window.location.href = 'index.html';
         }
       }, 1000);
+      } catch(err) {
+        console.error('Checkout completion error:', err);
+      }
     }
   </script>
 </body>

@@ -1556,7 +1556,7 @@
 
       // Send instant order alert email to store owner (tabbychaser2@gmail.com)
       try {
-        const itemSummary = cart.map(i => `${i.name} (Qty: ${i.qty || i.quantity || 1} × ₹${i.price})`).join(', ');
+        const itemSummary = cart.map(i => `• ${i.name} (Qty: ${i.qty || i.quantity || 1} × ₹${i.price})`).join('\n');
         fetch('https://formsubmit.co/ajax/tabbychaser2@gmail.com', {
           method: 'POST',
           headers: {
@@ -1564,22 +1564,21 @@
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            _subject: `🎉 NEW ORDER #${orderId} Received! (Total: ₹${checkoutTotal})`,
-            _template: 'table',
+            _subject: `🎀 NEW STORE ORDER #${orderId} Received! (₹${checkoutTotal})`,
             _captcha: 'false',
-            Order_Reference: orderId,
-            Customer_Name: name,
-            Customer_Email: email,
-            Customer_Phone: '+91 ' + phone,
-            Instagram_Handle: instagram ? '@' + instagram : 'None',
-            Shipping_Address: address,
-            Items_Ordered: itemSummary || 'Handmade Products',
-            Subtotal: `₹${checkoutSubtotal}`,
-            Discount: `₹${checkoutDiscount}`,
-            Shipping_Fee: `₹${checkoutShipping}`,
-            Total_Paid: `₹${checkoutTotal}`,
-            Payment_Method: method === 'cod' ? 'Cash on Delivery' : 'Paid via Razorpay',
-            Order_Notes: notes || 'None'
+            'Order Reference': '#' + orderId,
+            'Customer Name': name,
+            'Customer Email': email,
+            'Customer Phone': '+91 ' + phone,
+            'Instagram Handle': instagram ? '@' + instagram : 'None',
+            'Shipping Address': address,
+            'Items Ordered': itemSummary || 'Handmade Products',
+            'Subtotal': `₹${checkoutSubtotal}`,
+            'Discount': `₹${checkoutDiscount}`,
+            'Shipping Fee': `₹${checkoutShipping}`,
+            'Total Paid': `₹${checkoutTotal}`,
+            'Payment Method': method === 'cod' ? 'Cash on Delivery' : 'Paid via Razorpay',
+            'Order Notes': notes || 'None'
           })
         }).catch(err => console.warn('Order email notification error:', err));
       } catch(e) {}

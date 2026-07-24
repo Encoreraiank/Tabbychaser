@@ -1117,7 +1117,12 @@
           <input type="text" class="form-control" placeholder="Tracking #" value="${o.tracking_id || ''}" style="font-size:0.75rem;padding:3px 6px;" onblur="updateTracking('${o.id}', this.value)" />
         </td>
         <td style="font-size:0.75rem;">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
-        <td><button class="btn btn-outline btn-sm" onclick="printInvoice('${o.id}')">🧾 Invoice</button></td>
+        <td>
+          <div style="display:flex; gap:6px; flex-wrap:nowrap;">
+            <button class="btn btn-outline btn-sm" onclick="printInvoice('${o.id || o.order_reference}')" style="padding:3px 8px; font-size:0.75rem;">🧾 Invoice</button>
+            ${o.phone ? `<a href="https://wa.me/${o.phone.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(o.name)}!%20Thank%20you%20for%20your%20order%20%23${o.order_reference}%20on%20Tabby%20Chaser!%20🐾" target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; padding:3px 8px; font-size:0.75rem; text-decoration:none; border-radius:6px; font-weight:700;">📲 WhatsApp</a>` : ''}
+          </div>
+        </td>
       </tr>
     `).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;">No orders found</td></tr>`;
   }

@@ -1566,6 +1566,7 @@
           body: JSON.stringify({
             _subject: `🎉 NEW ORDER #${orderId} Received! (Total: ₹${checkoutTotal})`,
             _template: 'table',
+            _captcha: 'false',
             Order_Reference: orderId,
             Customer_Name: name,
             Customer_Email: email,

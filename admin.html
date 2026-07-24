@@ -1331,16 +1331,12 @@
     remoteJson.forEach(p => { if (p && p.id) mergedMap[p.id] = { ...mergedMap[p.id], ...p }; });
     localData.forEach(p => { if (p && p.id) mergedMap[p.id] = { ...mergedMap[p.id], ...p }; });
 
-    // Bulletproof deletion filter
+    // Bulletproof exact-ID deletion filter
     allProducts = Object.values(mergedMap).filter(p => {
-      if (!p) return false;
-      const pid = String(p.id || '').toLowerCase();
-      const pname = String(p.name || '').toLowerCase();
-      const pslug = String(p.slug || '').toLowerCase();
-      const pclean = pname.replace(/[^a-z0-9]+/g, '-');
-      
-      const isDeleted = deletedIds.includes(pid) || deletedIds.includes(pname) || deletedIds.includes(pslug) || deletedIds.includes(pclean);
-      return !isDeleted;
+      if (!p || !p.id) return false;
+      const pid = String(p.id).toLowerCase().trim();
+      const pslug = String(p.slug || '').toLowerCase().trim();
+      return !deletedIds.includes(pid) && !deletedIds.includes(pslug);
     });
 
     localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));

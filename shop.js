@@ -201,11 +201,9 @@ async function loadLiveStorefrontData() {
 
   const liveProducts = uniqueProducts.filter(p => {
     if (!p || p.status === 'draft') return false;
-    const pid = String(p.id || '').toLowerCase();
-    const pname = String(p.name || '').toLowerCase();
-    const pslug = String(p.slug || '').toLowerCase();
-    const pclean = pname.replace(/[^a-z0-9]+/g, '-');
-    return !deletedIds.includes(pid) && !deletedIds.includes(pname) && !deletedIds.includes(pslug) && !deletedIds.includes(pclean);
+    const pid = String(p.id || '').toLowerCase().trim();
+    const pslug = String(p.slug || '').toLowerCase().trim();
+    return !deletedIds.includes(pid) && !deletedIds.includes(pslug);
   });
 
   // Save merged state to local storage

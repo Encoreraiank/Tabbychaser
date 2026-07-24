@@ -1554,6 +1554,35 @@
         localStorage.setItem(`tabby_user_orders_${userEmailKey}`, JSON.stringify(userOrders));
       } catch(e) {}
 
+      // Send instant order alert email to store owner (tabbychaser2@gmail.com)
+      try {
+        const itemSummary = cart.map(i => `${i.name} (Qty: ${i.qty || i.quantity || 1} × ₹${i.price})`).join(', ');
+        fetch('https://formsubmit.co/ajax/tabbychaser2@gmail.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            _subject: `🎉 NEW ORDER #${orderId} Received! (Total: ₹${checkoutTotal})`,
+            _template: 'table',
+            Order_Reference: orderId,
+            Customer_Name: name,
+            Customer_Email: email,
+            Customer_Phone: '+91 ' + phone,
+            Instagram_Handle: instagram ? '@' + instagram : 'None',
+            Shipping_Address: address,
+            Items_Ordered: itemSummary || 'Handmade Products',
+            Subtotal: `₹${checkoutSubtotal}`,
+            Discount: `₹${checkoutDiscount}`,
+            Shipping_Fee: `₹${checkoutShipping}`,
+            Total_Paid: `₹${checkoutTotal}`,
+            Payment_Method: method === 'cod' ? 'Cash on Delivery' : 'Paid via Razorpay',
+            Order_Notes: notes || 'None'
+          })
+        }).catch(err => console.warn('Order email notification error:', err));
+      } catch(e) {}
+
       // 2. Save order record to Supabase orders table
       if (window.supabaseClient) {
         (async () => {

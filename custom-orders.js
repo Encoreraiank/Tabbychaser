@@ -55,7 +55,70 @@ function updateTextareaCounter(textarea, counterId) {
   }
 }
 
-// ---- SIZE SELECTION AND ESTIMATE SUMMARY ----
+// ---- DYNAMIC SIZE RENDERING & SELECTION ----
+const DEFAULT_FRONTEND_SIZES = [
+  { key: 'small', name: 'Small', range: '(~ 2–3 cm)', price: 450, isDefault: true },
+  { key: 'medium', name: 'Medium', range: '(~ 3–4.5 cm)', price: 900, isDefault: false },
+  { key: 'large', name: 'Large', range: '(~ 4.5–6 cm)', price: 1350, isDefault: false }
+];
+
+window.customOrderSizes = [...DEFAULT_FRONTEND_SIZES];
+
+async function loadAndRenderCustomSizes() {
+  let sizes = [];
+  try {
+    if (window.supabaseClient) {
+      const { data } = await window.supabaseClient.from('site_settings').select('*').eq('key', 'custom_order_sizes');
+      if (data && data[0] && data[0].value) {
+        sizes = JSON.parse(data[0].value);
+      }
+    }
+  } catch(e) {}
+
+  if (!sizes || sizes.length === 0) {
+    try {
+      sizes = JSON.parse(localStorage.getItem('tabby_custom_order_sizes') || '[]');
+    } catch(e) {}
+  }
+
+  if (!sizes || sizes.length === 0) {
+    sizes = [...DEFAULT_FRONTEND_SIZES];
+  }
+
+  window.customOrderSizes = sizes;
+  localStorage.setItem('tabby_custom_order_sizes', JSON.stringify(sizes));
+  renderCustomSizeCards(sizes);
+}
+
+function renderCustomSizeCards(sizes) {
+  const container = document.getElementById('customSizeCardsGridContainer');
+  if (!container) return;
+
+  let html = '';
+  sizes.forEach((s, idx) => {
+    const isChecked = s.isDefault || idx === 0;
+    html += `
+      <label class="size-card ${isChecked ? 'active' : ''}" onclick="selectSize('${s.key}')">
+        <input type="radio" name="sizeSelection" value="${s.key}" ${isChecked ? 'checked' : ''} style="display:none;" onchange="updateEstimate()" />
+        <div class="size-card-info">
+          <span class="size-name">${s.name}</span>
+          <span class="size-range">${s.range}</span>
+        </div>
+        <div class="size-card-footer">
+          <span class="radio-indicator"></span>
+          <span class="size-price">₹${(s.price || 0).toLocaleString('en-IN')}</span>
+        </div>
+      </label>
+    `;
+  });
+  container.innerHTML = html;
+  updateEstimate();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadAndRenderCustomSizes();
+});
+
 function selectSize(size) {
   const sizeCards = document.querySelectorAll('.size-card');
   sizeCards.forEach(card => {
@@ -77,14 +140,12 @@ function updateEstimate() {
   const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
   const shippingPrice = parseInt(siteSettings.standard_shipping_fee || '59');
 
-  const sizeVal = form.elements['sizeSelection'].value;
-  let basePrice = 450;
+  const selectedInput = form.querySelector('input[name="sizeSelection"]:checked');
+  const selectedKey = selectedInput ? selectedInput.value : 'small';
 
-  if (sizeVal === 'medium') {
-    basePrice = 900;
-  } else if (sizeVal === 'large') {
-    basePrice = 1350;
-  }
+  const sizes = window.customOrderSizes || DEFAULT_FRONTEND_SIZES;
+  const foundSize = sizes.find(s => s.key === selectedKey) || sizes[0];
+  const basePrice = foundSize ? (parseFloat(foundSize.price) || 0) : 450;
 
   const summaryBasePrice = document.getElementById('summaryBasePrice');
   const summaryTotal = document.getElementById('summaryTotal');
@@ -157,17 +218,18 @@ async function submitInquiry(event) {
   if (!form) return;
 
   const submitBtn = form.querySelector('.btn-planner-submit');
-  const sizeVal = form.elements['sizeSelection'].value;
+  const selectedInput = form.querySelector('input[name="sizeSelection"]:checked');
+  const sizeVal = selectedInput ? selectedInput.value : 'small';
   const details = document.getElementById('charmDetails').value.trim();
   const additional = document.getElementById('additionalRequests').value.trim();
 
-  let basePrice = 450;
-  const shippingPrice = 59;
-  if (sizeVal === 'medium') {
-    basePrice = 900;
-  } else if (sizeVal === 'large') {
-    basePrice = 1350;
-  }
+  const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+  const shippingPrice = parseInt(siteSettings.standard_shipping_fee || '59');
+
+  const sizes = window.customOrderSizes || DEFAULT_FRONTEND_SIZES;
+  const foundSize = sizes.find(s => s.key === sizeVal) || sizes[0];
+  const basePrice = foundSize ? (parseFloat(foundSize.price) || 0) : 450;
+  const sizeName = foundSize ? foundSize.name : sizeVal.toUpperCase();
   const totalPrice = basePrice + shippingPrice;
 
   // Retrieve user session
@@ -267,8 +329,11 @@ function sendEmail() {
 
   const details = document.getElementById('charmDetails').value.trim();
   const additional = document.getElementById('additionalRequests').value.trim();
-  const sizeVal = form.elements['sizeSelection'].value;
-  const sizeText = sizeVal.toUpperCase();
+  const selectedInput = form.querySelector('input[name="sizeSelection"]:checked');
+  const sizeVal = selectedInput ? selectedInput.value : 'small';
+  const sizes = window.customOrderSizes || DEFAULT_FRONTEND_SIZES;
+  const foundSize = sizes.find(s => s.key === sizeVal) || sizes[0];
+  const sizeText = foundSize ? `${foundSize.name} ${foundSize.range || ''} (₹${foundSize.price})` : sizeVal.toUpperCase();
 
   const subject = encodeURIComponent("Tabby Chaser - Custom Charm Request Inquiry");
   

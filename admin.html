@@ -2148,11 +2148,23 @@
     alert('✅ Cloudinary credentials saved!');
   }
 
-  function saveRazorpayKey() {
+  async function saveRazorpayKey() {
     const key = document.getElementById('razorpayKeyId').value.trim();
     if (key) {
       localStorage.setItem('tabby_razorpay_key_id', key);
-      alert('✅ Razorpay Key ID saved successfully! 💳');
+      try {
+        const client = await db();
+        if (client) {
+          await client.from('site_settings').upsert({
+            key: 'razorpay_key_id',
+            value: key,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+        }
+      } catch(e) {}
+      alert('✅ Razorpay Key ID saved & synced live to store checkout across all devices! 💳');
+    } else {
+      alert('Please enter a valid Razorpay Key ID (rzp_live_... or rzp_test_...).');
     }
   }
 

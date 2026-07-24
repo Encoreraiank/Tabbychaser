@@ -1289,7 +1289,7 @@
       updateTotalsDisplay();
     };
 
-    window.handlePlaceOrder = function(event) {
+    window.handlePlaceOrder = async function(event) {
       event.preventDefault();
 
       const name = document.getElementById('checkoutName').value.trim();
@@ -1306,7 +1306,15 @@
       const orderRef = `TC-${orderNum}`;
       localStorage.setItem('tabby_latest_order_id', orderRef);
 
-      const razorpayKey = (localStorage.getItem('tabby_razorpay_key_id') || '').trim();
+      let cloudRazorpayKey = '';
+      try {
+        if (window.supabaseClient) {
+          const { data } = await window.supabaseClient.from('site_settings').select('*').eq('key', 'razorpay_key_id');
+          if (data && data[0] && data[0].value) cloudRazorpayKey = data[0].value.trim();
+        }
+      } catch(e) {}
+
+      const razorpayKey = cloudRazorpayKey || (localStorage.getItem('tabby_razorpay_key_id') || '').trim();
 
       // Trigger official Razorpay Popup Checkout SDK if a real Razorpay key is configured
       if (typeof Razorpay !== 'undefined' && razorpayKey && (razorpayKey.startsWith('rzp_live_') || razorpayKey.startsWith('rzp_test_')) && razorpayKey.length >= 15) {

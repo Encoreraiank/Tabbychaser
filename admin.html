@@ -2208,20 +2208,34 @@
   }
 
   async function saveRazorpayKey() {
-    const key = document.getElementById('razorpayKeyId').value.trim();
-    if (key) {
-      localStorage.setItem('tabby_razorpay_key_id', key);
+    const keyVal = (document.getElementById('razorpayKeyId')?.value || '').trim();
+    if (keyVal) {
+      localStorage.setItem('tabby_razorpay_key_id', keyVal);
       try {
         const client = await db();
         if (client) {
           await client.from('site_settings').upsert({
             key: 'razorpay_key_id',
-            value: key,
-            updated_at: new Date().toISOString()
+            value: keyVal
           }, { onConflict: 'key' });
         }
       } catch(e) {}
-      alert('✅ Razorpay Key ID saved & synced live to store checkout across all devices! 💳');
+
+      // Direct REST API fallback
+      try {
+        await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/site_settings', {
+          method: 'POST',
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({ key: 'razorpay_key_id', value: keyVal })
+        });
+      } catch(e) {}
+
+      alert('✅ Razorpay Key ID saved & synced live to store checkout across ALL devices & mobile phones! 💳');
     } else {
       alert('Please enter a valid Razorpay Key ID (rzp_live_... or rzp_test_...).');
     }

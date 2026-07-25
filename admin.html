@@ -581,17 +581,17 @@
       <div class="card" style="margin-bottom:20px; border:1.5px solid #f47aab; background:#fffbfd; border-radius:14px; padding:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div>
-            <h3 style="margin:0; color:#d35d88; font-size:1.2rem; font-weight:800;">⚡ Limited Edition Showcase Management</h3>
+            <h3 style="margin:0; color:#d35d88; font-size:1.2rem; font-weight:800;">⚡ Limited Edition &amp; Pre-Order Showcase Management</h3>
             <p style="margin:4px 0 0 0; font-size:0.83rem; color:#666;">
-              Manage exclusive drops, rare products, custom badges, and promo banners displayed right above Best Sellers on the Homepage.
+              Manage exclusive drops, rare products, booking deadlines, custom badges, and promo banners displayed right above Best Sellers on the Homepage.
             </p>
           </div>
-          <button class="btn btn-pink" onclick="saveLimitedEditionConfig()" style="font-weight:700;">💾 Save Limited Edition Panel</button>
+          <button class="btn btn-pink" onclick="saveLimitedEditionConfig()" style="font-weight:700; background:#d35d88; color:#fff;">💾 Save Limited Edition Panel</button>
         </div>
 
         <hr style="border:none; border-top:1px solid #f8bbd0; margin:16px 0;" />
 
-        <div class="grid-2" style="gap:16px;">
+        <div class="grid-2" style="gap:16px; margin-bottom:20px;">
           <div>
             <label style="font-size:0.82rem; font-weight:700; color:#444;">Section Heading Title</label>
             <input type="text" id="leSectionTitle" class="input" value="⚡ LIMITED EDITION" placeholder="e.g. ⚡ LIMITED EDITION" />
@@ -601,29 +601,114 @@
             <input type="text" id="leSectionSubtitle" class="input" value="Handcrafted in tiny batches — once they're gone, they're gone forever! 🎀" placeholder="Promo subtitle text..." />
           </div>
         </div>
+
+        <!-- 🕒 Pre-Order / Booking Deadline Settings Card -->
+        <div style="background:#ffffff; border:1.5px solid #e0b0d0; border-radius:12px; padding:18px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div>
+              <div style="font-weight:800; font-size:1rem; color:#333; display:flex; align-items:center; gap:8px;">
+                <span>🕒</span> Pre-order / Drop Countdown Deadline
+              </div>
+              <div style="font-size:0.8rem; color:#666; margin-top:2px;">
+                Let customers book/order this product before it's out of stock. Set a booking deadline and max quantity below.
+              </div>
+            </div>
+            <label style="position:relative; display:inline-block; width:50px; height:26px;">
+              <input type="checkbox" id="lePreorderToggle" style="opacity:0; width:0; height:0;" onchange="togglePreorderInputs(this.checked)" />
+              <span id="lePreorderSlider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.4s; border-radius:34px;"></span>
+            </label>
+          </div>
+
+          <div id="lePreorderInputsBox" style="display:none; margin-top:14px; background:#fffde7; border:1px solid #ffe082; border-radius:10px; padding:14px;">
+            <div style="font-size:0.82rem; font-weight:700; color:#b78103; margin-bottom:10px; background:#fff8e1; padding:8px 12px; border-radius:6px; border:1px solid #ffe082;">
+              ⚠️ Please fill the max quantity for this preorder / drop, never set 0.
+            </div>
+            <div class="grid-3" style="gap:12px;">
+              <div>
+                <label style="font-size:0.78rem; font-weight:700; color:#444;">Booking ends on *</label>
+                <input type="date" id="leDeadlineDate" class="input" style="padding:8px 10px; font-size:0.85rem;" />
+              </div>
+              <div>
+                <label style="font-size:0.78rem; font-weight:700; color:#444;">End Time (IST) *</label>
+                <input type="time" id="leDeadlineTime" class="input" value="23:59" style="padding:8px 10px; font-size:0.85rem;" />
+              </div>
+              <div>
+                <label style="font-size:0.78rem; font-weight:700; color:#444;">Max Quantity *</label>
+                <input type="number" id="leMaxQty" class="input" value="50" min="1" placeholder="e.g. 50" style="padding:8px 10px; font-size:0.85rem;" />
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="card">
-        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-          <div class="card-title">Select Products for Limited Edition Showcase</div>
-          <input type="text" class="search-input" id="leSearch" placeholder="Search product name..." oninput="renderLimitedEditionManager()" style="max-width:260px;" />
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div class="card-title">Active Limited Edition &amp; Pre-Order Products</div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" class="search-input" id="leSearch" placeholder="Search product name..." oninput="renderLimitedEditionManager()" style="max-width:220px;" />
+            <button class="btn btn-pink" onclick="openAddLEProductModal()" style="font-weight:700;">+ Add Product to Limited Edition</button>
+          </div>
         </div>
         <div style="overflow-x:auto;">
           <table>
             <thead>
               <tr>
-                <th style="width:60px;">Show</th>
+                <th style="width:50px;">Show</th>
                 <th>Product</th>
                 <th>Category</th>
                 <th>Price</th>
-                <th>Custom Badge Text</th>
+                <th>Custom Badge</th>
                 <th>Badge Style</th>
+                <th>Pre-Order Max Qty</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="limitedEditionTableBody">
-              <tr><td colspan="6" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
+              <tr><td colspan="8" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Adding / Editing Product in Limited Edition -->
+    <div id="leProductModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; padding:20px;">
+      <div style="background:#fff; border-radius:16px; max-width:500px; width:100%; padding:24px; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid #eee; padding-bottom:10px;">
+          <h3 style="margin:0; color:#333;" id="leModalTitle">➕ Add Product to Limited Edition</h3>
+          <button onclick="document.getElementById('leProductModal').style.display='none'" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#777;">✕</button>
+        </div>
+        <div style="display:grid; gap:12px;">
+          <div>
+            <label style="font-size:0.8rem; font-weight:700; color:#444;">Select Product from Store Inventory *</label>
+            <select id="leModalProdSelect" class="form-control" style="padding:10px;">
+              <option value="">-- Choose Product --</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.8rem; font-weight:700; color:#444;">Custom Badge Text *</label>
+            <input type="text" id="leModalBadge" class="form-control" placeholder="e.g. Only 3 Left, Pre-Order, Rare Drop" value="⚡ Rare Drop" />
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div>
+              <label style="font-size:0.8rem; font-weight:700; color:#444;">Badge Color Style</label>
+              <select id="leModalStyle" class="form-control">
+                <option value="pink">Hot Pink Badge</option>
+                <option value="orange">Orange Spark Badge</option>
+                <option value="gold">Gold Star Badge</option>
+                <option value="purple">Purple Glow Badge</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:0.8rem; font-weight:700; color:#444;">Max Drop Qty / Limit</label>
+              <input type="number" id="leModalMaxQty" class="form-control" value="50" min="1" />
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+            <button class="btn btn-outline" onclick="document.getElementById('leProductModal').style.display='none'">Cancel</button>
+            <button class="btn" onclick="saveLEProductFromModal()" style="background:var(--pink); color:#fff; font-weight:700;">Save Product to Limited Drops 🚀</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1158,6 +1243,9 @@
     if (btn) btn.classList.add('active');
     document.getElementById('topbarTitle').textContent = btn.innerText.replace(/[^\w\s&]/gi, '').trim();
     document.getElementById('sidebar').classList.remove('open');
+    if (id === 'limitedEdition') {
+      renderLimitedEditionManager();
+    }
   }
   window.switchTab = switchTab;
 
@@ -1572,6 +1660,7 @@
 
     renderProducts();
     renderInventory();
+    renderLimitedEditionManager();
     updateDashboardStats();
   }
 
@@ -1842,11 +1931,22 @@
   let limitedEditionConfig = {
     title: '⚡ LIMITED EDITION',
     subtitle: "Handcrafted in tiny batches — once they're gone, they're gone forever! 🎀",
+    preorder_enabled: false,
+    deadline_date: '',
+    deadline_time: '23:59',
+    max_quantity: 50,
     items: [
-      { id: 'purr-parade-sticker-sheet', badge: 'Only 3 Left', style: 'orange' },
-      { id: 'pond-hopper-frog', badge: 'Rare Drop', style: 'pink' }
+      { id: 'purr-parade-sticker-sheet', badge: 'Only 3 Left', style: 'orange', max_qty: 30 },
+      { id: 'pond-hopper-frog', badge: 'Rare Drop', style: 'pink', max_qty: 50 }
     ]
   };
+
+  function togglePreorderInputs(checked) {
+    const box = document.getElementById('lePreorderInputsBox');
+    if (box) box.style.display = checked ? 'block' : 'none';
+    const slider = document.getElementById('lePreorderSlider');
+    if (slider) slider.style.backgroundColor = checked ? '#7c4dff' : '#ccc';
+  }
 
   async function loadLimitedEditionConfig() {
     try {
@@ -1884,9 +1984,13 @@
       limitedEditionConfig = {
         title: '⚡ LIMITED EDITION',
         subtitle: "Handcrafted in tiny batches — once they're gone, they're gone forever! 🎀",
+        preorder_enabled: false,
+        deadline_date: '',
+        deadline_time: '23:59',
+        max_quantity: 50,
         items: [
-          { id: 'purr-parade-sticker-sheet', badge: 'Only 3 Left', style: 'orange' },
-          { id: 'pond-hopper-frog', badge: 'Rare Drop', style: 'pink' }
+          { id: 'purr-parade-sticker-sheet', badge: 'Only 3 Left', style: 'orange', max_qty: 30 },
+          { id: 'pond-hopper-frog', badge: 'Rare Drop', style: 'pink', max_qty: 50 }
         ]
       };
     }
@@ -1896,7 +2000,56 @@
     const sEl = document.getElementById('leSectionSubtitle');
     if (sEl) sEl.value = limitedEditionConfig.subtitle || "Handcrafted in tiny batches — once they're gone, they're gone forever! 🎀";
 
+    const chk = document.getElementById('lePreorderToggle');
+    if (chk) {
+      chk.checked = !!limitedEditionConfig.preorder_enabled;
+      togglePreorderInputs(chk.checked);
+    }
+    const dDate = document.getElementById('leDeadlineDate');
+    if (dDate) dDate.value = limitedEditionConfig.deadline_date || '';
+    const dTime = document.getElementById('leDeadlineTime');
+    if (dTime) dTime.value = limitedEditionConfig.deadline_time || '23:59';
+    const mQty = document.getElementById('leMaxQty');
+    if (mQty) mQty.value = limitedEditionConfig.max_quantity || 50;
+
     renderLimitedEditionManager();
+  }
+
+  function openAddLEProductModal() {
+    const sel = document.getElementById('leModalProdSelect');
+    if (sel) {
+      sel.innerHTML = '<option value="">-- Choose Product --</option>' + (allProducts || []).map(p => `
+        <option value="${p.id}">${p.name} (₹${p.price})</option>
+      `).join('');
+    }
+    document.getElementById('leModalBadge').value = '⚡ Rare Drop';
+    document.getElementById('leModalStyle').value = 'pink';
+    document.getElementById('leModalMaxQty').value = '50';
+    document.getElementById('leProductModal').style.display = 'flex';
+  }
+
+  function saveLEProductFromModal() {
+    const prodId = document.getElementById('leModalProdSelect')?.value;
+    if (!prodId) {
+      alert("Please select a product from the list.");
+      return;
+    }
+    const badge = (document.getElementById('leModalBadge')?.value || '').trim() || '⚡ Rare Drop';
+    const style = document.getElementById('leModalStyle')?.value || 'pink';
+    const max_qty = parseInt(document.getElementById('leModalMaxQty')?.value || 50);
+
+    const items = limitedEditionConfig.items || [];
+    const idx = items.findIndex(i => i.id === prodId);
+    if (idx >= 0) {
+      items[idx] = { id: prodId, badge, style, max_qty };
+    } else {
+      items.push({ id: prodId, badge, style, max_qty });
+    }
+    limitedEditionConfig.items = items;
+
+    document.getElementById('leProductModal').style.display = 'none';
+    renderLimitedEditionManager();
+    saveLimitedEditionConfig();
   }
 
   function renderLimitedEditionManager() {
@@ -1913,7 +2066,7 @@
 
     tbody.innerHTML = filteredProducts.length ? filteredProducts.map(p => {
       const isSelected = selectedMap.has(p.id);
-      const conf = selectedMap.get(p.id) || { badge: 'Limited Edition', style: 'pink' };
+      const conf = selectedMap.get(p.id) || { badge: 'Limited Edition', style: 'pink', max_qty: 50 };
 
       return `
         <tr>
@@ -1936,16 +2089,36 @@
               <option value="pink" ${conf.style === 'pink' ? 'selected' : ''}>Hot Pink Badge</option>
               <option value="orange" ${conf.style === 'orange' ? 'selected' : ''}>Orange Spark Badge</option>
               <option value="gold" ${conf.style === 'gold' ? 'selected' : ''}>Gold Star Badge</option>
+              <option value="purple" ${conf.style === 'purple' ? 'selected' : ''}>Purple Glow Badge</option>
             </select>
+          </td>
+          <td>
+            <input type="number" id="leMaxQty_${p.id}" class="form-control" value="${conf.max_qty || 50}" style="font-size:0.8rem; padding:4px 8px; width:70px;" min="1" />
+          </td>
+          <td>
+            <button class="btn btn-outline" style="font-size:0.75rem; padding:3px 8px; color:var(--red);" onclick="removeLEProduct('${p.id}')">🗑️ Remove</button>
           </td>
         </tr>
       `;
-    }).join('') : `<tr><td colspan="6" style="text-align:center; padding:20px;">No products found</td></tr>`;
+    }).join('') : `<tr><td colspan="8" style="text-align:center; padding:20px;">No products found</td></tr>`;
+  }
+
+  function removeLEProduct(id) {
+    if (!limitedEditionConfig.items) return;
+    limitedEditionConfig.items = limitedEditionConfig.items.filter(i => i.id !== id);
+    const chk = document.getElementById(`leCheck_${id}`);
+    if (chk) chk.checked = false;
+    renderLimitedEditionManager();
+    saveLimitedEditionConfig();
   }
 
   async function saveLimitedEditionConfig() {
     const title = (document.getElementById('leSectionTitle')?.value || '').trim() || '⚡ LIMITED EDITION';
     const subtitle = (document.getElementById('leSectionSubtitle')?.value || '').trim() || "Handcrafted in tiny batches — once they're gone, they're gone forever! 🎀";
+    const preorder_enabled = !!document.getElementById('lePreorderToggle')?.checked;
+    const deadline_date = document.getElementById('leDeadlineDate')?.value || '';
+    const deadline_time = document.getElementById('leDeadlineTime')?.value || '23:59';
+    const max_quantity = parseInt(document.getElementById('leMaxQty')?.value || 50);
 
     const selectedItems = [];
     (allProducts || []).forEach(p => {
@@ -1953,11 +2126,12 @@
       if (chk && chk.checked) {
         const badge = (document.getElementById(`leBadge_${p.id}`)?.value || '').trim() || 'Limited Edition';
         const style = document.getElementById(`leStyle_${p.id}`)?.value || 'pink';
-        selectedItems.push({ id: p.id, badge, style });
+        const max_qty = parseInt(document.getElementById(`leMaxQty_${p.id}`)?.value || 50);
+        selectedItems.push({ id: p.id, badge, style, max_qty });
       }
     });
 
-    limitedEditionConfig = { title, subtitle, items: selectedItems };
+    limitedEditionConfig = { title, subtitle, preorder_enabled, deadline_date, deadline_time, max_quantity, items: selectedItems };
     localStorage.setItem('tabby_limited_edition_config', JSON.stringify(limitedEditionConfig));
 
     try {

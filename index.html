@@ -281,7 +281,7 @@
     <section class="limited-edition-section" id="limited-edition" style="padding: 40px 0 20px 0; background: linear-gradient(180deg, #fff5f9 0%, #ffffff 100%); border-bottom: 1px dashed #f8bbd0;">
       <div class="container">
         
-        <div class="sellers-header-row" style="margin-bottom: 20px; text-align: left;">
+        <div class="sellers-header-row" style="margin-bottom: 20px; text-align: left; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between;">
           <div>
             <div style="display:inline-flex; align-items:center; gap:6px; background:#fff0f5; border:1px solid #f8bbd0; color:#d35d88; font-size:0.75rem; font-weight:800; padding:4px 12px; border-radius:50px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">
               ⚡ EXCLUSIVE RARE DROPS
@@ -290,6 +290,16 @@
             <p id="leSubtitleDisplay" style="font-size:0.88rem; color:#666; margin-top:4px; font-weight:500;">
               Handcrafted in tiny batches — once they're gone, they're gone forever! 🎀
             </p>
+          </div>
+
+          <!-- Live Countdown / Pre-Order Timer Banner -->
+          <div id="leCountdownBox" style="display:none; background:linear-gradient(135deg, #7c4dff 0%, #d35d88 100%); color:#fff; padding:12px 20px; border-radius:14px; box-shadow:0 6px 18px rgba(124, 77, 255, 0.25);">
+            <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; opacity:0.9;">
+              ⏳ PRE-ORDER BOOKING ENDS IN
+            </div>
+            <div id="leTimerDisplay" style="font-size:1.25rem; font-weight:900; letter-spacing:1px; margin-top:2px;">
+              00d 00h 00m 00s
+            </div>
           </div>
         </div>
 
@@ -1066,6 +1076,37 @@
         if (config && config.subtitle) {
           const sEl = document.getElementById('leSubtitleDisplay');
           if (sEl) sEl.textContent = config.subtitle;
+        }
+
+        if (config && config.preorder_enabled && config.deadline_date) {
+          const timerBox = document.getElementById('leCountdownBox');
+          if (timerBox) timerBox.style.display = 'block';
+
+          const targetDateStr = `${config.deadline_date}T${config.deadline_time || '23:59'}:00`;
+          const targetTime = new Date(targetDateStr).getTime();
+
+          function updateTimer() {
+            const now = new Date().getTime();
+            const diff = targetTime - now;
+
+            const displayEl = document.getElementById('leTimerDisplay');
+            if (!displayEl) return;
+
+            if (diff <= 0) {
+              displayEl.textContent = "DROPS CLOSED 🔴";
+              return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            displayEl.textContent = `${days.toString().padStart(2, '0')}d ${hours.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+          }
+
+          updateTimer();
+          setInterval(updateTimer, 1000);
         }
 
         const leItems = config?.items || [

@@ -4,7 +4,7 @@
    ========================================================================== */
 
 let currentCat = 'all';
-let maxPrice = 600;
+let maxPrice = 2000;
 let cartCount = 0;
 let toastTimeout = null;
 
@@ -76,13 +76,13 @@ function filterProducts() {
 // ---- RESET FILTERS ----
 function resetFilters() {
   currentCat = 'all';
-  maxPrice = 600;
+  maxPrice = 2000;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   const allBtn = document.querySelector('.filter-btn[data-cat="all"]');
   if (allBtn) allBtn.classList.add('active');
   const slider = document.getElementById('priceSlider');
-  if (slider) { slider.value = 600; }
-  document.getElementById('priceMax').textContent = '₹600';
+  if (slider) { slider.value = 2000; }
+  document.getElementById('priceMax').textContent = '₹2000';
   const inStock = document.getElementById('inStockOnly');
   if (inStock) inStock.checked = false;
   const searchInput = document.getElementById('shopSearchInput');

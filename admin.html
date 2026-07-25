@@ -1335,6 +1335,11 @@
       const totalVal = parseFloat(o.total || 0);
       const dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN') : 'Recently';
 
+      let rawDigits = (phoneStr || '').replace(/[^0-9]/g, '');
+      if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
+      const waMsg = encodeURIComponent(`Hi ${nameStr}! Thank you for your order #${refStr} on Tabby Chaser!`);
+      const waUrl = rawDigits ? `https://api.whatsapp.com/send?phone=${rawDigits}&text=${waMsg}` : '#';
+
       return `
         <tr>
           <td style="font-weight:700;">#${refStr}</td>
@@ -1351,13 +1356,13 @@
             </select>
           </td>
           <td>
-            <input type="text" class="form-control" placeholder="Tracking #" value="${o.tracking_id || ''}" style="font-size:0.75rem;padding:3px 6px;" onblur="updateTracking('${o.id || refStr}', this.value)" />
+            <input type="text" class="form-control" placeholder="Tracking #" value="${o.tracking_id || ''}" style="font-size:0.75rem;padding:3px 6px;" onchange="updateTracking('${o.id || refStr}', this.value)" />
           </td>
           <td style="font-size:0.75rem;">${dateStr}</td>
           <td>
             <div style="display:flex; gap:6px; flex-wrap:nowrap;">
               <button class="btn btn-outline btn-sm" onclick="printInvoice('${o.id || refStr}')" style="padding:3px 8px; font-size:0.75rem;">🧾 Invoice</button>
-              ${phoneStr ? `<a href="https://wa.me/${phoneStr.replace(/[^0-9]/g, '')}?text=Hi%20${encodeURIComponent(nameStr)}!%20Thank%20you%20for%20your%20order%20%23${refStr}%20on%20Tabby%20Chaser!%20🐾" target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; padding:3px 8px; font-size:0.75rem; text-decoration:none; border-radius:6px; font-weight:700;">📲 WhatsApp</a>` : ''}
+              ${rawDigits ? `<a href="${waUrl}" target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; padding:3px 8px; font-size:0.75rem; text-decoration:none; border-radius:6px; font-weight:700;">📲 WhatsApp</a>` : ''}
             </div>
           </td>
         </tr>

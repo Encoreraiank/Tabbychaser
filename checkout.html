@@ -1617,13 +1617,27 @@
         } catch(e) {}
 
         // 2. Save order record to Supabase orders table via SDK & Direct REST API
-        const dbRecord = { ...orderRecord };
-        delete dbRecord.id;
+        const cleanDbOrder = {
+          order_reference: orderRecord.order_reference,
+          name: orderRecord.name,
+          email: orderRecord.email,
+          phone: orderRecord.phone,
+          address: orderRecord.address,
+          instagram: orderRecord.instagram,
+          items: orderRecord.items,
+          subtotal: orderRecord.subtotal,
+          discount: orderRecord.discount,
+          shipping: orderRecord.shipping,
+          total: orderRecord.total,
+          payment_method: orderRecord.payment_method,
+          status: orderRecord.status,
+          created_at: orderRecord.created_at
+        };
 
         (async () => {
           try {
             if (window.supabaseClient) {
-              await window.supabaseClient.from('orders').insert(dbRecord);
+              await window.supabaseClient.from('orders').insert(cleanDbOrder);
             }
           } catch(e) {}
 
@@ -1636,7 +1650,7 @@
                 'Content-Type': 'application/json',
                 'Prefer': 'return=minimal'
               },
-              body: JSON.stringify(dbRecord)
+              body: JSON.stringify(cleanDbOrder)
             });
             console.log('✅ Order synced to cloud database! Status:', apiRes.status);
           } catch(err) {

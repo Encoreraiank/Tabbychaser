@@ -610,13 +610,8 @@
           try { window.currentLEConfig = JSON.parse(settings.limited_edition_config); } catch(e) {}
         }
 
-        const defaultProducts = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
-        const allList = [...dbProducts, ...defaultProducts];
-        const uniqueProducts = Array.from(new Set(allList.map(p => p.id || p.name)))
-          .map(key => allList.find(p => (p.id || p.name) === key));
-
         const targetQuery = decodeURIComponent(prodId).toLowerCase().trim();
-        const found = uniqueProducts.find(p =>
+        const found = (dbProducts || []).find(p =>
           (p.id && String(p.id).toLowerCase() === targetQuery) ||
           (p.slug && String(p.slug).toLowerCase() === targetQuery) ||
           (p.name && p.name.toLowerCase() === targetQuery) ||

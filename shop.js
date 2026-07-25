@@ -155,15 +155,9 @@ async function loadLiveStorefrontData() {
     try { remoteDeletedIds = JSON.parse(settings.deleted_product_ids); } catch(e) {}
   }
 
-  const defaultProducts = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
-  const allList = [...dbProducts, ...defaultProducts];
-
-  const uniqueProducts = Array.from(new Set(allList.map(p => p.id || p.name)))
-    .map(key => allList.find(p => (p.id || p.name) === key));
-
   const deletedIds = remoteDeletedIds.map(s => String(s).toLowerCase().trim());
 
-  const liveProducts = uniqueProducts.filter(p => {
+  const liveProducts = (dbProducts || []).filter(p => {
     if (!p || p.status === 'draft') return false;
     const pid = String(p.id || '').toLowerCase().trim();
     const pslug = String(p.slug || '').toLowerCase().trim();

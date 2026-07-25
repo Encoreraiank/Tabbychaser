@@ -758,38 +758,15 @@
         }
       } catch(e) {}
 
-      let localProds = [];
-      try {
-        localProds = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
-      } catch(e) {}
-
-      let localDeleted = [];
-      try {
-        localDeleted = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-      } catch(e) {}
-
-      const allDeletedKeys = Array.from(new Set([...dbDeletedIds, ...localDeleted])).map(k => String(k).toLowerCase().trim());
-
-      const defaultProds = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
-      const allMerged = [...dbProds, ...localProds, ...defaultProds];
-
-      const mergedMap = {};
-      allMerged.forEach(p => {
-        if (p && (p.id || p.name)) {
-          const key = (p.id || p.name).toString().toLowerCase();
-          if (!mergedMap[key]) mergedMap[key] = p;
-        }
-      });
-
-      // Filter out deleted items strictly
-      let products = Object.values(mergedMap).filter(p => {
+      // Filter out deleted items strictly (SUPABASE CLOUD DB IS 100% SINGLE SOURCE OF TRUTH)
+      let products = (dbProds || []).filter(p => {
         if (!p || p.status === 'draft') return false;
         const pid = String(p.id || '').toLowerCase().trim();
         const pname = String(p.name || '').toLowerCase().trim();
         const pslug = String(p.slug || '').toLowerCase().trim();
         const pclean = pname.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-        return !allDeletedKeys.includes(pid) && !allDeletedKeys.includes(pname) && !allDeletedKeys.includes(pslug) && !allDeletedKeys.includes(pclean);
+        return !dbDeletedIds.includes(pid) && !dbDeletedIds.includes(pname) && !dbDeletedIds.includes(pslug) && !dbDeletedIds.includes(pclean);
       });
 
       // Render Dynamic 4 Hero Carousel Slides

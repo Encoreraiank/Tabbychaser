@@ -1598,62 +1598,15 @@
 
   // 3. PRODUCTS
   async function loadProducts() {
-    let remoteData = [];
-    let remoteJson = [];
-    let remoteDeletedIds = [];
-
-    try {
-      const client = await db();
-      if (client) {
-        const { data: dbData } = await client.from('products').select('*').order('created_at', { ascending: false });
-        if (dbData && dbData.length > 0) remoteData = dbData;
-
-        const { data: dbSettings } = await client.from('site_settings').select('*');
-        if (dbSettings) {
-          const delRow = dbSettings.find(s => s.key === 'deleted_product_ids');
-          if (delRow && delRow.value) {
-            try { remoteDeletedIds = JSON.parse(delRow.value); } catch(e){}
-          }
-          const jsonRow = dbSettings.find(s => s.key === 'tabby_products_json');
-          if (jsonRow && jsonRow.value) {
-            try { remoteJson = JSON.parse(jsonRow.value); } catch(e){}
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('Supabase fetch note:', e);
+    let deletedIds = [];
+    const settings = await window.fetchCloudSettings();
+    if (settings && settings.deleted_product_ids) {
+      try { deletedIds = JSON.parse(settings.deleted_product_ids); } catch(e) {}
     }
 
-    let localData = [];
-    try {
-      localData = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
-    } catch(e) {}
+    const remoteData = await window.fetchCloudProducts();
 
-    const localDeletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-    const deletedIds = Array.from(new Set([...localDeletedIds, ...remoteDeletedIds])).map(s => String(s).toLowerCase().trim());
-    localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
-
-    // Combine: remoteData + remoteJson + localData + default products
-    const defaultData = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA.map(p => ({
-      id: p.id,
-      name: p.name,
-      price: p.price,
-      description: p.description || '',
-      category: p.category || 'charms',
-      stock: p.stock === 'out-of-stock' ? 0 : (p.stock === 'low-stock' ? 3 : 15),
-      status: 'published',
-      images: p.images || [p.image],
-      materials: (p.details || []).join(', ')
-    })) : [];
-
-    const mergedMap = {};
-    defaultData.forEach(p => { if (p && p.id) mergedMap[p.id] = p; });
-    remoteData.forEach(p => { if (p && p.id) mergedMap[p.id] = { ...mergedMap[p.id], ...p }; });
-    remoteJson.forEach(p => { if (p && p.id) mergedMap[p.id] = { ...mergedMap[p.id], ...p }; });
-    localData.forEach(p => { if (p && p.id) mergedMap[p.id] = { ...mergedMap[p.id], ...p }; });
-
-    // Bulletproof exact-ID deletion filter
-    allProducts = Object.values(mergedMap).filter(p => {
+    allProducts = (remoteData || []).filter(p => {
       if (!p || !p.id) return false;
       const pid = String(p.id).toLowerCase().trim();
       const pslug = String(p.slug || '').toLowerCase().trim();

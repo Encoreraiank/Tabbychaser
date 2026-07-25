@@ -37,12 +37,15 @@ function initSupabaseClient() {
 }
 initSupabaseClient();
 
-// 4. Fetch All Site Settings (Bypassing Browser Caching)
+// 4. Fetch All Site Settings (Bypassing Browser Caching via HTTP Headers)
 window.fetchCloudSettings = async function() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?select=*&t=${Date.now()}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?select=*`, {
       cache: 'no-store',
-      headers: window.getSupabaseHeaders()
+      headers: window.getSupabaseHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -63,35 +66,36 @@ window.fetchCloudSettings = async function() {
 window.saveCloudSetting = async function(key, value) {
   const strVal = typeof value === 'object' ? JSON.stringify(value) : String(value);
   try {
-    // 1. Try POST with resolution=merge-duplicates
+    // 1. Try PATCH first (updates existing setting row)
+    const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=eq.${encodeURIComponent(key)}`, {
+      method: 'PATCH',
+      cache: 'no-store',
+      headers: window.getSupabaseHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }),
+      body: JSON.stringify({ value: strVal })
+    });
+
+    if (patchRes.ok) {
+      const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=eq.${encodeURIComponent(key)}`, {
+        cache: 'no-store',
+        headers: window.getSupabaseHeaders()
+      });
+      const checkData = await checkRes.json();
+      if (Array.isArray(checkData) && checkData.length > 0) {
+        return true;
+      }
+    }
+
+    // 2. If row does not exist yet, POST new row
     const postRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings`, {
       method: 'POST',
       cache: 'no-store',
-      headers: window.getSupabaseHeaders({ 'Prefer': 'resolution=merge-duplicates' }),
+      headers: window.getSupabaseHeaders(),
       body: JSON.stringify({ key, value: strVal })
     });
 
-    if (!postRes.ok) {
-      // 2. Fallback PATCH if row already exists
-      const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=eq.${encodeURIComponent(key)}`, {
-        method: 'PATCH',
-        cache: 'no-store',
-        headers: window.getSupabaseHeaders(),
-        body: JSON.stringify({ value: strVal })
-      });
-      if (!patchRes.ok) throw new Error(`PATCH failed HTTP ${patchRes.status}`);
-    }
-
-    // 3. Read-Back Verification
-    const verifyRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=eq.${encodeURIComponent(key)}&t=${Date.now()}`, {
-      cache: 'no-store',
-      headers: window.getSupabaseHeaders()
-    });
-    const verifyData = await verifyRes.json();
-    if (Array.isArray(verifyData) && verifyData[0] && verifyData[0].key === key) {
-      return true;
-    }
-    return true;
+    return postRes.ok;
   } catch (err) {
     window.logAppError(`saveCloudSetting [${key}]`, err);
     return false;
@@ -101,9 +105,12 @@ window.saveCloudSetting = async function(key, value) {
 // 6. Fetch Products (Un-cached Cloud Read)
 window.fetchCloudProducts = async function() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*&order=created_at.desc&t=${Date.now()}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*`, {
       cache: 'no-store',
-      headers: window.getSupabaseHeaders()
+      headers: window.getSupabaseHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();

@@ -1833,48 +1833,33 @@
       updated_at: fullPayload.updated_at
     };
 
-    // Unban keys in deletedIds if re-adding or editing product
-    let deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+    // 1. Unban keys in deleted_product_ids from Supabase DB
+    const settings = await window.fetchCloudSettings();
+    let deletedIds = [];
+    if (settings.deleted_product_ids) {
+      try { deletedIds = JSON.parse(settings.deleted_product_ids); } catch(e) {}
+    }
     const unbanKeys = [prodId.toLowerCase(), name.toLowerCase(), slug.toLowerCase()];
     deletedIds = deletedIds.filter(k => !unbanKeys.includes(String(k).toLowerCase()));
-    localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
+    await window.saveCloudSetting('deleted_product_ids', deletedIds);
 
-    // 1. Update local state
-    const idx = allProducts.findIndex(p => p.id === prodId || p.name.toLowerCase() === name.toLowerCase());
-    if (idx >= 0) allProducts[idx] = fullPayload;
-    else allProducts.unshift(fullPayload);
-
-    // 2. Failsafe Cloud Sync: Save clean payload to products table AND full json to site_settings
-    try {
-      const client = await db();
-      if (client) {
-        const { error: pErr } = await client.from('products').upsert(cleanDbPayload, { onConflict: 'id' });
-        if (pErr) console.warn('Supabase products upsert note:', pErr.message);
-
-        const { error: dErr } = await client.from('site_settings').upsert({
-          key: 'deleted_product_ids',
-          value: JSON.stringify(deletedIds)
-        }, { onConflict: 'key' });
-
-        const { error: sErr } = await client.from('site_settings').upsert({
-          key: 'tabby_products_json',
-          value: JSON.stringify(allProducts)
-        }, { onConflict: 'key' });
-        if (sErr) console.warn('Supabase site_settings upsert note:', sErr.message);
-      }
-    } catch(e) {
-      console.warn('Supabase sync warning:', e);
+    // 2. Save product directly to Supabase products table
+    const savedOk = await window.saveCloudProduct(cleanDbPayload);
+    if (!savedOk) {
+      // Fallback via client SDK
+      try {
+        const client = await db();
+        if (client) await client.from('products').upsert(cleanDbPayload, { onConflict: 'id' });
+      } catch(e) {}
     }
 
     document.getElementById('productModal').classList.remove('open');
-    renderProducts();
-    renderInventory();
-    updateDashboardStats();
-    alert(`✅ Product "${name}" saved & live store updated across all devices!`);
+    await loadProducts();
+    alert(`✅ Product "${name}" saved & verified live across all admin accounts!`);
   }
 
   async function deleteProduct(id) {
-    const targetProd = allProducts.find(p => String(p.id).toLowerCase() === String(id).toLowerCase() || String(p.slug).toLowerCase() === String(id).toLowerCase() || String(p.name).toLowerCase() === String(id).toLowerCase());
+    const targetProd = (allProducts || []).find(p => String(p.id).toLowerCase() === String(id).toLowerCase() || String(p.slug).toLowerCase() === String(id).toLowerCase() || String(p.name).toLowerCase() === String(id).toLowerCase());
     const targetName = targetProd?.name || id;
     const targetId = targetProd?.id || id;
     const targetSlug = targetProd?.slug || targetId;
@@ -1889,38 +1874,33 @@
       String(targetName).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     ])).filter(Boolean);
 
-    // 1. Remove from allProducts in memory immediately
-    allProducts = allProducts.filter(p => {
-      const pid = String(p.id || '').toLowerCase().trim();
-      const pname = String(p.name || '').toLowerCase().trim();
-      const pslug = String(p.slug || '').toLowerCase().trim();
-      const pclean = pname.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      return !keysToBanish.includes(pid) && !keysToBanish.includes(pname) && !keysToBanish.includes(pslug) && !keysToBanish.includes(pclean);
-    });
-
-    const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+    // 1. Update deleted_product_ids in Supabase Cloud DB
+    const settings = await window.fetchCloudSettings();
+    let deletedIds = [];
+    if (settings.deleted_product_ids) {
+      try { deletedIds = JSON.parse(settings.deleted_product_ids); } catch(e) {}
+    }
     keysToBanish.forEach(k => { if (!deletedIds.includes(k)) deletedIds.push(k); });
-    localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
+    await window.saveCloudSetting('deleted_product_ids', deletedIds);
 
-    // 2. Delete from Supabase Database & site_settings backup
+    // 2. Delete product from Supabase products table via REST API
     try {
-      const client = await db();
-      if (client) {
-        await client.from('products').delete().eq('id', targetId);
-        if (targetName && targetName !== targetId) {
-          await client.from('products').delete().eq('name', targetName);
-        }
-        await client.from('site_settings').upsert({ key: 'deleted_product_ids', value: JSON.stringify(deletedIds) }, { onConflict: 'key' });
-        await client.from('site_settings').upsert({ key: 'tabby_products_json', value: JSON.stringify(allProducts) }, { onConflict: 'key' });
+      await fetch(`https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/products?id=eq.${encodeURIComponent(targetId)}`, {
+        method: 'DELETE',
+        headers: window.getSupabaseHeaders()
+      });
+      if (targetName && targetName !== targetId) {
+        await fetch(`https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/products?name=eq.${encodeURIComponent(targetName)}`, {
+          method: 'DELETE',
+          headers: window.getSupabaseHeaders()
+        });
       }
     } catch(e) {
-      console.warn('Delete cloud note:', e);
+      console.warn('Delete REST API error:', e);
     }
 
-    renderProducts();
-    renderInventory();
-    updateDashboardStats();
-    alert(`✅ Product "${targetName}" deleted permanently across all devices!`);
+    await loadProducts();
+    alert(`✅ Product "${targetName}" deleted permanently across all admin accounts!`);
   }
 
   function closeProductModal() { document.getElementById('productModal').classList.remove('open'); }

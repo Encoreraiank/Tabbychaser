@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -290,17 +290,19 @@
         created_at: new Date().toISOString()
       };
 
-      // Save to Supabase
-      if (window.supabaseClient) {
-        try {
-          await window.supabaseClient.from('reviews').insert(reviewObj);
-        } catch(e) {}
-      }
-
-      // Save to LocalStorage
-      const localReviews = JSON.parse(localStorage.getItem('tabby_reviews_local') || '[]');
-      localReviews.unshift(reviewObj);
-      localStorage.setItem('tabby_reviews_local', JSON.stringify(localReviews));
+      // Save to Supabase Cloud DB
+      try {
+        await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/reviews', {
+          method: 'POST',
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify(reviewObj)
+        });
+      } catch(e) {}
 
       // Mark order as review pending locally
       reviewedMap[orderRef] = true;

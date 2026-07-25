@@ -1660,8 +1660,6 @@
       return !deletedIds.includes(pid) && !deletedIds.includes(pslug);
     });
 
-    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
-
     renderProducts();
     renderInventory();
     renderLimitedEditionManager();
@@ -1841,11 +1839,10 @@
     deletedIds = deletedIds.filter(k => !unbanKeys.includes(String(k).toLowerCase()));
     localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
 
-    // 1. Update local state & localStorage first
+    // 1. Update local state
     const idx = allProducts.findIndex(p => p.id === prodId || p.name.toLowerCase() === name.toLowerCase());
     if (idx >= 0) allProducts[idx] = fullPayload;
     else allProducts.unshift(fullPayload);
-    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
 
     // 2. Failsafe Cloud Sync: Save clean payload to products table AND full json to site_settings
     try {
@@ -1906,7 +1903,6 @@
     const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
     keysToBanish.forEach(k => { if (!deletedIds.includes(k)) deletedIds.push(k); });
     localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
-    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
 
     // 2. Delete from Supabase Database & site_settings backup
     try {
@@ -2288,9 +2284,6 @@
       prod.status = newStatus;
     }
 
-    // Save locally
-    localStorage.setItem('tabby_products_local', JSON.stringify(allProducts));
-
     // Save to Supabase
     try {
       const client = await db();
@@ -2443,10 +2436,6 @@
       if (client) await client.from('coupons').insert(payload);
     } catch(e) {}
 
-    const local = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
-    local.unshift(payload);
-    localStorage.setItem('tabby_coupons_local', JSON.stringify(local));
-
     document.getElementById('couponModal').classList.remove('open');
     loadCoupons();
   }
@@ -2457,9 +2446,6 @@
       if (client) await client.from('coupons').delete().eq('id', id);
     } catch(e) {}
 
-    let local = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
-    local = local.filter(c => c.id !== id && c.code !== id);
-    localStorage.setItem('tabby_coupons_local', JSON.stringify(local));
     loadCoupons();
   }
 
@@ -2474,10 +2460,7 @@
       }
     } catch(e) {}
 
-    const local = JSON.parse(localStorage.getItem('tabby_reviews_local') || '[]');
-    allReviews = Array.from(new Set([...data, ...local].map(r => r.id)))
-      .map(id => [...data, ...local].find(r => r.id === id));
-
+    allReviews = data;
     renderReviews();
   }
 
@@ -2506,11 +2489,6 @@
       if (client) await client.from('reviews').update({ status: 'approved' }).eq('id', id);
     } catch(e) {}
 
-    const localReviews = JSON.parse(localStorage.getItem('tabby_reviews_local') || '[]');
-    const localRev = localReviews.find(r => r.id === id);
-    if (localRev) localRev.status = 'approved';
-    localStorage.setItem('tabby_reviews_local', JSON.stringify(localReviews));
-
     // Generate unique 15% coupon for review
     const couponCode = 'PAWS15-' + Math.random().toString(36).substr(2, 4).toUpperCase();
     const expiry = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
@@ -2535,10 +2513,6 @@
       if (client) await client.from('reviews').update({ status }).eq('id', id);
     } catch(e) {}
 
-    const localReviews = JSON.parse(localStorage.getItem('tabby_reviews_local') || '[]');
-    const localRev = localReviews.find(r => r.id === id);
-    if (localRev) localRev.status = status;
-    localStorage.setItem('tabby_reviews_local', JSON.stringify(localReviews));
     loadReviews();
   }
 

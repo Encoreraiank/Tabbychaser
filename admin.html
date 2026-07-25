@@ -1814,8 +1814,7 @@
       care_instructions: document.getElementById('pCare').value.trim() || '',
       seo_title: document.getElementById('pSeoTitle').value.trim() || '',
       seo_description: document.getElementById('pSeoDesc').value.trim() || '',
-      images: currentProductImgs.length > 0 ? currentProductImgs : ['store-logo-c471e30d.webp'],
-      updated_at: new Date().toISOString()
+      images: currentProductImgs.length > 0 ? currentProductImgs : ['store-logo-c471e30d.webp']
     };
 
     // Clean payload for Supabase products table (valid columns only)
@@ -1829,8 +1828,7 @@
       stock: fullPayload.stock,
       status: fullPayload.status,
       images: fullPayload.images,
-      materials: fullPayload.materials,
-      updated_at: fullPayload.updated_at
+      materials: typeof fullPayload.materials === 'string' ? fullPayload.materials : (Array.isArray(fullPayload.materials) ? fullPayload.materials.join(', ') : '')
     };
 
     // 1. Unban keys in deleted_product_ids from Supabase DB

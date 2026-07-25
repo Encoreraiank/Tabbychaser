@@ -1954,21 +1954,32 @@
     if (!tbody) return;
 
     const query = (document.getElementById('leSearch')?.value || '').toLowerCase().trim();
-    const filteredProducts = (allProducts || []).filter(p => !query || (p.name || '').toLowerCase().includes(query) || (p.category || '').toLowerCase().includes(query));
 
     const selectedMap = new Map();
     (limitedEditionConfig.items || []).forEach(item => {
-      selectedMap.set(item.id, item);
+      if (item && item.id) selectedMap.set(String(item.id).toLowerCase(), item);
     });
 
-    tbody.innerHTML = filteredProducts.length ? filteredProducts.map(p => {
-      const isSelected = selectedMap.has(p.id);
-      const conf = selectedMap.get(p.id) || { badge: 'Limited Edition', style: 'pink', max_qty: 50 };
+    const selectedProducts = (allProducts || []).filter(p => {
+      if (!p || !p.id) return false;
+      const pid = String(p.id).toLowerCase().trim();
+      const pslug = String(p.slug || '').toLowerCase().trim();
+      const pname = String(p.name || '').toLowerCase().trim();
+      const isSelected = selectedMap.has(pid) || selectedMap.has(pslug) || selectedMap.has(pname);
+      if (!isSelected) return false;
+
+      if (!query) return true;
+      return (p.name || '').toLowerCase().includes(query) || (p.category || '').toLowerCase().includes(query);
+    });
+
+    tbody.innerHTML = selectedProducts.length ? selectedProducts.map(p => {
+      const pidClean = String(p.id).toLowerCase().trim();
+      const conf = selectedMap.get(pidClean) || selectedMap.get(String(p.slug || '').toLowerCase()) || selectedMap.get(String(p.name || '').toLowerCase()) || { badge: 'Limited Edition', style: 'pink', max_qty: 50 };
 
       return `
         <tr>
           <td>
-            <input type="checkbox" id="leCheck_${p.id}" class="le-checkbox" ${isSelected ? 'checked' : ''} style="width:18px; height:18px; cursor:pointer;" />
+            <input type="checkbox" id="leCheck_${p.id}" class="le-checkbox" checked style="width:18px; height:18px; cursor:pointer;" />
           </td>
           <td style="font-weight:700;">
             <div style="display:flex; align-items:center; gap:8px;">
@@ -1997,7 +2008,7 @@
           </td>
         </tr>
       `;
-    }).join('') : `<tr><td colspan="8" style="text-align:center; padding:20px;">No products found</td></tr>`;
+    }).join('') : `<tr><td colspan="8" style="text-align:center; padding:20px; color:#888;">No products selected in Limited Edition. Click <strong>+ Add Product to Limited Edition</strong> to select a product.</td></tr>`;
   }
 
   function removeLEProduct(id) {

@@ -594,23 +594,28 @@
         return;
       }
 
-      // Check if product was explicitly deleted
-      const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-      if (deletedIds.includes(prodId)) {
-        renderNotFound();
-        return;
-      }
-
-      // 2. Fetch live product from Supabase / localStorage / PRODUCTS_DATA
+      // Fetch live product directly from Supabase Cloud DB
       (async () => {
         const dbProducts = await window.fetchCloudProducts();
         const settings = await window.fetchCloudSettings();
+
+        let dbDeleted = [];
+        if (settings.deleted_product_ids) {
+          try { dbDeleted = JSON.parse(settings.deleted_product_ids); } catch(e) {}
+        }
+        const dbDeletedClean = dbDeleted.map(k => String(k).toLowerCase().trim());
 
         if (settings.limited_edition_config) {
           try { window.currentLEConfig = JSON.parse(settings.limited_edition_config); } catch(e) {}
         }
 
         const targetQuery = decodeURIComponent(prodId).toLowerCase().trim();
+
+        if (dbDeletedClean.includes(targetQuery)) {
+          renderNotFound();
+          return;
+        }
+
         const found = (dbProducts || []).find(p =>
           (p.id && String(p.id).toLowerCase() === targetQuery) ||
           (p.slug && String(p.slug).toLowerCase() === targetQuery) ||
@@ -673,7 +678,16 @@
       let preOrderBannerHtml = '';
       let leConfig = window.currentLEConfig || null;
 
-      if (leConfig && leConfig.preorder_enabled) {
+      const isProductInLE = leConfig && leConfig.preorder_enabled && Array.isArray(leConfig.items) && leConfig.items.some(item => {
+        if (!item || item.show === false) return false;
+        const targetId = String(item.id || item.name || '').toLowerCase().trim();
+        const curId = String(prod.id || '').toLowerCase().trim();
+        const curName = String(prod.name || '').toLowerCase().trim();
+        const curSlug = String(prod.slug || curName.replace(/[^a-z0-9]+/g, '-')).toLowerCase().trim();
+        return targetId === curId || targetId === curName || targetId === curSlug;
+      });
+
+      if (isProductInLE) {
         function formatPreorderDate(dateStr, timeStr) {
           if (!dateStr) return 'Jul 31 at 11:59 PM IST';
           try {

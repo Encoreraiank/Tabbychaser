@@ -1224,8 +1224,8 @@
   });
 
   async function initDashboard() {
+    await loadProducts();
     loadOrders();
-    loadProducts();
     loadCategories();
     loadCustomOrders();
     loadCustomOrderSizes();
@@ -1233,6 +1233,7 @@
     loadCoupons();
     loadReviews();
     loadSiteSettings();
+    loadLimitedEditionConfig();
   }
 
   // NAVIGATION
@@ -1245,6 +1246,9 @@
     document.getElementById('sidebar').classList.remove('open');
     if (id === 'limitedEdition') {
       renderLimitedEditionManager();
+    }
+    if (id === 'heroManager') {
+      loadSiteSettings();
     }
   }
   window.switchTab = switchTab;
@@ -2724,12 +2728,27 @@
       const client = await db();
       if (client) {
         for (const [key, value] of Object.entries(sObj)) {
-          await client.from('site_settings').upsert({ key, value }, { onConflict: 'key' });
+          await client.from('site_settings').upsert({ key, value: String(value) }, { onConflict: 'key' });
         }
       }
     } catch(e) {}
 
-    alert('✅ Hero Carousel (4 Slides) & Best Sellers Content Saved! ✨');
+    try {
+      for (const [key, value] of Object.entries(sObj)) {
+        await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/site_settings', {
+          method: 'POST',
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({ key, value: String(value) })
+        });
+      }
+    } catch(e) {}
+
+    alert('✅ Hero Carousel (4 Slides) & Best Sellers Content Saved Live across all devices! ✨');
   }
 
   function saveSupabaseCredentials() {

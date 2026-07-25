@@ -611,6 +611,10 @@
 
             const { data: dbSettings } = await window.supabaseClient.from('site_settings').select('*');
             if (dbSettings) {
+              const leRow = dbSettings.find(s => s.key === 'limited_edition_config');
+              if (leRow && leRow.value) {
+                try { localStorage.setItem('tabby_limited_edition_config', leRow.value); } catch(e) {}
+              }
               const jsonRow = dbSettings.find(s => s.key === 'tabby_products_json');
               if (jsonRow && jsonRow.value) {
                 try {
@@ -696,6 +700,55 @@
         ? prod.details.map(d => `<li class="product-detail-item"><span class="bullet-heart">♡</span> ${d}</li>`).join('')
         : `<li class="product-detail-item"><span class="bullet-heart">♡</span> Handmade Art</li><li class="product-detail-item"><span class="bullet-heart">♡</span> High Gloss Finish</li>`;
 
+      let preOrderBannerHtml = '';
+      let leConfig = null;
+      try {
+        leConfig = JSON.parse(localStorage.getItem('tabby_limited_edition_config') || 'null');
+      } catch(e) {}
+
+      if (leConfig && leConfig.preorder_enabled) {
+        function formatPreorderDate(dateStr, timeStr) {
+          if (!dateStr) return 'Jul 31 at 11:59 PM IST';
+          try {
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+              const year = parseInt(parts[0]);
+              const monthIdx = parseInt(parts[1]) - 1;
+              const day = parseInt(parts[2]);
+              const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+              const mName = months[monthIdx] || 'Jul';
+              
+              let tStr = timeStr || '23:59';
+              let [h, m] = tStr.split(':').map(n => parseInt(n));
+              if (isNaN(h)) h = 23;
+              if (isNaN(m)) m = 59;
+              const ampm = h >= 12 ? 'PM' : 'AM';
+              let displayH = h % 12;
+              if (displayH === 0) displayH = 12;
+              const displayM = m.toString().padStart(2, '0');
+              
+              return `${mName} ${day} at ${displayH}:${displayM} ${ampm} IST`;
+            }
+            return `${dateStr} at ${timeStr || '11:59 PM'} IST`;
+          } catch(e) {
+            return `${dateStr} at ${timeStr || '11:59 PM'} IST`;
+          }
+        }
+
+        const formattedDate = formatPreorderDate(leConfig.deadline_date, leConfig.deadline_time);
+        preOrderBannerHtml = `
+          <div style="background: #fffdf0; border: 1.5px solid #ffe082; border-radius: 16px; padding: 14px 18px; margin: 12px 0 16px 0; display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 12px rgba(255, 224, 130, 0.25);">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #fff8e1; border: 1px solid #ffe0b2; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #b78103; font-size: 1.1rem; font-weight: 800;">
+              🕒
+            </div>
+            <div>
+              <div style="font-weight: 800; font-size: 0.95rem; color: #7a4f01; margin-bottom: 2px;">Pre-order Active</div>
+              <div style="font-size: 0.85rem; color: #6d4c41; font-weight: 600;">Booking ends on <span style="font-weight: 700; color: #3e2723;">${formattedDate}</span></div>
+            </div>
+          </div>
+        `;
+      }
+
       area.innerHTML = `
         <div class="product-details-container">
           
@@ -719,6 +772,8 @@
             <span class="product-category-badge">${prod.category}</span>
             <h1 class="product-title">${prod.name}</h1>
             
+            ${preOrderBannerHtml}
+
             <div class="product-price-stock-row">
               <span class="product-price-val">₹${prod.price}</span>
               ${stockBadgeHtml}

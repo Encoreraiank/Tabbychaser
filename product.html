@@ -603,40 +603,15 @@
 
       // 2. Fetch live product from Supabase / localStorage / PRODUCTS_DATA
       (async () => {
-        let dbProducts = [];
-        if (window.supabaseClient) {
-          try {
-            const { data } = await window.supabaseClient.from('products').select('*');
-            if (data && data.length > 0) dbProducts = data;
+        const dbProducts = await window.fetchCloudProducts();
+        const settings = await window.fetchCloudSettings();
 
-            const { data: dbSettings } = await window.supabaseClient.from('site_settings').select('*');
-            if (dbSettings) {
-              const leRow = dbSettings.find(s => s.key === 'limited_edition_config');
-              if (leRow && leRow.value) {
-                try { localStorage.setItem('tabby_limited_edition_config', leRow.value); } catch(e) {}
-              }
-              const jsonRow = dbSettings.find(s => s.key === 'tabby_products_json');
-              if (jsonRow && jsonRow.value) {
-                try {
-                  const jsonProds = JSON.parse(jsonRow.value);
-                  if (Array.isArray(jsonProds) && jsonProds.length > 0) {
-                    dbProducts = [...dbProducts, ...jsonProds];
-                  }
-                } catch(e){}
-              }
-            }
-          } catch(e) {}
+        if (settings.limited_edition_config) {
+          try { window.currentLEConfig = JSON.parse(settings.limited_edition_config); } catch(e) {}
         }
 
-        let localProducts = [];
-        try {
-          localProducts = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
-        } catch(e) {}
-
         const defaultProducts = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
-
-        // Merge: dbProducts + localProducts + defaultProducts
-        const allList = [...dbProducts, ...localProducts, ...defaultProducts];
+        const allList = [...dbProducts, ...defaultProducts];
         const uniqueProducts = Array.from(new Set(allList.map(p => p.id || p.name)))
           .map(key => allList.find(p => (p.id || p.name) === key));
 
@@ -701,10 +676,7 @@
         : `<li class="product-detail-item"><span class="bullet-heart">♡</span> Handmade Art</li><li class="product-detail-item"><span class="bullet-heart">♡</span> High Gloss Finish</li>`;
 
       let preOrderBannerHtml = '';
-      let leConfig = null;
-      try {
-        leConfig = JSON.parse(localStorage.getItem('tabby_limited_edition_config') || 'null');
-      } catch(e) {}
+      let leConfig = window.currentLEConfig || null;
 
       if (leConfig && leConfig.preorder_enabled) {
         function formatPreorderDate(dateStr, timeStr) {

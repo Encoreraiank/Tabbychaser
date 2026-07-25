@@ -147,57 +147,21 @@ function cleanCategoryName(name) {
 }
 
 async function loadLiveStorefrontData() {
-  let products = null;
+  const settings = await window.fetchCloudSettings();
+  const dbProducts = await window.fetchCloudProducts();
+
   let remoteDeletedIds = [];
-
-  // Wait for Supabase client
-  let tries = 0;
-  while (!window.supabaseClient && tries < 4) {
-    await new Promise(r => setTimeout(r, 150));
-    tries++;
+  if (settings.deleted_product_ids) {
+    try { remoteDeletedIds = JSON.parse(settings.deleted_product_ids); } catch(e) {}
   }
-
-  let dbProducts = [];
-  if (window.supabaseClient) {
-    try {
-      const { data } = await window.supabaseClient.from('products').select('*');
-      if (data && data.length > 0) dbProducts = data;
-
-      const { data: dbSettings } = await window.supabaseClient.from('site_settings').select('*');
-      if (dbSettings) {
-        const deletedRow = dbSettings.find(s => s.key === 'deleted_product_ids');
-        if (deletedRow && deletedRow.value) {
-          try { remoteDeletedIds = JSON.parse(deletedRow.value); } catch(e){}
-        }
-        const jsonRow = dbSettings.find(s => s.key === 'tabby_products_json');
-        if (jsonRow && jsonRow.value) {
-          try {
-            const jsonProds = JSON.parse(jsonRow.value);
-            if (Array.isArray(jsonProds) && jsonProds.length > 0) {
-              dbProducts = [...dbProducts, ...jsonProds];
-            }
-          } catch(e){}
-        }
-      }
-    } catch (err) {
-      console.warn('Supabase storefront fetch error:', err);
-    }
-  }
-
-  let localProducts = [];
-  try {
-    localProducts = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
-  } catch(e) {}
 
   const defaultProducts = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
+  const allList = [...dbProducts, ...defaultProducts];
 
-  const allList = [...dbProducts, ...localProducts, ...defaultProducts];
   const uniqueProducts = Array.from(new Set(allList.map(p => p.id || p.name)))
     .map(key => allList.find(p => (p.id || p.name) === key));
 
-  const localDeletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-  const deletedIds = Array.from(new Set([...localDeletedIds, ...remoteDeletedIds])).map(s => String(s).toLowerCase().trim());
-  localStorage.setItem('tabby_deleted_product_ids', JSON.stringify(deletedIds));
+  const deletedIds = remoteDeletedIds.map(s => String(s).toLowerCase().trim());
 
   const liveProducts = uniqueProducts.filter(p => {
     if (!p || p.status === 'draft') return false;
@@ -207,9 +171,6 @@ async function loadLiveStorefrontData() {
     const pclean = pname.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     return !deletedIds.includes(pid) && !deletedIds.includes(pslug) && !deletedIds.includes(pname) && !deletedIds.includes(pclean);
   });
-
-  // Save merged state to local storage
-  localStorage.setItem('tabby_products_local', JSON.stringify(uniqueProducts));
 
   renderDynamicCategoryPills(liveProducts);
   renderDynamicProducts(liveProducts);

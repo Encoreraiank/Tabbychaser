@@ -684,18 +684,8 @@
   <script src="app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      let siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
-
-      // Fetch latest site settings from Supabase if available
-      if (window.supabaseClient) {
-        try {
-          const { data: remoteSettings } = await window.supabaseClient.from('site_settings').select('*');
-          if (remoteSettings && remoteSettings.length > 0) {
-            remoteSettings.forEach(row => siteSettings[row.key] = row.value);
-            localStorage.setItem('tabby_site_settings', JSON.stringify(siteSettings));
-          }
-        } catch(e) {}
-      }
+      // Fetch fresh site settings strictly from Supabase Cloud DB (no stale cache)
+      const siteSettings = await window.fetchCloudSettings();
 
       // Update Commissions Button Status
       const commOpen = siteSettings.commissions_open !== 'false';
@@ -725,9 +715,14 @@
         const head = document.querySelector('.sellers-heading');
         if (head) head.textContent = siteSettings.best_title;
       }
-      // Fetch live products & deleted_product_ids strictly from Supabase Cloud DB
-      let dbProds = [];
+      
+      // Fetch live products strictly from Supabase Cloud DB
+      let dbProds = await window.fetchCloudProducts();
       let dbDeletedIds = [];
+
+      if (siteSettings.deleted_product_ids) {
+        try { dbDeletedIds = JSON.parse(siteSettings.deleted_product_ids); } catch(e) {}
+      }
 
       try {
         const pRes = await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/products?select=*', {

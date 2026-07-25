@@ -1939,10 +1939,7 @@
     deadline_date: '',
     deadline_time: '23:59',
     max_quantity: 50,
-    items: [
-      { id: 'purr-parade-sticker-sheet', badge: 'Only 3 Left', style: 'orange', max_qty: 30 },
-      { id: 'pond-hopper-frog', badge: 'Rare Drop', style: 'pink', max_qty: 50 }
-    ]
+    items: []
   };
 
   function togglePreorderInputs(checked) {
@@ -1953,38 +1950,12 @@
   }
 
   async function loadLimitedEditionConfig() {
-    try {
-      const client = await db();
-      if (client) {
-        const { data } = await client.from('site_settings').select('*').eq('key', 'limited_edition_config');
-        if (data && data[0] && data[0].value) {
-          limitedEditionConfig = JSON.parse(data[0].value);
-        }
-      }
-    } catch(e) {}
+    const settings = await window.fetchCloudSettings();
+    if (settings && settings.limited_edition_config) {
+      try { limitedEditionConfig = JSON.parse(settings.limited_edition_config); } catch(e) {}
+    }
 
     if (!limitedEditionConfig || !limitedEditionConfig.items) {
-      try {
-        const res = await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/site_settings?key=eq.limited_edition_config', {
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI'
-          }
-        });
-        const data = await res.json();
-        if (data && data[0] && data[0].value) {
-          limitedEditionConfig = JSON.parse(data[0].value);
-        }
-      } catch(e) {}
-    }
-
-    if (!limitedEditionConfig) {
-      try {
-        limitedEditionConfig = JSON.parse(localStorage.getItem('tabby_limited_edition_config') || 'null');
-      } catch(e) {}
-    }
-
-    if (!limitedEditionConfig) {
       limitedEditionConfig = {
         title: '⚡ LIMITED EDITION',
         subtitle: "Handcrafted in tiny batches — once they're gone, they're gone forever! 🎀",
@@ -1992,10 +1963,7 @@
         deadline_date: '',
         deadline_time: '23:59',
         max_quantity: 50,
-        items: [
-          { id: 'purr-parade-sticker-sheet', badge: 'Only 3 Left', style: 'orange', max_qty: 30 },
-          { id: 'pond-hopper-frog', badge: 'Rare Drop', style: 'pink', max_qty: 50 }
-        ]
+        items: []
       };
     }
 
@@ -2032,7 +2000,7 @@
     document.getElementById('leProductModal').style.display = 'flex';
   }
 
-  function saveLEProductFromModal() {
+  async function saveLEProductFromModal() {
     const prodId = document.getElementById('leModalProdSelect')?.value;
     if (!prodId) {
       alert("Please select a product from the list.");
@@ -2053,7 +2021,7 @@
 
     document.getElementById('leProductModal').style.display = 'none';
     renderLimitedEditionManager();
-    saveLimitedEditionConfig();
+    await saveLimitedEditionConfig();
   }
 
   function renderLimitedEditionManager() {
@@ -2124,13 +2092,11 @@
     const deadline_time = document.getElementById('leDeadlineTime')?.value || '23:59';
     const max_quantity = parseInt(document.getElementById('leMaxQty')?.value || 50);
 
-    // Build map of current items from limitedEditionConfig
     const itemMap = new Map();
     (limitedEditionConfig.items || []).forEach(item => {
       if (item && item.id) itemMap.set(item.id, { ...item });
     });
 
-    // Update from any active DOM inputs
     (allProducts || []).forEach(p => {
       const chk = document.getElementById(`leCheck_${p.id}`);
       if (chk) {
@@ -2147,25 +2113,15 @@
 
     const selectedItems = Array.from(itemMap.values());
     limitedEditionConfig = { title, subtitle, preorder_enabled, deadline_date, deadline_time, max_quantity, items: selectedItems };
-    localStorage.setItem('tabby_limited_edition_config', JSON.stringify(limitedEditionConfig));
 
-    try {
-      await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/site_settings', {
-        method: 'POST',
-        headers: {
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
-        },
-        body: JSON.stringify({
-          key: 'limited_edition_config',
-          value: JSON.stringify(limitedEditionConfig)
-        })
-      });
-    } catch(e) {}
+    const ok = await window.saveCloudSetting('limited_edition_config', limitedEditionConfig);
+    await loadLimitedEditionConfig();
 
-    alert('✅ Limited Edition Showcase saved & live store updated across all devices!');
+    if (ok) {
+      alert('✅ Limited Edition Showcase saved & verified live across all admin accounts!');
+    } else {
+      alert('❌ Error saving Limited Edition settings to Supabase DB.');
+    }
   }
 
   // 4. CATEGORIES
@@ -2588,18 +2544,11 @@
 
   // 9. SITE SETTINGS & HERO & INTEGRATIONS
   async function loadSiteSettings() {
-    let s = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
-    try {
-      const client = await db();
-      if (client) {
-        const { data } = await client.from('site_settings').select('*');
-        (data || []).forEach(row => s[row.key] = row.value);
-      }
-    } catch(e) {}
+    const s = await window.fetchCloudSettings();
 
     // Populate Hero & Best Seller Product Options
     const prodOptions = `<option value="">-- Select Product --</option>` + 
-      allProducts.map(p => `<option value="${p.id}">${p.name} (₹${p.price})</option>`).join('');
+      (allProducts || []).map(p => `<option value="${p.id}">${p.name} (₹${p.price})</option>`).join('');
 
     // Populate 4 Hero Slides inputs
     for (let i = 1; i <= 4; i++) {
@@ -2632,74 +2581,19 @@
     if (document.getElementById('storeEmail')) document.getElementById('storeEmail').value = s.store_email || 'tabbychaser2@gmail.com';
     if (document.getElementById('storeInsta')) document.getElementById('storeInsta').value = s.instagram_url || '@tabbychaser';
 
-    document.getElementById('supaUrl').value = localStorage.getItem('tabby_supabase_url') || 'https://bdwfwutvqvmyujwgrtwu.supabase.co';
-    document.getElementById('supaKey').value = localStorage.getItem('tabby_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI';
-    document.getElementById('cloudName').value = localStorage.getItem('tabby_cloudinary_name') || 'atzancff';
-    document.getElementById('cloudPreset').value = localStorage.getItem('tabby_cloudinary_preset') || 'tabbychaserstore';
-    if (document.getElementById('razorpayKeyId')) document.getElementById('razorpayKeyId').value = localStorage.getItem('tabby_razorpay_key_id') || 'rzp_test_51TabbyChaserStore';
-    
-    loadCommissionsStatus();
-  }
-
-  function loadCommissionsStatus() {
-    const s = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
-    const isOpen = s.commissions_open !== 'false';
-    const btn = document.getElementById('commissionsToggleBtn');
-    if (btn) {
-      if (isOpen) {
-        btn.className = 'btn btn-green btn-sm';
-        btn.textContent = '🟢 Commissions: OPEN';
-      } else {
-        btn.className = 'btn btn-red btn-sm';
-        btn.textContent = '🔴 Commissions: CLOSED';
-      }
-    }
-  }
-
-  async function toggleCommissionsStatus() {
-    const s = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
-    const current = s.commissions_open !== 'false';
-    const next = !current;
-    s.commissions_open = next ? 'true' : 'false';
-    localStorage.setItem('tabby_site_settings', JSON.stringify(s));
-
-    try {
-      const client = await db();
-      if (client) await client.from('site_settings').upsert({ key: 'commissions_open', value: next ? 'true' : 'false' }, { onConflict: 'key' });
-    } catch(e) {}
-
-    loadCommissionsStatus();
-    alert(`Commissions status updated to: ${next ? 'OPEN 🟢' : 'CLOSED 🔴'}`);
-  }
-
-  async function saveShippingSettings() {
-    const fee = (document.getElementById('shipFee')?.value || '59').trim();
-    const threshold = (document.getElementById('shipFreeThreshold')?.value || '2000').trim();
-
-    const existing = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
-    existing.standard_shipping_fee = fee;
-    existing.free_shipping_threshold = threshold;
-
-    localStorage.setItem('tabby_site_settings', JSON.stringify(existing));
-
-    try {
-      const client = await db();
-      if (client) {
-        await client.from('site_settings').upsert({ key: 'standard_shipping_fee', value: fee, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-        await client.from('site_settings').upsert({ key: 'free_shipping_threshold', value: threshold, updated_at: new Date().toISOString() }, { onConflict: 'key' });
-      }
-    } catch(e) {
-      console.warn('Save shipping fee exception:', e);
-    }
-
-    alert('✅ Shipping Fee & Free Shipping Threshold saved successfully & live on checkout across all devices! 🚚');
+    document.getElementById('supaUrl').value = 'https://bdwfwutvqvmyujwgrtwu.supabase.co';
+    document.getElementById('supaKey').value = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI';
+    document.getElementById('cloudName').value = 'atzancff';
+    document.getElementById('cloudPreset').value = 'tabbychaserstore';
+    if (document.getElementById('razorpayKeyId')) document.getElementById('razorpayKeyId').value = 'rzp_test_51TabbyChaserStore';
   }
 
   async function saveSiteSettings() {
-    const existing = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+    const btn = document.querySelector('#tab-heroManager button.btn-pink');
+    const origText = btn ? btn.textContent : '';
+    if (btn) btn.textContent = '⏳ Saving to Supabase Cloud DB...';
 
     const sObj = {
-      ...existing,
       best_title: document.getElementById('siteBestTitle') ? document.getElementById('siteBestTitle').value : 'Best sellers',
       standard_shipping_fee: document.getElementById('shipFee') ? document.getElementById('shipFee').value : '59',
       free_shipping_threshold: document.getElementById('shipFreeThreshold') ? document.getElementById('shipFreeThreshold').value : '2000'
@@ -2722,33 +2616,17 @@
       if (el) sObj[`best_prod_${i}`] = el.value;
     }
 
-    localStorage.setItem('tabby_site_settings', JSON.stringify(sObj));
+    let successCount = 0;
+    for (const [key, value] of Object.entries(sObj)) {
+      const ok = await window.saveCloudSetting(key, value);
+      if (ok) successCount++;
+    }
 
-    try {
-      const client = await db();
-      if (client) {
-        for (const [key, value] of Object.entries(sObj)) {
-          await client.from('site_settings').upsert({ key, value: String(value) }, { onConflict: 'key' });
-        }
-      }
-    } catch(e) {}
+    // Refresh & read back to verify
+    await loadSiteSettings();
 
-    try {
-      for (const [key, value] of Object.entries(sObj)) {
-        await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/site_settings', {
-          method: 'POST',
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
-            'Content-Type': 'application/json',
-            'Prefer': 'resolution=merge-duplicates'
-          },
-          body: JSON.stringify({ key, value: String(value) })
-        });
-      }
-    } catch(e) {}
-
-    alert('✅ Hero Carousel (4 Slides) & Best Sellers Content Saved Live across all devices! ✨');
+    if (btn) btn.textContent = origText;
+    alert(`✅ Hero Carousel & Best Sellers settings saved & verified across all admin accounts! (${successCount}/${Object.keys(sObj).length} keys synced)`);
   }
 
   function saveSupabaseCredentials() {

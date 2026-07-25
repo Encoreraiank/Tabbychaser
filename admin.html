@@ -1853,14 +1853,12 @@
 
         const { error: dErr } = await client.from('site_settings').upsert({
           key: 'deleted_product_ids',
-          value: JSON.stringify(deletedIds),
-          updated_at: new Date().toISOString()
+          value: JSON.stringify(deletedIds)
         }, { onConflict: 'key' });
 
         const { error: sErr } = await client.from('site_settings').upsert({
           key: 'tabby_products_json',
-          value: JSON.stringify(allProducts),
-          updated_at: new Date().toISOString()
+          value: JSON.stringify(allProducts)
         }, { onConflict: 'key' });
         if (sErr) console.warn('Supabase site_settings upsert note:', sErr.message);
       }
@@ -2291,8 +2289,7 @@
         await client.from('products').update({ stock: newStock, status: newStatus }).eq('id', id);
         await client.from('site_settings').upsert({
           key: 'tabby_products_json',
-          value: JSON.stringify(allProducts),
-          updated_at: new Date().toISOString()
+          value: JSON.stringify(allProducts)
         }, { onConflict: 'key' });
       }
     } catch(e) {}

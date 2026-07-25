@@ -63,15 +63,26 @@ window.fetchCloudSettings = async function() {
 window.saveCloudSetting = async function(key, value) {
   const strVal = typeof value === 'object' ? JSON.stringify(value) : String(value);
   try {
+    // 1. Try POST with resolution=merge-duplicates
     const postRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings`, {
       method: 'POST',
       cache: 'no-store',
       headers: window.getSupabaseHeaders({ 'Prefer': 'resolution=merge-duplicates' }),
-      body: JSON.stringify({ key, value: strVal, updated_at: new Date().toISOString() })
+      body: JSON.stringify({ key, value: strVal })
     });
-    if (!postRes.ok) throw new Error(`Save failed HTTP ${postRes.status}`);
 
-    // Read-Back Verification
+    if (!postRes.ok) {
+      // 2. Fallback PATCH if row already exists
+      const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=eq.${encodeURIComponent(key)}`, {
+        method: 'PATCH',
+        cache: 'no-store',
+        headers: window.getSupabaseHeaders(),
+        body: JSON.stringify({ value: strVal })
+      });
+      if (!patchRes.ok) throw new Error(`PATCH failed HTTP ${patchRes.status}`);
+    }
+
+    // 3. Read-Back Verification
     const verifyRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=eq.${encodeURIComponent(key)}&t=${Date.now()}`, {
       cache: 'no-store',
       headers: window.getSupabaseHeaders()

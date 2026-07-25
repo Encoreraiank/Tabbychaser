@@ -2120,17 +2120,28 @@
     const deadline_time = document.getElementById('leDeadlineTime')?.value || '23:59';
     const max_quantity = parseInt(document.getElementById('leMaxQty')?.value || 50);
 
-    const selectedItems = [];
+    // Build map of current items from limitedEditionConfig
+    const itemMap = new Map();
+    (limitedEditionConfig.items || []).forEach(item => {
+      if (item && item.id) itemMap.set(item.id, { ...item });
+    });
+
+    // Update from any active DOM inputs
     (allProducts || []).forEach(p => {
       const chk = document.getElementById(`leCheck_${p.id}`);
-      if (chk && chk.checked) {
-        const badge = (document.getElementById(`leBadge_${p.id}`)?.value || '').trim() || 'Limited Edition';
-        const style = document.getElementById(`leStyle_${p.id}`)?.value || 'pink';
-        const max_qty = parseInt(document.getElementById(`leMaxQty_${p.id}`)?.value || 50);
-        selectedItems.push({ id: p.id, badge, style, max_qty });
+      if (chk) {
+        if (chk.checked) {
+          const badge = (document.getElementById(`leBadge_${p.id}`)?.value || '').trim() || 'Limited Edition';
+          const style = document.getElementById(`leStyle_${p.id}`)?.value || 'pink';
+          const max_qty = parseInt(document.getElementById(`leMaxQty_${p.id}`)?.value || 50);
+          itemMap.set(p.id, { id: p.id, badge, style, max_qty });
+        } else {
+          itemMap.delete(p.id);
+        }
       }
     });
 
+    const selectedItems = Array.from(itemMap.values());
     limitedEditionConfig = { title, subtitle, preorder_enabled, deadline_date, deadline_time, max_quantity, items: selectedItems };
     localStorage.setItem('tabby_limited_edition_config', JSON.stringify(limitedEditionConfig));
 
@@ -2150,7 +2161,7 @@
       });
     } catch(e) {}
 
-    alert('✅ Limited Edition Showcase saved & live store updated!');
+    alert('✅ Limited Edition Showcase saved & live store updated across all devices!');
   }
 
   // 4. CATEGORIES

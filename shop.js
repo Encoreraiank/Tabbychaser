@@ -203,7 +203,9 @@ async function loadLiveStorefrontData() {
     if (!p || p.status === 'draft') return false;
     const pid = String(p.id || '').toLowerCase().trim();
     const pslug = String(p.slug || '').toLowerCase().trim();
-    return !deletedIds.includes(pid) && !deletedIds.includes(pslug);
+    const pname = String(p.name || '').toLowerCase().trim();
+    const pclean = pname.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return !deletedIds.includes(pid) && !deletedIds.includes(pslug) && !deletedIds.includes(pname) && !deletedIds.includes(pclean);
   });
 
   // Save merged state to local storage

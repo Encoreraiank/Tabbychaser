@@ -277,6 +277,29 @@
       </div>
     </section>
 
+    <!-- 5.5. Limited Edition Showcase Section -->
+    <section class="limited-edition-section" id="limited-edition" style="padding: 40px 0 20px 0; background: linear-gradient(180deg, #fff5f9 0%, #ffffff 100%); border-bottom: 1px dashed #f8bbd0;">
+      <div class="container">
+        
+        <div class="sellers-header-row" style="margin-bottom: 20px; text-align: left;">
+          <div>
+            <div style="display:inline-flex; align-items:center; gap:6px; background:#fff0f5; border:1px solid #f8bbd0; color:#d35d88; font-size:0.75rem; font-weight:800; padding:4px 12px; border-radius:50px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">
+              ⚡ EXCLUSIVE RARE DROPS
+            </div>
+            <h2 class="sellers-heading" id="leTitleDisplay" style="color:#d35d88; font-size: 2rem;">⚡ LIMITED EDITION</h2>
+            <p id="leSubtitleDisplay" style="font-size:0.88rem; color:#666; margin-top:4px; font-weight:500;">
+              Handcrafted in tiny batches — once they're gone, they're gone forever! 🎀
+            </p>
+          </div>
+        </div>
+
+        <div class="sellers-products-grid" id="limitedEditionGridContainer">
+          <div style="grid-column:1/-1; text-align:center; padding:30px;"><div class="spinner"></div></div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- 6. Best Sellers Grid Section -->
     <section class="best-sellers-section" id="shop">
       <div class="container">
@@ -1003,6 +1026,96 @@
           grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:50px 20px;color:#888;font-weight:600;">No products in store right now. Check back soon for new handmade creations! 🌸</div>`;
         }
       }
+
+      // Render Limited Edition Section
+      async function loadLimitedEditionProductsHomepage() {
+        const leGrid = document.getElementById('limitedEditionGridContainer');
+        if (!leGrid) return;
+
+        let config = null;
+        try {
+          if (window.supabaseClient) {
+            const { data } = await window.supabaseClient.from('site_settings').select('*').eq('key', 'limited_edition_config');
+            if (data && data[0] && data[0].value) config = JSON.parse(data[0].value);
+          }
+        } catch(e) {}
+
+        if (!config) {
+          try {
+            const res = await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/site_settings?key=eq.limited_edition_config', {
+              headers: {
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI'
+              }
+            });
+            const data = await res.json();
+            if (data && data[0] && data[0].value) config = JSON.parse(data[0].value);
+          } catch(e) {}
+        }
+
+        if (!config) {
+          try {
+            config = JSON.parse(localStorage.getItem('tabby_limited_edition_config') || 'null');
+          } catch(e) {}
+        }
+
+        if (config && config.title) {
+          const tEl = document.getElementById('leTitleDisplay');
+          if (tEl) tEl.textContent = config.title;
+        }
+        if (config && config.subtitle) {
+          const sEl = document.getElementById('leSubtitleDisplay');
+          if (sEl) sEl.textContent = config.subtitle;
+        }
+
+        const leItems = config?.items || [
+          { id: 'purr-parade-sticker-sheet', badge: 'Only 3 Left', style: 'orange' },
+          { id: 'pond-hopper-frog', badge: 'Rare Drop', style: 'pink' }
+        ];
+
+        const matchedProducts = leItems.map(item => {
+          const prod = products.find(p => p.id === item.id);
+          if (!prod) return null;
+          return { ...prod, customBadge: item.badge || 'Limited Edition', badgeStyle: item.style || 'pink' };
+        }).filter(Boolean);
+
+        if (matchedProducts.length === 0) {
+          leGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:#888;">No limited edition drops available right now. Check back soon! 🌸</div>`;
+          return;
+        }
+
+        const wishlist = window.getWishlist ? window.getWishlist() : [];
+        leGrid.innerHTML = matchedProducts.map(p => {
+          const badgeClass = p.badgeStyle === 'orange' ? 'badge-orange' : (p.badgeStyle === 'gold' ? 'badge-gold' : 'card-hot-badge');
+          const img = (p.images && p.images[0]) ? p.images[0] : (p.image || 'store-logo-c471e30d.webp');
+          const isWish = wishlist.some(w => w.name === p.name);
+
+          return `
+            <div style="position:relative;">
+              <button class="wishlist-heart-btn ${isWish ? 'active' : ''}" data-wishlist-name="${p.name.replace(/"/g, '&quot;')}" onclick="window.toggleWishlist('${p.id || ''}', '${p.name.replace(/'/g, "\\'")}', ${p.price}, '${img}', event)" title="Add to Wishlist">
+                ${isWish ? '♥' : '♡'}
+              </button>
+              <a href="product?id=${p.id || ''}" class="showcase-product-card-link">
+                <div class="showcase-product-card" style="border: 1.5px solid #f8bbd0; transition: transform 0.2s, box-shadow 0.2s;">
+                  <div class="card-image-wrapper">
+                    <span class="card-hot-badge ${badgeClass}" style="box-shadow: 0 4px 10px rgba(0,0,0,0.15);">${p.customBadge}</span>
+                    <img src="${img}" alt="${p.name}" />
+                  </div>
+                  <div class="card-meta-details">
+                    <div class="card-title-price-row">
+                      <span class="prod-title">${p.name}</span>
+                      <span class="prod-price">₹${p.price}</span>
+                    </div>
+                    <span class="prod-tagline">${p.category || 'Limited Edition'}</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          `;
+        }).join('');
+      }
+
+      loadLimitedEditionProductsHomepage();
     });
   </script>
 </body>

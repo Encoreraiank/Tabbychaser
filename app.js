@@ -418,24 +418,14 @@ function initGlobalSearch() {
     if (!input) return;
 
     input.removeAttribute('disabled');
-    input.addEventListener('input', (e) => {
+    input.addEventListener('input', async (e) => {
       const query = e.target.value.trim().toLowerCase();
       if (!query) { dropdown.classList.remove('active'); dropdown.innerHTML = ''; return; }
 
-      let localProds = [];
-      try { localProds = JSON.parse(localStorage.getItem('tabby_products_local') || '[]'); } catch (ex) {}
-      const defaultProds = typeof PRODUCTS_DATA !== 'undefined' ? PRODUCTS_DATA : [];
-
-      const allMerged = [...localProds, ...defaultProds];
-      const uniqueProds = Array.from(new Set(allMerged.map(p => p.id || p.name)))
-        .map(key => allMerged.find(p => (p.id || p.name) === key));
-
-      const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
-      const products = uniqueProds.filter(p => p.status !== 'draft' && !deletedIds.includes(p.id) && !deletedIds.includes(p.name));
-
+      const products = (typeof window.fetchCloudProducts === 'function') ? await window.fetchCloudProducts() : [];
       const matches = products.filter(p =>
-        (p.name || '').toLowerCase().includes(query) ||
-        (p.category || '').toLowerCase().includes(query)
+        p.status !== 'draft' &&
+        ((p.name || '').toLowerCase().includes(query) || (p.category || '').toLowerCase().includes(query))
       ).slice(0, 5);
 
       if (matches.length === 0) {

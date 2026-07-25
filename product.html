@@ -567,7 +567,7 @@
   <!-- JS Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="products-data.js"></script>
+
   <script src="app.js"></script>
 
   <script>
@@ -1001,24 +1001,15 @@
       }
     }
 
-    function renderRelatedProducts(curr) {
+    async function renderRelatedProducts(curr) {
       const grid = document.getElementById('relatedProductsGrid');
       const shelf = document.getElementById('relatedSection');
       if (!grid || !shelf) return;
 
-      // Get deleted product IDs to exclude them
-      const deletedIds = JSON.parse(localStorage.getItem('tabby_deleted_product_ids') || '[]');
+      const allProducts = (typeof window.fetchCloudProducts === 'function') ? await window.fetchCloudProducts() : [];
 
-      // Get live products from localStorage if available (admin may have added/removed)
-      let allProducts = PRODUCTS_DATA;
-      try {
-        const local = JSON.parse(localStorage.getItem('tabby_products_local') || '[]');
-        if (local.length > 0) allProducts = local;
-      } catch(e) {}
-
-      // Only show available (not deleted, not out-of-stock) products
       const availableProducts = allProducts.filter(p =>
-        !deletedIds.includes(p.id) &&
+        p.status !== 'draft' &&
         p.stock !== 'out-of-stock' &&
         p.id !== curr.id
       );

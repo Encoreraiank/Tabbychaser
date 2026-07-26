@@ -152,6 +152,9 @@ window.addGlobalCartItem = function (name, price, img) {
     cart.push({ name, price: parseInt(price), img, quantity: 1 });
   }
   window.saveCart(cart);
+  try {
+    if (window.fbq) fbq('track', 'AddToCart', { content_name: name, value: parseInt(price), currency: 'INR' });
+  } catch(e) {}
   window.toggleCartDrawer(true);
 };
 

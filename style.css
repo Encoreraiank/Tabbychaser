@@ -2697,21 +2697,32 @@ html, body {
   position: relative;
 }
 
+/* ==========================================================================
+   Comprehensive Mobile & Tablet Responsive Optimization (320px - 768px)
+   ========================================================================== */
+
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100%;
+  position: relative;
+}
+
 @media (max-width: 768px) {
   :root {
-    --header-height: 66px;
+    --header-height: 60px;
   }
 
   .container {
-    padding-left: 14px !important;
-    padding-right: 14px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
   }
 
   /* 1. Announcement Bar Mobile */
   .announcement-bar {
-    padding: 6px 0;
+    padding: 5px 0;
   }
   .announcement-container {
     justify-content: center;
@@ -2720,66 +2731,324 @@ html, body {
     display: none;
   }
   .announcement-text {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    padding: 0 8px;
+    padding: 0 6px;
   }
 
-  /* 2. Header Mobile Fix */
+  /* 2. Top Header & Mobile Menu Bar */
   .site-header {
     height: var(--header-height);
   }
   .header-container {
-    gap: 8px;
-  }
-  .brand-logo {
     gap: 6px;
   }
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
   .brand-logo-icon {
-    width: 32px;
-    height: 32px;
+    width: 30px !important;
+    height: 30px !important;
   }
   .logo-text {
-    font-size: 1.2rem;
+    font-size: 1.15rem !important;
+    font-weight: 700;
+    white-space: nowrap;
   }
-  .nav-search-form {
-    max-width: 130px;
+  .header-actions {
+    gap: 6px;
   }
-  .nav-search-input {
+  .search-box-pill {
+    max-width: 100px;
+    padding: 3px 6px;
+  }
+  .search-box-pill input {
+    font-size: 16px !important;
+  }
+  .cart-pill-btn {
+    padding: 5px 10px;
     font-size: 0.78rem;
-    padding: 6px 10px 6px 28px;
   }
 
-  /* 3. Hero Banner Mobile Fix */
+  /* Mobile Navigation Scrollable Pills Bar */
+  .nav-menu {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 6px !important;
+    padding: 6px 12px !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    background: var(--color-page-bg);
+    border-bottom: 1px solid var(--color-border-rgba);
+    width: 100% !important;
+  }
+  .nav-menu::-webkit-scrollbar { display: none; }
+  .nav-link {
+    font-size: 0.78rem !important;
+    padding: 5px 12px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 3. Hero Section Mobile Optimization */
+  .hero-card-section {
+    padding: 10px 0 !important;
+  }
   .hero-card-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
   }
   .hero-text-panel {
-    padding: 10px 0;
+    padding: 6px 0 !important;
     text-align: center;
   }
   .hero-headline-title {
-    font-size: 1.55rem;
-    line-height: 1.25;
+    font-size: 1.3rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 6px !important;
   }
   .hero-paragraph-desc {
-    font-size: 0.88rem;
+    font-size: 0.82rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 10px !important;
   }
   .hero-image-panel {
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto;
+    max-width: 220px !important;
+    margin: 0 auto !important;
   }
   .image-inner-wrap img {
-    height: 260px;
-    object-fit: cover;
+    height: 180px !important;
+    object-fit: cover !important;
+  }
+  .btn-pink-pill {
+    padding: 8px 18px !important;
+    font-size: 0.82rem !important;
   }
 
-  /* 4. Product Grid 2-Column Responsive */
+  /* 4. Handmade With Love Showcase Section Mobile */
+  .brand-showcase-section {
+    padding: 16px 0 !important;
+  }
+  .showcase-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .showcase-title-text {
+    font-size: 1.35rem !important;
+    line-height: 1.2 !important;
+  }
+  .showcase-paragraph {
+    font-size: 0.8rem !important;
+    margin-bottom: 10px !important;
+  }
+  .feature-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    margin-top: 12px !important;
+  }
+  .feature-card {
+    padding: 8px 4px !important;
+    text-align: center !important;
+  }
+  .card-large-stat {
+    font-size: 0.92rem !important;
+  }
+  .card-script-label {
+    font-size: 0.68rem !important;
+  }
+  .showcase-right-panel {
+    max-width: 240px !important;
+    margin: 10px auto 0 !important;
+  }
+  .showcase-img {
+    max-height: 170px !important;
+    object-fit: cover !important;
+  }
+
+  /* 5. Limited Edition Section Mobile */
+  .limited-edition-section {
+    padding: 16px 0 !important;
+  }
+  .sellers-heading {
+    font-size: 1.25rem !important;
+  }
+  #leSubtitleDisplay {
+    font-size: 0.78rem !important;
+  }
+
+  /* 6. Behind The Scenes Horizontal Layout */
+  .behind-scenes-section {
+    padding: 16px 0 !important;
+  }
+  .behind-scenes-card {
+    padding: 14px !important;
+    border-radius: 18px !important;
+  }
+  .behind-scenes-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .behind-scenes-image-panel {
+    flex-shrink: 0 !important;
+    width: 100px !important;
+  }
+  .scenes-img {
+    width: 100px !important;
+    height: 100px !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+  }
+  .behind-scenes-text-panel {
+    flex: 1 !important;
+    min-width: 180px !important;
+  }
+  .scenes-title {
+    font-size: 0.95rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 4px !important;
+  }
+  .scenes-desc {
+    font-size: 0.75rem !important;
+    line-height: 1.3 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* 7. My Little Journey Horizontal Scroll */
+  .journey-section {
+    padding: 16px 0 !important;
+  }
+  .journey-card {
+    padding: 16px 12px !important;
+  }
+  .journey-two-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .journey-heading {
+    font-size: 1.25rem !important;
+  }
+  .journey-heading-script {
+    font-size: 1.1rem !important;
+  }
+  .journey-subtext {
+    font-size: 0.78rem !important;
+    margin-bottom: 10px !important;
+  }
+  .journey-steps-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px !important;
+    padding-bottom: 6px !important;
+  }
+  .journey-steps-row::-webkit-scrollbar { display: none; }
+  .step-wrap {
+    flex-shrink: 0 !important;
+    width: 125px !important;
+    text-align: center !important;
+  }
+  .step-img {
+    width: 60px !important;
+    height: 60px !important;
+    object-fit: cover !important;
+  }
+  .arrow { display: none !important; }
+  .step-title {
+    font-size: 0.8rem !important;
+    margin: 4px 0 2px !important;
+  }
+  .step-desc {
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+  }
+  .journey-right-col {
+    max-width: 160px !important;
+    margin: 8px auto 0 !important;
+  }
+  .phone-mockup {
+    max-height: 160px !important;
+  }
+  .phone-media {
+    max-height: 150px !important;
+    object-fit: cover !important;
+  }
+
+  /* 8. Instagram Section Horizontal Track */
+  .instagram-section {
+    padding: 16px 0 !important;
+  }
+  .instagram-main-title {
+    font-size: 1.15rem !important;
+  }
+  .instagram-posts-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  .instagram-posts-grid::-webkit-scrollbar { display: none; }
+  .instagram-post-card {
+    flex-shrink: 0 !important;
+    width: 105px !important;
+    height: 105px !important;
+  }
+
+  /* 9. Claim Welcome Gift Bar Mobile */
+  .newsletter-rounded-bar {
+    padding: 14px 16px !important;
+    margin-top: 16px !important;
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 10px !important;
+    border-radius: 18px !important;
+  }
+  .newsletter-display-title {
+    font-size: 1.05rem !important;
+  }
+  .newsletter-desc {
+    font-size: 0.75rem !important;
+  }
+  .newsletter-form-panel {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+  .newsletter-input {
+    font-size: 16px !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+    border-radius: 50px !important;
+  }
+  .newsletter-btn-join {
+    width: 100% !important;
+    padding: 8px 14px !important;
+    font-size: 0.85rem !important;
+    border-radius: 50px !important;
+  }
+
+  /* 10. Product Grid 2-Column Responsive */
   .sellers-products-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px !important;
@@ -2806,15 +3075,54 @@ html, body {
   .add-to-cart-btn {
     padding: 8px 10px;
     font-size: 0.75rem;
-    min-height: 44px; /* Touch target accessibility */
+    min-height: 44px;
   }
 
-  /* 5. Cart Drawer Mobile */
+  /* 11. Cart Drawer Mobile */
   .cart-drawer {
     width: 100% !important;
   }
 
-  /* 6. Form Inputs Prevent iOS Zoom */
+  /* 12. Footer Mobile Compact Grid */
+  .site-footer {
+    padding: 20px 0 !important;
+  }
+  .footer-body {
+    padding: 20px 0 10px !important;
+  }
+  .footer-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+    text-align: left !important;
+  }
+  .footer-brand-column {
+    grid-column: 1 / -1 !important;
+    text-align: center !important;
+  }
+  .footer-logo-text {
+    font-size: 1.15rem !important;
+  }
+  .footer-brand-desc {
+    font-size: 0.75rem !important;
+    line-height: 1.3 !important;
+  }
+  .footer-column-title {
+    font-size: 0.8rem !important;
+    margin-bottom: 6px !important;
+  }
+  .footer-links-list {
+    gap: 4px !important;
+    font-size: 0.78rem !important;
+  }
+  .footer-bottom-bar {
+    padding-top: 12px !important;
+    margin-top: 16px !important;
+    font-size: 0.72rem !important;
+    text-align: center !important;
+  }
+
+  /* 13. Form Inputs Prevent iOS Zoom */
   input[type="text"],
   input[type="email"],
   input[type="tel"],
@@ -2823,24 +3131,14 @@ html, body {
   textarea {
     font-size: 16px !important;
   }
-
-  /* 7. Footer Mobile */
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    text-align: center;
-  }
-  .footer-social-links {
-    justify-content: center;
-  }
 }
 
 @media (max-width: 480px) {
   .logo-text {
-    font-size: 1.1rem;
+    font-size: 1.05rem !important;
   }
-  .nav-search-form {
-    display: none; /* Hide top inline search on small phones to give logo & cart room */
+  .search-box-pill {
+    display: none; /* Hide top search box on small phones so logo & cart fit cleanly */
   }
   .sellers-products-grid {
     grid-template-columns: repeat(2, 1fr) !important;

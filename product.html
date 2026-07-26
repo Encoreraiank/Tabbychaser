@@ -27,10 +27,21 @@
   <!-- End Meta Pixel Code -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Details – Tabby Chaser</title>
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta name="description" content="View product details, pricing, description, and buy custom handmade clay charms, keychains, and desk pals." />
+  <link rel="canonical" href="https://tabbychaser.store/product" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="og:product" />
+  <meta property="og:site_name" content="Tabby Chaser" />
+  <meta property="og:title" content="Product Details – Tabby Chaser" />
+  <meta property="og:description" content="Handcrafted cold porcelain clay charms, keychains, desk pals, and worry stones from Tabby Chaser." />
+  <meta property="og:image" content="https://tabbychaser.store/favicon.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Product Details – Tabby Chaser" />
+  <meta name="twitter:description" content="Handcrafted cold porcelain clay charms, keychains, desk pals, and worry stones from Tabby Chaser." />
+  <meta name="twitter:image" content="https://tabbychaser.store/favicon.png" />
 
   <!-- Bubbly & Display Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -690,9 +701,48 @@
     }
 
     function renderProductDetails(prod) {
-      // Update breadcrumbs current item
+      // Update breadcrumbs current item & SEO meta tags
       document.getElementById('breadcrumbCurrent').textContent = prod.name;
       document.title = `${prod.name} – Tabby Chaser`;
+
+      const descMeta = document.querySelector('meta[name="description"]');
+      if (descMeta) descMeta.setAttribute('content', `${prod.name} - Handcrafted cold porcelain clay charm. Buy now for ₹${prod.price} at Tabby Chaser India.`);
+
+      const canLink = document.querySelector('link[rel="canonical"]');
+      if (canLink) canLink.setAttribute('href', `https://tabbychaser.store/product?id=${encodeURIComponent(prod.id)}`);
+
+      // Inject Product JSON-LD Schema
+      let existingSchema = document.getElementById('jsonLdProductSchema');
+      if (existingSchema) existingSchema.remove();
+
+      const schemaScript = document.createElement('script');
+      schemaScript.id = 'jsonLdProductSchema';
+      schemaScript.type = 'application/ld+json';
+      schemaScript.textContent = JSON.stringify({
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": prod.name,
+        "image": [prod.image],
+        "description": prod.description || `Handcrafted cold porcelain clay charm ${prod.name} made with love in India.`,
+        "sku": prod.id,
+        "brand": {
+          "@type": "Brand",
+          "name": "Tabby Chaser"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": `https://tabbychaser.store/product?id=${encodeURIComponent(prod.id)}`,
+          "priceCurrency": "INR",
+          "price": prod.price,
+          "itemCondition": "https://schema.org/NewCondition",
+          "availability": prod.stock === 'out-of-stock' ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+          "seller": {
+            "@type": "Organization",
+            "name": "Tabby Chaser"
+          }
+        }
+      });
+      document.head.appendChild(schemaScript);
 
       const area = document.getElementById('productRenderArea');
 

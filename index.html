@@ -27,7 +27,59 @@
   <!-- End Meta Pixel Code -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="google491442b570c2b588" />
-  <title>Tabby Chaser – Handmade Clay Charms &amp; Stickers</title>
+  <title>Tabby Chaser – Handmade Cold Porcelain Clay Charms, Keychains &amp; Aesthetic Gifts India</title>
+  <meta name="description" content="Shop handcrafted cold porcelain clay charms, keychains, desk pals, stickers, and worry stones from Tabby Chaser in India. Unique, cute, high-gloss keepsakes made with love." />
+  <link rel="canonical" href="https://tabbychaser.store/" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Tabby Chaser" />
+  <meta property="og:url" content="https://tabbychaser.store/" />
+  <meta property="og:title" content="Tabby Chaser – Handmade Cold Porcelain Clay Charms &amp; Aesthetic Gifts" />
+  <meta property="og:description" content="Shop handcrafted cold porcelain clay charms, keychains, desk pals, stickers, and worry stones from Tabby Chaser in India." />
+  <meta property="og:image" content="https://tabbychaser.store/favicon.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://tabbychaser.store/" />
+  <meta name="twitter:title" content="Tabby Chaser – Handmade Cold Porcelain Clay Charms &amp; Aesthetic Gifts" />
+  <meta name="twitter:description" content="Shop handcrafted cold porcelain clay charms, keychains, desk pals, stickers, and worry stones from Tabby Chaser in India." />
+  <meta name="twitter:image" content="https://tabbychaser.store/favicon.png" />
+
+  <!-- Schema.org Organization & WebSite JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://tabbychaser.store/#organization",
+        "name": "Tabby Chaser",
+        "url": "https://tabbychaser.store/",
+        "logo": "https://tabbychaser.store/favicon.png",
+        "image": "https://tabbychaser.store/favicon.png",
+        "description": "Handcrafted Cold Porcelain Clay Charms, Keychains & Aesthetic Keepsakes made in India.",
+        "sameAs": [
+          "https://www.instagram.com/tabbychaser"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://tabbychaser.store/#website",
+        "url": "https://tabbychaser.store/",
+        "name": "Tabby Chaser",
+        "publisher": {
+          "@id": "https://tabbychaser.store/#organization"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://tabbychaser.store/shop?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  }
+  </script>
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -141,9 +193,9 @@
                     <span class="badge-dot"></span>
                     Popular 🎀
                   </div>
-                  <h1 class="hero-headline-title">
+                  <h2 class="hero-headline-title">
                     Slay everyday with cute little <span class="highlight-pink">bear charms.</span>
-                  </h1>
+                  </h2>
                   <p class="hero-paragraph-desc">
                     A tiny handmade teddy bear charm with a glossy finish and a sweet pink bow, perfect for zip styling.
                   </p>
@@ -169,9 +221,9 @@
                     <span class="badge-dot"></span>
                     Featured ⭐
                   </div>
-                  <h1 class="hero-headline-title">
+                  <h2 class="hero-headline-title">
                     Slay everyday with cute little <span class="highlight-pink">cat keychains.</span>
-                  </h1>
+                  </h2>
                   <p class="hero-paragraph-desc">
                     Star cat finally got its own star! A handmade clay keychain featuring your favorite little space companion.
                   </p>
@@ -197,9 +249,9 @@
                     <span class="badge-dot"></span>
                     Spooky Cute 💀
                   </div>
-                  <h1 class="hero-headline-title">
+                  <h2 class="hero-headline-title">
                     Slay everyday with cute little <span class="highlight-pink">spooky skulls.</span>
-                  </h1>
+                  </h2>
                   <p class="hero-paragraph-desc">
                     A tiny skull with a soft spooky heart. Handmade from cold porcelain clay and finished with high-quality glazes.
                   </p>
@@ -826,7 +878,7 @@
                     <span class="badge-dot"></span>
                     ${prod?.badge || 'Handmade ✨'}
                   </div>
-                  <h1 class="hero-headline-title">${title}</h1>
+                  <${idx === 0 ? 'h1' : 'h2'} class="hero-headline-title">${title}</${idx === 0 ? 'h1' : 'h2'}>
                   <p class="hero-paragraph-desc">${sub}</p>
                   <a href="${targetUrl}" class="btn btn-pink-pill">${btnText}</a>
                 </div>

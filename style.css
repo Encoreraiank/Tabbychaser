@@ -2686,3 +2686,165 @@ a, a:hover, a:focus, a:visited {
   box-shadow: 0 8px 20px rgba(244, 122, 171, 0.3);
 }
 
+/* ==========================================================================
+   Comprehensive Mobile & Tablet Responsive Optimization (320px - 1024px)
+   ========================================================================== */
+
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100%;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 66px;
+  }
+
+  .container {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 1. Announcement Bar Mobile */
+  .announcement-bar {
+    padding: 6px 0;
+  }
+  .announcement-container {
+    justify-content: center;
+  }
+  .announcement-social, .announcement-spacer {
+    display: none;
+  }
+  .announcement-text {
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    padding: 0 8px;
+  }
+
+  /* 2. Header Mobile Fix */
+  .site-header {
+    height: var(--header-height);
+  }
+  .header-container {
+    gap: 8px;
+  }
+  .brand-logo {
+    gap: 6px;
+  }
+  .brand-logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .logo-text {
+    font-size: 1.2rem;
+  }
+  .nav-search-form {
+    max-width: 130px;
+  }
+  .nav-search-input {
+    font-size: 0.78rem;
+    padding: 6px 10px 6px 28px;
+  }
+
+  /* 3. Hero Banner Mobile Fix */
+  .hero-card-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .hero-text-panel {
+    padding: 10px 0;
+    text-align: center;
+  }
+  .hero-headline-title {
+    font-size: 1.55rem;
+    line-height: 1.25;
+  }
+  .hero-paragraph-desc {
+    font-size: 0.88rem;
+  }
+  .hero-image-panel {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .image-inner-wrap img {
+    height: 260px;
+    object-fit: cover;
+  }
+
+  /* 4. Product Grid 2-Column Responsive */
+  .sellers-products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .shop-card {
+    padding: 8px;
+  }
+  .shop-card-img-wrap {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+  }
+  .shop-card-img {
+    height: 100%;
+    object-fit: cover;
+  }
+  .shop-card-title {
+    font-size: 0.82rem;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .price-current {
+    font-size: 0.88rem;
+  }
+  .add-to-cart-btn {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+    min-height: 44px; /* Touch target accessibility */
+  }
+
+  /* 5. Cart Drawer Mobile */
+  .cart-drawer {
+    width: 100% !important;
+  }
+
+  /* 6. Form Inputs Prevent iOS Zoom */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* 7. Footer Mobile */
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    text-align: center;
+  }
+  .footer-social-links {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-text {
+    font-size: 1.1rem;
+  }
+  .nav-search-form {
+    display: none; /* Hide top inline search on small phones to give logo & cart room */
+  }
+  .sellers-products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+}
+

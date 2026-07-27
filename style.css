@@ -2731,6 +2731,50 @@ html, body {
     box-sizing: border-box !important;
   }
 
+  /* Top Announcement Bar Fix for Mobile (Zero overlap between Instagram Icon & Text) */
+  .announcement-bar {
+    padding: 6px 0 !important;
+    font-size: 0.72rem !important;
+  }
+  .announcement-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    padding: 0 32px !important;
+    box-sizing: border-box !important;
+  }
+  .announcement-social {
+    position: absolute !important;
+    left: 8px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  .announcement-social a {
+    display: flex !important;
+    align-items: center !important;
+  }
+  .announcement-social svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  .announcement-text {
+    text-align: center !important;
+    width: 100% !important;
+    font-size: 0.72rem !important;
+    line-height: 1.25 !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .announcement-spacer {
+    display: none !important;
+  }
+
   /* 1. Header (MoonKiln Style: 3 lines Hamburger | Logo | Profile | Cart) */
   .site-header {
     height: var(--header-height);

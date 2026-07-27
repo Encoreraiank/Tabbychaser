@@ -76,6 +76,11 @@
   <!-- Header Navigation -->
   <header class="site-header">
     <div class="header-container container">
+      <!-- Hamburger 3-line Icon for Mobile (MoonKiln Style) -->
+      <button type="button" class="mobile-hamburger-btn" id="mobileHamburgerBtn" onclick="window.toggleMobileNavMenu()" aria-label="Open Mobile Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+
       <a href="/" class="brand-logo">
         <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
         <span class="logo-text">Tabby Chaser</span>
@@ -576,5 +581,25 @@
       }
     });
   </script>
+  <!-- Mobile Navigation Overlay & Drawer (MoonKiln Style) -->
+  <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="window.toggleMobileNavMenu(false)"></div>
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div class="mobile-drawer-header">
+      <div class="mobile-drawer-brand">
+        <img src="store-logo-c471e30d.webp" alt="Tabby Chaser" style="width:26px;height:26px;" />
+        <span>Tabby Chaser</span>
+      </div>
+      <button class="mobile-drawer-close" onclick="window.toggleMobileNavMenu(false)">&times;</button>
+    </div>
+    <div class="mobile-drawer-links">
+      <a href="/" class="mobile-drawer-link">🏠 Home</a>
+      <a href="shop" class="mobile-drawer-link">🛍️ Shop All</a>
+      <a href="custom-orders" class="mobile-drawer-link active">✨ Custom Orders</a>
+      <a href="policies" class="mobile-drawer-link">📋 Policies &amp; FAQ</a>
+      <a href="review" class="mobile-drawer-link">⭐ Customer Reviews</a>
+      <a href="account" class="mobile-drawer-link">👤 My Account</a>
+    </div>
+  </div>
+
 </body>
 </html>

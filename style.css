@@ -214,69 +214,53 @@ a, a:hover, a:focus, a:visited {
 /* 1. Top Announcement Bar */
 .announcement-bar {
   background-color: var(--color-patti-bg, #131313);
-  color: #ffffff !important;
-  padding: 6px 0;
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  font-size: 0.78rem;
-  font-weight: 600;
+  color: #ffffff;
+  padding: 8px 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
   z-index: 1002;
-  white-space: nowrap;
+  position: relative;
 }
 
 .announcement-container {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  padding: 0 12px !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .announcement-social {
-  display: flex !important;
-  align-items: center !important;
-  flex-shrink: 0 !important;
-  z-index: 2 !important;
-  margin-right: 10px !important;
-  background: var(--color-patti-bg, #131313);
-  padding-right: 6px !important;
+  display: flex;
+  align-items: center;
 }
 
 .announcement-social a {
-  color: #ffffff !important;
-  display: flex !important;
-  align-items: center !important;
-  text-decoration: none !important;
+  color: #ffffff;
+  opacity: 0.9;
+  display: inline-flex;
+  align-items: center;
+}
+
+.announcement-social a:hover {
+  opacity: 1;
 }
 
 .announcement-social svg {
-  width: 15px !important;
-  height: 15px !important;
-  stroke: #ffffff !important;
-}
-
-.announcement-spacer {
-  display: none !important;
+  stroke: #ffffff;
+  width: 14px;
+  height: 14px;
 }
 
 .announcement-text {
-  display: inline-block !important;
-  padding-left: 100% !important;
-  animation: marquee-loop-slider 20s linear infinite !important;
-  font-size: 0.78rem !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-  white-space: nowrap !important;
-  text-align: left !important;
+  text-align: center;
+  flex-grow: 1;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
-@keyframes marquee-loop-slider {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+.announcement-spacer {
+  width: 20px;
 }
 
 /* 2. Header Navigation */
@@ -2762,48 +2746,68 @@ html, body {
     box-sizing: border-box !important;
   }
 
-  /* Top Announcement Bar Fix for Mobile (Zero overlap between Instagram Icon & Text) */
+  /* Top Announcement Bar Fix for Mobile (White text, Instagram icon, smooth marquee loop) */
   .announcement-bar {
     padding: 6px 0 !important;
     font-size: 0.72rem !important;
+    overflow: hidden !important;
+    background-color: #131313 !important;
+    color: #ffffff !important;
   }
+
   .announcement-container {
     display: flex !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: flex-start !important;
     position: relative !important;
-    padding: 0 32px !important;
+    padding: 0 12px !important;
+    width: 100% !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
   }
+
   .announcement-social {
-    position: absolute !important;
-    left: 8px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    z-index: 2 !important;
     display: flex !important;
     align-items: center !important;
+    flex-shrink: 0 !important;
+    z-index: 5 !important;
+    margin-right: 8px !important;
+    background: #131313 !important;
+    padding-right: 6px !important;
   }
+
   .announcement-social a {
+    color: #ffffff !important;
     display: flex !important;
     align-items: center !important;
+    text-decoration: none !important;
   }
+
   .announcement-social svg {
     width: 14px !important;
     height: 14px !important;
+    stroke: #ffffff !important;
+    fill: none !important;
   }
-  .announcement-text {
-    text-align: center !important;
-    width: 100% !important;
-    font-size: 0.72rem !important;
-    line-height: 1.25 !important;
-    font-weight: 500 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
+
   .announcement-spacer {
     display: none !important;
+  }
+
+  .announcement-text {
+    display: inline-block !important;
+    padding-left: 100% !important;
+    animation: marquee-loop-slider 18s linear infinite !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+  }
+
+  @keyframes marquee-loop-slider {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
   }
 
   /* 1. Header (MoonKiln Style: 3 lines Hamburger | Logo | Profile | Cart) */

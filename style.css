@@ -2698,7 +2698,7 @@ html, body {
 }
 
 /* ==========================================================================
-   MoonKiln & Attached Samples Mobile-First Optimization (320px - 768px)
+   MoonKiln & Specific User Image Feedback Mobile-First Optimization (320px - 768px)
    ========================================================================== */
 
 html, body {
@@ -2775,7 +2775,7 @@ html, body {
     gap: 6px !important;
   }
   .search-box-pill {
-    display: none !important; /* Hide inline search box on mobile for clean MoonKiln layout */
+    display: none !important;
   }
   .profile-header-btn {
     display: flex !important;
@@ -2870,7 +2870,7 @@ html, body {
     color: #111;
   }
 
-  /* 2. Compact Hero Section (Image 1 Box Style) */
+  /* 2. Hero Section (Image 1 Box Style) */
   .hero-card-section {
     padding: 12px 0 !important;
   }
@@ -3011,7 +3011,7 @@ html, body {
     width: 100% !important;
   }
 
-  /* 4. Best Sellers Horizontal Slider with Arrow Controls */
+  /* 1. BEST SELLERS SLIDER: 1 Full Product Box on Screen (NOT 3 compressed boxes) */
   .sellers-header-row {
     display: flex !important;
     align-items: center !important;
@@ -3028,8 +3028,8 @@ html, body {
     gap: 6px !important;
   }
   .slider-arrow-btn {
-    width: 32px !important;
-    height: 32px !important;
+    width: 34px !important;
+    height: 34px !important;
     border-radius: 50% !important;
     background: #ffffff !important;
     border: 1.5px solid rgba(0,0,0,0.12) !important;
@@ -3048,29 +3048,56 @@ html, body {
     overflow-x: auto !important;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    gap: 12px !important;
-    padding-bottom: 10px !important;
+    gap: 14px !important;
+    padding: 0 4px 12px 4px !important;
     scroll-behavior: smooth;
   }
   .sellers-products-grid::-webkit-scrollbar { display: none; }
   .sellers-products-grid .shop-card {
     flex-shrink: 0 !important;
-    width: 165px !important;
-    scroll-snap-align: start;
+    width: 82vw !important;
+    max-width: 320px !important;
+    scroll-snap-align: center !important;
+    padding: 12px !important;
+    border-radius: 18px !important;
+  }
+  .sellers-products-grid .shop-card-img-wrap {
+    height: 220px !important;
+    aspect-ratio: auto !important;
+    border-radius: 14px !important;
+  }
+  .sellers-products-grid .shop-card-img {
+    height: 100% !important;
+    width: 100% !important;
+    object-fit: cover !important;
   }
 
-  /* 5. Behind The Scenes Vertical Dark Card (Image 4 Style) */
+  /* 2. LIMITED EDITION SECTION: Compact Product Box */
+  .limited-edition-section {
+    padding: 16px 0 !important;
+  }
+  #limitedEditionGridContainer .shop-card {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+    padding: 10px !important;
+  }
+  #limitedEditionGridContainer .shop-card-img-wrap {
+    height: 180px !important;
+    aspect-ratio: auto !important;
+  }
+
+  /* 3. BEHIND THE SCENES: Original Desktop Warm Pink-Cream Color (#fce9e5) */
   .behind-scenes-section {
     padding: 20px 0 !important;
   }
   .behind-scenes-card {
-    background: #191919 !important;
-    color: #ffffff !important;
-    border-radius: 20px !important;
+    background: var(--color-card-bg) !important; /* Warm pink-cream #fce9e5 like desktop */
+    color: var(--color-text-main) !important;
+    border-radius: 24px !important;
     padding: 0 !important;
     overflow: hidden !important;
-    border: none !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    border: 1px solid var(--color-border-rgba) !important;
+    box-shadow: none !important;
   }
   .behind-scenes-grid {
     display: flex !important;
@@ -3084,17 +3111,15 @@ html, body {
     width: 100% !important;
     height: 220px !important;
     object-fit: cover !important;
-    border-top-left-radius: 20px !important;
-    border-top-right-radius: 20px !important;
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
   }
   .behind-scenes-text-panel {
     padding: 20px 16px !important;
     text-align: left !important;
   }
   .scenes-tag {
-    color: #ffb74d !important;
+    color: var(--color-pink-highlight) !important;
     font-size: 0.75rem !important;
     letter-spacing: 1.5px !important;
     text-transform: uppercase !important;
@@ -3103,79 +3128,74 @@ html, body {
     margin-bottom: 6px !important;
   }
   .scenes-title {
-    color: #ffffff !important;
+    color: var(--color-text-main) !important;
     font-size: 1.35rem !important;
     line-height: 1.25 !important;
     margin-bottom: 8px !important;
     font-family: var(--font-display) !important;
   }
   .scenes-desc {
-    color: #d1d1d1 !important;
+    color: #555555 !important;
     font-size: 0.82rem !important;
     line-height: 1.4 !important;
     margin-bottom: 14px !important;
   }
   .behind-scenes-text-panel .btn-pink-pill {
-    background: #ffc107 !important;
-    color: #111111 !important;
-    border: none !important;
-    font-weight: 800 !important;
+    background: var(--color-brand-pink) !important;
+    color: var(--color-text-main) !important;
+    border: 1px solid var(--color-brand-pink) !important;
+    font-weight: 700 !important;
     font-size: 0.85rem !important;
-    padding: 10px 20px !important;
+    padding: 9px 20px !important;
     border-radius: 50px !important;
     display: inline-block !important;
   }
 
-  /* 6. My Little Journey (Image 5 Style) */
+  /* 4. MY LITTLE JOURNEY SECTION: Compact cards & Phone Mockup like theclaymigostore.in */
   .journey-section {
     padding: 20px 0 !important;
   }
   .journey-card {
-    padding: 20px 14px !important;
+    padding: 16px 12px !important;
     border-radius: 20px !important;
     background: var(--color-card-bg) !important;
   }
-  .journey-two-col {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 14px !important;
-  }
   .journey-heading {
-    font-size: 1.3rem !important;
+    font-size: 1.25rem !important;
     text-align: center !important;
     font-family: var(--font-display) !important;
   }
   .journey-heading-script {
-    font-size: 1.15rem !important;
+    font-size: 1.1rem !important;
     text-align: center !important;
     color: #d35d88 !important;
   }
   .journey-subtext {
-    font-size: 0.8rem !important;
+    font-size: 0.78rem !important;
     text-align: center !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 12px !important;
   }
   .journey-steps-row {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 6px !important;
-    margin-bottom: 16px !important;
+    margin-bottom: 14px !important;
   }
   .step-wrap {
     background: #ffffff !important;
-    border-radius: 14px !important;
-    padding: 10px 4px !important;
+    border-radius: 12px !important;
+    padding: 8px 4px !important;
     text-align: center !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
     width: 100% !important;
   }
   .img-ring {
-    width: 52px !important;
-    height: 52px !important;
+    width: 38px !important;
+    height: 38px !important;
     border-radius: 50% !important;
-    margin: 0 auto 6px !important;
+    margin: 0 auto 4px !important;
     overflow: hidden !important;
-    border: 2px solid #f47aab !important;
+    border: 1.5px solid #f47aab !important;
   }
   .step-img {
     width: 100% !important;
@@ -3184,79 +3204,169 @@ html, body {
   }
   .arrow { display: none !important; }
   .step-title {
-    font-size: 0.82rem !important;
+    font-size: 0.78rem !important;
     font-weight: 700 !important;
     margin-bottom: 2px !important;
   }
   .step-desc {
-    font-size: 0.68rem !important;
-    line-height: 1.2 !important;
+    font-size: 0.65rem !important;
+    line-height: 1.15 !important;
     opacity: 0.85 !important;
   }
   .phone-label {
     text-align: center !important;
-    font-size: 0.88rem !important;
+    font-size: 0.82rem !important;
     font-weight: 700 !important;
     color: #d35d88 !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 8px !important;
   }
   .journey-right-col {
-    max-width: 200px !important;
+    max-width: 165px !important;
     margin: 0 auto !important;
   }
   .phone-mockup {
-    max-height: 200px !important;
+    max-height: 180px !important;
+    border-radius: 20px !important;
+  }
+  .phone-screen {
+    max-height: 170px !important;
+    border-radius: 16px !important;
   }
 
-  /* 7. MoonKiln Style Clean Compact Footer */
+  /* 5. INSTAGRAM FEED: 3 Horizontal Boxes per slide Loop */
+  .instagram-section {
+    padding: 16px 0 !important;
+  }
+  .instagram-main-title {
+    font-size: 1.15rem !important;
+  }
+  .instagram-posts-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  .instagram-posts-grid::-webkit-scrollbar { display: none; }
+  .instagram-post-card {
+    flex-shrink: 0 !important;
+    width: calc(33.333% - 6px) !important;
+    aspect-ratio: 1 / 1 !important;
+    scroll-snap-align: start !important;
+    border-radius: 12px !important;
+  }
+
+  /* 6. CLAIM WELCOME GIFT: Horizontal Single-Line Pill Bar */
+  .newsletter-rounded-bar {
+    padding: 8px 14px !important;
+    margin-top: 14px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    border-radius: 50px !important;
+    background: #131313 !important;
+    color: #ffffff !important;
+  }
+  .newsletter-left-panel {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex: 1 !important;
+  }
+  .newsletter-display-title {
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+  }
+  .newsletter-desc {
+    display: none !important;
+  }
+  .newsletter-form-panel {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+  }
+  .newsletter-input {
+    font-size: 16px !important;
+    padding: 5px 10px !important;
+    width: 110px !important;
+    border-radius: 50px !important;
+  }
+  .newsletter-btn-join {
+    padding: 5px 12px !important;
+    font-size: 0.75rem !important;
+    border-radius: 50px !important;
+    white-space: nowrap !important;
+  }
+
+  /* 7. FOOTER: MoonKiln Style Horizontal Inline Layout */
   .site-footer {
-    padding: 24px 0 16px !important;
+    padding: 20px 0 14px !important;
     background: var(--color-card-bg) !important;
   }
   .footer-body {
-    padding: 20px 0 10px !important;
+    padding: 16px 0 10px !important;
   }
   .footer-grid {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
-    gap: 20px !important;
+    gap: 14px !important;
   }
   .footer-brand-column {
     text-align: center !important;
   }
+  .footer-brand-logo {
+    justify-content: center !important;
+  }
   .footer-logo-text {
-    font-size: 1.2rem !important;
+    font-size: 1.15rem !important;
   }
   .footer-brand-desc {
-    font-size: 0.8rem !important;
+    font-size: 0.78rem !important;
     line-height: 1.35 !important;
     max-width: 280px !important;
     margin: 0 auto !important;
   }
   .footer-column-title {
-    font-size: 0.85rem !important;
-    margin-bottom: 8px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+    display: none !important; /* Hide column headings on mobile for clean MoonKiln horizontal list */
   }
   .footer-links-list {
     display: flex !important;
+    flex-direction: row !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
-    gap: 10px 16px !important;
+    gap: 8px 14px !important;
     list-style: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+  }
+  .footer-links-list li {
+    margin: 0 !important;
   }
   .footer-links-list a {
     font-size: 0.82rem !important;
     font-weight: 600 !important;
-    color: #444 !important;
+    color: #333 !important;
+    text-decoration: none !important;
+  }
+  .footer-social-links {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    margin-top: 6px !important;
   }
   .footer-bottom-bar {
-    padding-top: 14px !important;
-    margin-top: 16px !important;
+    padding-top: 12px !important;
+    margin-top: 14px !important;
     font-size: 0.75rem !important;
     opacity: 0.75 !important;
     text-align: center !important;

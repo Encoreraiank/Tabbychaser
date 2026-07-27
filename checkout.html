@@ -1460,6 +1460,7 @@
           name: "Tabby Chaser",
           description: `Handmade Charm Order #${orderRef}`,
           image: window.location.origin + "/store-logo-c471e30d.webp",
+          capture: true,
           handler: function (response) {
             const payId = response.razorpay_payment_id || `pay_${Date.now()}`;
             simulateCheckoutSuccessDirect('razorpay', payId);

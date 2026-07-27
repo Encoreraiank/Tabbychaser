@@ -143,17 +143,18 @@ window.saveCart = function (cart) {
   if (document.getElementById('cartDrawerContent')) window.renderCartItems();
 };
 
-window.addGlobalCartItem = function (name, price, img) {
+window.addGlobalCartItem = function (name, price, img, quantity = 1) {
   let cart = window.getCart();
+  const addQty = Math.max(1, parseInt(quantity) || 1);
   const existing = cart.find(item => item.name === name);
   if (existing) {
-    existing.quantity += 1;
+    existing.quantity += addQty;
   } else {
-    cart.push({ name, price: parseInt(price), img, quantity: 1 });
+    cart.push({ name, price: parseInt(price), img, quantity: addQty });
   }
   window.saveCart(cart);
   try {
-    if (window.fbq) fbq('track', 'AddToCart', { content_name: name, value: parseInt(price), currency: 'INR' });
+    if (window.fbq) fbq('track', 'AddToCart', { content_name: name, value: parseInt(price) * addQty, currency: 'INR' });
   } catch(e) {}
   window.toggleCartDrawer(true);
 };

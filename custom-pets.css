@@ -994,99 +994,97 @@
 @media (max-width: 768px) {
   .pet-hero-card {
     display: flex !important;
-    flex-direction: row !important;
+    flex-direction: column !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    padding: 16px !important;
-    border-radius: 20px !important;
+    text-align: center !important;
+    padding: 24px 16px !important;
+    border-radius: 24px !important;
     background: var(--color-card-bg) !important;
-    gap: 10px !important;
+    gap: 16px !important;
     min-height: auto !important;
   }
   .pet-hero-card-left {
     padding: 0 !important;
-    flex: 1 !important;
-    text-align: left !important;
+    width: 100% !important;
+    text-align: center !important;
   }
   .pet-hero-title {
-    font-size: 1.15rem !important;
+    font-size: 1.4rem !important;
     line-height: 1.25 !important;
     font-family: var(--font-display) !important;
-    margin-bottom: 4px !important;
+    margin-bottom: 8px !important;
   }
   .pet-hero-desc {
-    font-size: 0.72rem !important;
-    line-height: 1.3 !important;
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
     color: #555555 !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 14px !important;
   }
   .pet-hero-actions {
     display: flex !important;
     flex-direction: row !important;
-    gap: 6px !important;
-    flex-wrap: wrap !important;
-    width: auto !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 100% !important;
   }
   .pet-hero-actions .btn, .btn-solid-pink, .btn-outline-white {
-    padding: 6px 12px !important;
-    font-size: 0.72rem !important;
+    padding: 10px 18px !important;
+    font-size: 0.82rem !important;
     border-radius: 50px !important;
     width: auto !important;
     text-align: center !important;
   }
   .pet-hero-card-right {
-    flex-shrink: 0 !important;
-    width: 140px !important;
-    height: 140px !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    height: auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    margin-top: 6px !important;
   }
   .pet-hero-img {
     width: 100% !important;
-    height: 100% !important;
+    max-width: 260px !important;
+    height: auto !important;
+    max-height: 240px !important;
     object-fit: contain !important;
   }
 
-  /* How It Works Section: Horizontal Scroll Track on Mobile */
+  /* How It Works Section: 3 Clean Equal-Sized Stacked Cards on Mobile */
   .how-works-box {
-    padding: 18px 14px !important;
-    border-radius: 20px !important;
+    padding: 24px 16px !important;
+    border-radius: 24px !important;
   }
   .how-heading {
-    font-size: 1.25rem !important;
-    margin-bottom: 12px !important;
+    font-size: 1.4rem !important;
+    margin-bottom: 18px !important;
+    text-align: center !important;
   }
   .how-steps-horizontal-row {
     display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    scroll-snap-type: x mandatory !important;
-    -webkit-overflow-scrolling: touch !important;
-    gap: 10px !important;
-    padding-bottom: 8px !important;
-    margin-bottom: 10px !important;
+    flex-direction: column !important;
+    gap: 14px !important;
     width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  .how-steps-horizontal-row::-webkit-scrollbar {
-    display: none !important;
+    margin-bottom: 16px !important;
   }
   .step-connector-arrow {
     display: none !important;
   }
   .how-step-item {
-    flex: 0 0 210px !important;
-    width: 210px !important;
-    scroll-snap-align: start !important;
-    padding: 14px 12px !important;
+    width: 100% !important;
+    min-height: 155px !important;
+    box-sizing: border-box !important;
+    padding: 16px 14px !important;
     text-align: center !important;
     background: #ffffff !important;
-    border-radius: 16px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
-    border: 1px solid rgba(0,0,0,0.06) !important;
-    box-sizing: border-box !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.03) !important;
+    border: 1.5px solid rgba(0,0,0,0.06) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   .step-illustration-holder {
     height: 65px !important;
@@ -1102,27 +1100,28 @@
     object-fit: contain !important;
   }
   .step-badge-num {
-    width: 22px !important;
-    height: 22px !important;
-    font-size: 0.72rem !important;
-    margin: 0 auto 4px !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 0.78rem !important;
+    margin: 0 auto 6px !important;
   }
   .step-title {
-    font-size: 0.82rem !important;
+    font-size: 0.92rem !important;
     font-weight: 800 !important;
-    margin-bottom: 3px !important;
-    line-height: 1.2 !important;
+    margin-bottom: 4px !important;
+    line-height: 1.25 !important;
+    color: var(--color-text-main) !important;
   }
   .step-desc {
-    font-size: 0.7rem !important;
-    line-height: 1.25 !important;
-    opacity: 0.85 !important;
+    font-size: 0.78rem !important;
+    line-height: 1.35 !important;
     color: #555555 !important;
+    margin: 0 !important;
   }
   .how-works-patti-footer {
     border-radius: 18px !important;
-    font-size: 0.72rem !important;
-    padding: 8px 12px !important;
+    font-size: 0.78rem !important;
+    padding: 10px 14px !important;
   }
 
   /* Form & Choose Size Section: Horizontal 3-Column Layout */

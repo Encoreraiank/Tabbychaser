@@ -1123,8 +1123,8 @@
         matches = matches.concat(others);
       }
 
-      // Take first 3 related
-      const related = matches.slice(0, 3);
+      // Take first 4 related products for 2x2 vertical grid on mobile
+      const related = matches.slice(0, 4);
       if (related.length === 0) { shelf.style.display = 'none'; return; }
 
       grid.innerHTML = related.map(p => `

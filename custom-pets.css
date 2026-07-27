@@ -991,86 +991,179 @@
     width: 128px;
     border-radius: 12px !important;
   }
+@media (max-width: 768px) {
   .pet-hero-card {
-    grid-template-columns: 1fr;
-    min-height: auto;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 16px !important;
+    border-radius: 20px !important;
+    background: var(--color-card-bg) !important;
+    gap: 10px !important;
+    min-height: auto !important;
   }
   .pet-hero-card-left {
-    padding: 50px 40px;
+    padding: 0 !important;
+    flex: 1 !important;
+    text-align: left !important;
   }
-  .pet-hero-card-right {
-    height: auto;
+  .pet-hero-title {
+    font-size: 1.15rem !important;
+    line-height: 1.25 !important;
+    font-family: var(--font-display) !important;
+    margin-bottom: 4px !important;
   }
-  .sticker-illustrations-container {
-    min-height: 260px;
-    padding: 20px 0;
-  }
-  .sticker-logo-img {
-    width: 140px;
-    height: 140px;
-  }
-  .post-it-note {
-    position: relative;
-    bottom: auto;
-    right: auto;
-    margin-left: -20px;
-    margin-top: 20px;
-    width: 150px;
-    padding: 15px 10px 10px;
-  }
-  .post-it-text {
-    font-size: 0.8rem;
-  }
-  .how-steps-horizontal-row {
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-  }
-  .step-connector-arrow {
-    display: none;
-  }
-  .how-step-item {
-    width: 100%;
-  }
-  .step-illustration-holder {
-    height: 120px;
-  }
-  .photo-upload-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .planner-main-card {
-    padding: 35px 25px;
-  }
-  .planner-estimate-inline {
-    padding: 24px 20px;
-  }
-}
-
-@media (max-width: 600px) {
-  .pet-hero-card-left {
-    padding: 40px 24px;
+  .pet-hero-desc {
+    font-size: 0.72rem !important;
+    line-height: 1.3 !important;
+    color: #555555 !important;
+    margin-bottom: 10px !important;
   }
   .pet-hero-actions {
-    flex-direction: column;
-    width: 100%;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    flex-wrap: wrap !important;
+    width: auto !important;
   }
-  .btn-solid-pink, .btn-outline-white {
-    width: 100%;
-    text-align: center;
+  .pet-hero-actions .btn, .btn-solid-pink, .btn-outline-white {
+    padding: 6px 12px !important;
+    font-size: 0.72rem !important;
+    border-radius: 50px !important;
+    width: auto !important;
+    text-align: center !important;
   }
+  .pet-hero-card-right {
+    flex-shrink: 0 !important;
+    width: 110px !important;
+    height: 110px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .pet-hero-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+  }
+
+  /* How It Works Section: Horizontal 3-Column Layout */
   .how-works-box {
-    padding: 30px 16px;
+    padding: 20px 12px !important;
+    border-radius: 20px !important;
+  }
+  .how-heading {
+    font-size: 1.25rem !important;
+    margin-bottom: 14px !important;
+  }
+  .how-steps-horizontal-row {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    margin-bottom: 12px !important;
+  }
+  .step-connector-arrow {
+    display: none !important;
+  }
+  .how-step-item {
+    width: 100% !important;
+    padding: 8px 4px !important;
+    text-align: center !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+  }
+  .step-illustration-holder {
+    height: 55px !important;
+    margin-bottom: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .step-illustration-img {
+    height: 100% !important;
+    max-height: 50px !important;
+    width: auto !important;
+    object-fit: contain !important;
+  }
+  .step-badge-num {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 0.65rem !important;
+    margin: 0 auto 3px !important;
+  }
+  .step-title {
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    margin-bottom: 2px !important;
+    line-height: 1.15 !important;
+  }
+  .step-desc {
+    font-size: 0.62rem !important;
+    line-height: 1.15 !important;
+    opacity: 0.8 !important;
+    color: #666666 !important;
   }
   .how-works-patti-footer {
     border-radius: 18px !important;
-    font-size: 0.8rem;
+    font-size: 0.72rem !important;
+    padding: 8px 12px !important;
+  }
+
+  /* Form & Choose Size Section: Horizontal 3-Column Layout */
+  .planner-main-card {
+    padding: 20px 14px !important;
+    border-radius: 20px !important;
   }
   .size-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+  .size-card {
+    padding: 8px 4px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 2px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .size-card-info {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1px !important;
+  }
+  .size-name {
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+  }
+  .size-range {
+    font-size: 0.62rem !important;
+    opacity: 0.8 !important;
+  }
+  .size-card-footer {
+    margin-top: 2px !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    color: #d35d88 !important;
+    border-top: none !important;
+    padding: 0 !important;
+  }
+  .radio-indicator {
+    display: none !important;
   }
   .photo-upload-grid {
-    gap: 8px;
+    gap: 6px !important;
   }
 }
 

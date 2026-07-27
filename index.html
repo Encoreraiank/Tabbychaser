@@ -112,13 +112,18 @@
   <header class="site-header">
     <div class="header-container container">
       
+      <!-- Hamburger 3-line Icon for Mobile (MoonKiln Style) -->
+      <button type="button" class="mobile-hamburger-btn" id="mobileHamburgerBtn" onclick="window.toggleMobileNavMenu()" aria-label="Open Mobile Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+
       <!-- Brand Logo Left with Circular Brand Icon -->
-      <a href="#" class="brand-logo">
+      <a href="/" class="brand-logo">
         <img src="store-logo-c471e30d.webp" alt="Tabby Chaser Logo" class="brand-logo-icon" />
         <span class="logo-text">Tabby Chaser</span>
       </a>
 
-      <!-- Menu links as rounded capsules/pills -->
+      <!-- Menu links as rounded capsules/pills (Desktop) -->
       <nav class="nav-menu">
         <a href="/" class="nav-link active-pill">Home</a>
         <a href="shop" class="nav-link outline-pill">Shop</a>
@@ -126,13 +131,13 @@
         <a href="policies" class="nav-link outline-pill">Policies</a>
       </nav>
 
-      <!-- Search bar & Cart -->
+      <!-- Search bar, Account & Cart -->
       <div class="header-actions">
         <div class="search-box-pill">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" placeholder="Search..." />
         </div>
-        <a href="account" class="profile-header-btn" title="My Account" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:rgba(244,122,171,0.12);color:#d35d88;text-decoration:none;transition:transform 0.2s ease;">
+        <a href="account" class="profile-header-btn" title="My Account">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </a>
         <button class="cart-pill-btn" id="cartBtn">
@@ -141,6 +146,26 @@
         </button>
       </div>
 
+    </div>
+
+    <!-- Mobile Navigation Drawer Overlay (MoonKiln Style) -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="window.toggleMobileNavMenu()"></div>
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+      <div class="mobile-drawer-header">
+        <div class="mobile-drawer-brand">
+          <img src="store-logo-c471e30d.webp" alt="Tabby Chaser" width="28" height="28" />
+          <span>Tabby Chaser</span>
+        </div>
+        <button type="button" class="mobile-drawer-close" onclick="window.toggleMobileNavMenu()">✕</button>
+      </div>
+      <nav class="mobile-drawer-links">
+        <a href="/" class="mobile-drawer-link active"><span>🏠</span> Home</a>
+        <a href="shop" class="mobile-drawer-link"><span>🛍️</span> Shop Collection</a>
+        <a href="custom-orders" class="mobile-drawer-link"><span>✨</span> Custom Orders</a>
+        <a href="policies" class="mobile-drawer-link"><span>📋</span> Store Policies</a>
+        <a href="review" class="mobile-drawer-link"><span>⭐</span> Customer Reviews</a>
+        <a href="account" class="mobile-drawer-link"><span>👤</span> My Account</a>
+      </nav>
     </div>
   </header>
 

@@ -749,6 +749,23 @@ window.markCouponUsedAfterOrder = function () {
   localStorage.setItem('tabby_first_order_completed', 'true');
 };
 
+window.toggleMobileNavMenu = function () {
+  const overlay = document.getElementById('mobileNavOverlay');
+  const drawer = document.getElementById('mobileNavDrawer');
+  if (overlay && drawer) {
+    overlay.classList.toggle('active');
+    drawer.classList.toggle('active');
+  }
+};
+
+window.slideBestSellers = function (direction) {
+  const container = document.getElementById('bestSellersGridContainer');
+  if (container) {
+    const scrollAmount = container.clientWidth * 0.75 * direction;
+    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  }
+};
+
 // ==========================================================================
 // DOMContentLoaded – Initialize everything
 // ==========================================================================

@@ -3011,72 +3011,52 @@ html, body {
     width: 100% !important;
   }
 
-  /* 1. BEST SELLERS & LIMITED EDITION: EXACT 3 SQUARE PRODUCT BOXES SIDE-BY-SIDE SLIDER */
+  /* 1. BEST SELLERS & LIMITED EDITION: MoonKiln Style Clean 2-Column Vertical Grid */
   .sellers-header-row {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 12px !important;
   }
   .sellers-heading {
-    font-size: 1.25rem !important;
+    font-size: 1.35rem !important;
     font-family: var(--font-display) !important;
     margin: 0 !important;
   }
   .sellers-slider-controls {
-    display: flex !important;
-    gap: 4px !important;
-  }
-  .slider-arrow-btn {
-    width: 30px !important;
-    height: 30px !important;
-    border-radius: 50% !important;
-    background: #ffffff !important;
-    border: 1px solid rgba(0,0,0,0.12) !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 1rem !important;
-    cursor: pointer !important;
-    color: #d35d88 !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+    display: none !important;
   }
 
-  /* 3-Square Product Boxes Side-by-Side Track for Best Sellers & Limited Edition */
+  /* 2-Column Clean Vertical Product Grid (MoonKiln Mobile Layout) */
   #bestSellersGridContainer, #limitedEditionGridContainer, .sellers-products-grid {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    scroll-snap-type: x mandatory !important;
-    -webkit-overflow-scrolling: touch !important;
-    gap: 6px !important;
-    padding: 2px 0 10px 0 !important;
-    scroll-behavior: smooth !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    padding: 0 !important;
+    overflow-x: visible !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
-  #bestSellersGridContainer::-webkit-scrollbar, #limitedEditionGridContainer::-webkit-scrollbar, .sellers-products-grid::-webkit-scrollbar { display: none !important; }
   
   #bestSellersGridContainer .shop-card, #limitedEditionGridContainer .shop-card, .sellers-products-grid .shop-card {
-    flex: 0 0 calc(33.333% - 4px) !important;
-    width: calc(33.333% - 4px) !important;
-    max-width: calc(33.333% - 4px) !important;
+    flex: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
     min-width: 0 !important;
-    scroll-snap-align: start !important;
-    padding: 5px !important;
-    border-radius: 12px !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
     box-sizing: border-box !important;
     margin: 0 !important;
     background: #ffffff !important;
     border: 1px solid rgba(0,0,0,0.06) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
   }
 
   #bestSellersGridContainer .shop-card-img-wrap, #limitedEditionGridContainer .shop-card-img-wrap, .sellers-products-grid .shop-card-img-wrap {
     width: 100% !important;
     height: auto !important;
     aspect-ratio: 1 / 1 !important;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     overflow: hidden !important;
   }
 
@@ -3087,24 +3067,22 @@ html, body {
   }
 
   #bestSellersGridContainer .shop-card-title, #limitedEditionGridContainer .shop-card-title, .sellers-products-grid .shop-card-title {
-    font-size: 0.68rem !important;
-    line-height: 1.15 !important;
-    margin: 4px 0 1px 0 !important;
+    font-size: 0.82rem !important;
+    line-height: 1.25 !important;
+    margin: 6px 0 2px 0 !important;
     font-weight: 700 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    color: var(--color-text-main) !important;
   }
 
   #bestSellersGridContainer .price-current, #limitedEditionGridContainer .price-current, .sellers-products-grid .price-current {
-    font-size: 0.72rem !important;
+    font-size: 0.88rem !important;
     font-weight: 800 !important;
     color: #d35d88 !important;
   }
 
   /* 2. LIMITED EDITION SECTION Header & Container */
   .limited-edition-section {
-    padding: 16px 0 !important;
+    padding: 20px 0 !important;
   }
 
   /* 3. BEHIND THE SCENES: Flush photo & text (Zero blank space) */

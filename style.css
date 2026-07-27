@@ -215,37 +215,41 @@ a, a:hover, a:focus, a:visited {
 .announcement-bar {
   background-color: var(--color-patti-bg);
   color: var(--color-patti-text);
-  padding: 8px 0;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  z-index: 1002;
+  padding: 6px 0;
+  overflow: hidden;
   position: relative;
+  width: 100%;
+  font-size: 0.78rem;
+  font-weight: 600;
+  z-index: 1002;
+  white-space: nowrap;
 }
 
 .announcement-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: flex !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
-.announcement-social a {
-  color: var(--color-patti-text);
-  opacity: 0.9;
-  display: inline-flex;
-}
-
-.announcement-social a:hover {
-  opacity: 1;
+.announcement-social, .announcement-spacer {
+  display: none !important;
 }
 
 .announcement-text {
-  text-align: center;
-  flex-grow: 1;
+  display: inline-block !important;
+  padding-left: 100% !important;
+  animation: marquee-loop-slider 20s linear infinite !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  text-align: left !important;
 }
 
-.announcement-spacer {
-  width: 20px;
+@keyframes marquee-loop-slider {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
 }
 
 /* 2. Header Navigation */
@@ -3590,17 +3594,30 @@ html, body {
     text-align: center !important;
     margin-bottom: 12px !important;
   }
+  /* "You Might Also Love ♡" 2-Column 4-Product Vertical Equal-Width Grid on Mobile */
+  .related-products-section {
+    padding: 20px 0 !important;
+  }
+  .related-title {
+    font-size: 1.25rem !important;
+    font-family: var(--font-display) !important;
+    text-align: center !important;
+    margin-bottom: 12px !important;
+  }
   .related-grid {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
     padding: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
   .related-grid .showcase-product-card-link {
     width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
     text-decoration: none !important;
+    display: block !important;
   }
   .related-grid .showcase-product-card {
     width: 100% !important;
@@ -3613,6 +3630,8 @@ html, body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
     box-sizing: border-box !important;
     margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   .related-grid .card-image-wrapper {
     width: 100% !important;
@@ -3637,6 +3656,58 @@ html, body {
     font-size: 0.88rem !important;
     font-weight: 800 !important;
     color: #d35d88 !important;
+  }
+
+  /* My Account Navigation Box Mobile Horizontal Pill Bar Optimization */
+  .account-layout-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+  .account-sidebar-card {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    padding: 6px !important;
+    border-radius: 50px !important;
+    background: #fce9e5 !important;
+    margin-bottom: 8px !important;
+    border: 1px solid rgba(244, 122, 171, 0.2) !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .account-sidebar-card::-webkit-scrollbar {
+    display: none !important;
+  }
+  .account-tab-btn {
+    flex: 0 0 auto !important;
+    scroll-snap-align: start !important;
+    padding: 8px 14px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    border-radius: 50px !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: transparent !important;
+    color: #444444 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .account-tab-btn.active {
+    background: #f47aab !important;
+    color: #ffffff !important;
+  }
+  .account-tab-btn .tab-icon {
+    width: 14px !important;
+    height: 14px !important;
   }
 
   /* Cart Drawer & Form Zoom Prevention */

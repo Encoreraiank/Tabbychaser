@@ -55,6 +55,15 @@ window.fetchCloudSettings = async function() {
         if (row && row.key) settingsMap[row.key] = row.value;
       });
     }
+
+    if (settingsMap.standard_shipping_fee !== undefined) {
+      window.cloudShippingFee = parseInt(settingsMap.standard_shipping_fee);
+    } else if (settingsMap.shipping_fees !== undefined) {
+      window.cloudShippingFee = parseInt(settingsMap.shipping_fees);
+    } else {
+      window.cloudShippingFee = 0;
+    }
+
     return settingsMap;
   } catch (err) {
     window.logAppError('fetchCloudSettings', err);

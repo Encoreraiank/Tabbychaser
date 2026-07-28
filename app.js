@@ -322,9 +322,14 @@ window.renderCartItems = function () {
 
   // Shipping
   const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
-  const stdFee = parseInt(siteSettings.standard_shipping_fee || '59');
+  let stdFee = 0;
+  if (window.cloudShippingFee !== undefined) {
+    stdFee = parseInt(window.cloudShippingFee);
+  } else {
+    stdFee = parseInt(siteSettings.standard_shipping_fee !== undefined ? siteSettings.standard_shipping_fee : (siteSettings.shipping_fees !== undefined ? siteSettings.shipping_fees : '0'));
+  }
   const freeThreshold = parseInt(siteSettings.free_shipping_threshold || '2000');
-  const shipping = (subtotal >= freeThreshold || (appliedCoupon && appliedCoupon.type === 'free_shipping')) ? 0 : stdFee;
+  const shipping = (subtotal >= freeThreshold || (appliedCoupon && appliedCoupon.type === 'free_shipping') || stdFee === 0) ? 0 : stdFee;
 
   const total = Math.max(0, subtotal - discount + shipping);
   if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN');

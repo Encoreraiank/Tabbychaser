@@ -1742,7 +1742,7 @@
 
       // Trigger Automatic Email Notification
       try {
-        sendOrderConfirmationEmail(orderDataObj);
+        sendOrderConfirmationEmail(orderRecord);
       } catch(e) {}
 
       let methodText = method === 'upi' ? 'Online UPI payment verified successfully.' : 'Cash on Delivery order placed successfully.';
@@ -1798,6 +1798,7 @@
       if (!orderObj) return;
 
       const custName = orderObj.name || 'Valued Customer';
+      const custEmail = orderObj.email || '';
       const formattedDate = new Date().toLocaleString('en-IN', {
         dateStyle: 'full',
         timeStyle: 'short'
@@ -1825,11 +1826,31 @@
         `Store: Tabby Chaser\n` +
         `https://tabbychaser.store`;
 
-      console.log('✉️ Sent Automatic Order Confirmation Email to:', orderObj.email, emailSubject);
+      console.log('✉️ Sent Automatic Order Confirmation Email to:', custEmail, emailSubject);
+
+      if (custEmail) {
+        try {
+          fetch(`https://formsubmit.co/ajax/${encodeURIComponent(custEmail)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+              _subject: emailSubject,
+              _captcha: 'false',
+              'Customer Name': custName,
+              'Order Reference': '#' + orderId,
+              'Products Purchased': productNames,
+              'Total Paid': `₹${orderObj.total || 0}`,
+              'Order Status': 'Confirmed',
+              'Date & Time': formattedDate,
+              'Message': emailText
+            })
+          }).catch(err => console.warn('Customer confirmation email send error:', err));
+        } catch(e) {}
+      }
       
       try {
         window.saveCloudSetting('email_log_' + orderId, {
-          to: orderObj.email,
+          to: custEmail,
           subject: emailSubject,
           body: emailText,
           sent_at: new Date().toISOString()

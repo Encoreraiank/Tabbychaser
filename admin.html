@@ -1225,9 +1225,15 @@
           <input type="number" id="coupVal" class="form-control" placeholder="10" />
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Min Order Value (₹)</label>
-        <input type="number" id="coupMin" class="form-control" placeholder="0" />
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Min Order Value (₹)</label>
+          <input type="number" id="coupMin" class="form-control" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Usage Limit (Max Uses)</label>
+          <input type="number" id="coupLimit" class="form-control" placeholder="Unlimited (0 or empty)" min="0" />
+        </div>
       </div>
       <div class="form-group">
         <label class="form-label">Expiry Date &amp; Time (Optional)</label>
@@ -2345,23 +2351,31 @@
     }
   }
 
-  async function loadReviews(forceAlert = false) {
+  async function loadReviews() {
     let cloudData = [];
     try { cloudData = await window.fetchCloudReviews(); } catch(e) {}
     
     let settingsData = [];
     try {
       const settings = await window.fetchCloudSettings();
-      if (settings && settings.rev_master_list) {
-        settingsData = typeof settings.rev_master_list === 'string' ? JSON.parse(settings.rev_master_list) : settings.rev_master_list;
+      if (settings) {
+        if (settings.rev_master_list) {
+          const parsed = typeof settings.rev_master_list === 'string' ? JSON.parse(settings.rev_master_list) : settings.rev_master_list;
+          if (Array.isArray(parsed)) settingsData = parsed;
+        }
+        Object.keys(settings).forEach(k => {
+          if (k.startsWith('rev_item_')) {
+            try {
+              const r = typeof settings[k] === 'string' ? JSON.parse(settings[k]) : settings[k];
+              if (r && r.id) settingsData.push(r);
+            } catch(e) {}
+          }
+        });
       }
     } catch(e) {}
 
-    let localData = [];
-    try { localData = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]'); } catch(e) {}
-
     const combinedMap = new Map();
-    [...cloudData, ...settingsData, ...localData].forEach(r => {
+    [...cloudData, ...settingsData].forEach(r => {
       if (r && r.id) {
         const existing = combinedMap.get(r.id);
         if (!existing) {
@@ -2375,14 +2389,7 @@
     });
 
     allReviews = Array.from(combinedMap.values());
-    try {
-      localStorage.setItem('tabby_local_reviews', JSON.stringify(allReviews));
-    } catch(e) {}
     renderReviewsManager();
-
-    if (forceAlert) {
-      alert(`✅ Live Cloud Reviews synced across all admin devices! (${allReviews.length} total reviews loaded)`);
-    }
   }
 
   async function syncMasterReviews() {
@@ -2881,6 +2888,9 @@
         : fmtINR(c.discount_value || c.value || 0);
 
       const minVal = c.min_order_amount || c.min_order_value || 0;
+      const usedCount = c.used_count || c.used_times || 0;
+      const limitVal = c.usage_limit || c.limit || 0;
+      const usageStr = `${usedCount} / ${limitVal > 0 ? limitVal : '∞'}`;
 
       return `
         <tr>
@@ -2889,6 +2899,7 @@
           <td style="font-weight:700;">${valStr}</td>
           <td>${fmtINR(minVal)}</td>
           <td style="font-size:0.8rem;color:#555;">${expiryFormatted}</td>
+          <td style="font-weight:700;color:var(--pink);">${usageStr}</td>
           <td>${c.active !== false ? '✅' : '❌'}</td>
           <td>
             <div style="display:flex;gap:6px;">
@@ -2898,7 +2909,7 @@
           </td>
         </tr>
       `;
-    }).join('') : `<tr><td colspan="7" style="text-align:center;padding:20px;color:#888;">No coupons created yet</td></tr>`;
+    }).join('') : `<tr><td colspan="8" style="text-align:center;padding:20px;color:#888;">No coupons created yet</td></tr>`;
   }
 
   function openCouponModal(code = null) {
@@ -2915,6 +2926,7 @@
         document.getElementById('coupType').value = c.discount_type || c.type || 'percent';
         document.getElementById('coupVal').value = c.discount_value || c.value || 0;
         document.getElementById('coupMin').value = c.min_order_amount || c.min_order_value || 0;
+        document.getElementById('coupLimit').value = c.usage_limit || c.limit || '';
         document.getElementById('coupExpiry').value = c.expiry || '';
         document.getElementById('saveCouponBtn').textContent = '💾 Update Coupon';
       }
@@ -2926,6 +2938,7 @@
       document.getElementById('coupType').value = 'percent';
       document.getElementById('coupVal').value = '10';
       document.getElementById('coupMin').value = '0';
+      document.getElementById('coupLimit').value = '';
       document.getElementById('coupExpiry').value = '';
       document.getElementById('saveCouponBtn').textContent = '💾 Save Coupon';
     }
@@ -2943,6 +2956,7 @@
     const type = couponData?.type || document.getElementById('coupType').value;
     const val = couponData?.value !== undefined ? couponData.value : (parseFloat(document.getElementById('coupVal').value) || 0);
     const minVal = couponData?.min_order_value !== undefined ? couponData.min_order_value : (parseFloat(document.getElementById('coupMin').value) || 0);
+    const limitVal = couponData?.usage_limit !== undefined ? couponData.usage_limit : (parseInt(document.getElementById('coupLimit').value) || 0);
     const expiryVal = couponData?.expiry !== undefined ? couponData.expiry : (document.getElementById('coupExpiry')?.value || '');
 
     const existing = allCoupons.find(x => String(x.code).toUpperCase() === code);
@@ -2956,6 +2970,8 @@
       discount_value: val,
       min_order_value: minVal,
       min_order_amount: minVal,
+      usage_limit: limitVal,
+      used_count: existing?.used_count || 0,
       expiry: expiryVal,
       active: true,
       updated_at: new Date().toISOString()

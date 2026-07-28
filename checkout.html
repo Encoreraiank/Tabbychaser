@@ -838,7 +838,7 @@
               <span id="summarySubtotal" style="font-weight: 600; color: var(--color-text-main);">₹0</span>
             </div>
             <div id="summaryDiscountRow" style="display: none; justify-content: space-between; color: #2e7d32; font-weight: 700;">
-              <span>10% Welcome Discount</span>
+              <span id="summaryDiscountLabel">Discount</span>
               <span id="summaryDiscount">-₹0</span>
             </div>
             <div style="display: flex; justify-content: space-between; color: #2e7d32; font-weight: 600;">
@@ -1186,7 +1186,10 @@
     window.applyCoupon = async function() {
       const input = document.getElementById('couponInput');
       const code = (input?.value || '').trim().toUpperCase();
-      if (!code) return;
+      if (!code) {
+        alert('Please enter a coupon code.');
+        return;
+      }
 
       const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
       const userEmail = session?.email ? session.email.toLowerCase().trim() : '';
@@ -1198,78 +1201,101 @@
         return;
       }
 
-      if (code === 'WELCOME10') {
-        const isSubscribed = userEmail && localStorage.getItem(`tabby_subscribed_${userKey}`) === 'true';
-        if (!isSubscribed) {
-          alert('❌ WELCOME10 is reserved for welcome gift subscribers. Subscribe on the Home page to unlock!');
-          return;
-        }
-        if (checkoutSubtotal < 500) {
-          alert('❌ WELCOME10 requires a minimum order value of ₹500.');
-          return;
-        }
-        checkoutDiscount = Math.round(checkoutSubtotal * 0.1);
-        const discountRow = document.getElementById('summaryDiscountRow');
-        const discountVal = document.getElementById('summaryDiscount');
-        if (discountRow) discountRow.style.display = 'flex';
-        if (discountVal) discountVal.textContent = `-₹${checkoutDiscount}`;
-        updateTotalsDisplay();
-        alert(`✅ Coupon "WELCOME10" applied! You saved ₹${checkoutDiscount}! 🎉`);
-        return;
-      }
+      // Fetch all coupons from local + DB + Cloud Settings
+      let allCouponsMap = new Map();
 
-      if (code === 'REVIEW50') {
-        const hasReviewed = userEmail && localStorage.getItem(`tabby_reviewed_${userKey}`) === 'true';
-        if (!hasReviewed) {
-          alert('❌ REVIEW50 is unlocked after submitting an order review. Leave a review to earn ₹50 OFF!');
-          return;
-        }
-        checkoutDiscount = 50;
-        const discountRow = document.getElementById('summaryDiscountRow');
-        const discountVal = document.getElementById('summaryDiscount');
-        if (discountRow) discountRow.style.display = 'flex';
-        if (discountVal) discountVal.textContent = `-₹${checkoutDiscount}`;
-        updateTotalsDisplay();
-        alert(`✅ Coupon "REVIEW50" applied! You saved ₹50! 🎉`);
-        return;
-      }
-
-      // Check storewide admin coupons
-      let adminCoupons = [];
+      // Local
       try {
         const local = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
-        adminCoupons = local;
-        if (window.supabaseClient) {
-          const { data } = await window.supabaseClient.from('coupons').select('*').eq('active', true);
-          if (data && data.length > 0) adminCoupons = data;
+        local.forEach(c => { if (c && c.code) allCouponsMap.set(c.code.toUpperCase(), c); });
+      } catch(e) {}
+
+      // Supabase Cloud DB
+      try {
+        const client = await (window.db ? window.db() : (window.supabaseClient || null));
+        if (client) {
+          const { data } = await client.from('coupons').select('*');
+          if (data && data.length) {
+            data.forEach(c => { if (c && c.code) allCouponsMap.set(c.code.toUpperCase(), c); });
+          }
         }
       } catch(e) {}
 
-      const found = adminCoupons.find(c => (c.code || '').toUpperCase() === code);
-      if (found) {
-        const minVal = found.min_order_value || found.min_order || 0;
-        if (checkoutSubtotal < minVal) {
-          alert(`❌ Coupon "${code}" requires a minimum order value of ₹${minVal}.`);
-          return;
+      // Supabase Cloud Settings fallback (coupon_CODE)
+      try {
+        const cloudSettings = await window.fetchCloudSettings();
+        if (cloudSettings) {
+          Object.keys(cloudSettings).forEach(k => {
+            if (k.startsWith('coupon_')) {
+              try {
+                const item = typeof cloudSettings[k] === 'string' ? JSON.parse(cloudSettings[k]) : cloudSettings[k];
+                if (item && item.code) allCouponsMap.set(item.code.toUpperCase(), item);
+              } catch(e) {}
+            }
+          });
         }
-        if (found.type === 'percent') {
-          checkoutDiscount = Math.round(checkoutSubtotal * (found.value / 100));
-        } else if (found.type === 'free_shipping') {
-          checkoutShipping = 0;
-          checkoutDiscount = 0;
-        } else {
-          checkoutDiscount = found.value || 0;
-        }
-        const discountRow = document.getElementById('summaryDiscountRow');
-        const discountVal = document.getElementById('summaryDiscount');
-        if (discountRow) discountRow.style.display = 'flex';
-        if (discountVal) discountVal.textContent = `-₹${checkoutDiscount}`;
-        updateTotalsDisplay();
-        alert(`✅ Coupon "${code}" applied successfully! 🎉`);
+      } catch(e) {}
+
+      const found = allCouponsMap.get(code);
+
+      if (!found || found.active === false) {
+        alert(`❌ Coupon code "${code}" is invalid or expired.`);
         return;
       }
 
-      alert(`❌ Coupon code "${code}" is invalid or expired.`);
+      // Check Expiry Date & Time if set
+      if (found.expiry) {
+        const expDate = new Date(found.expiry);
+        if (!isNaN(expDate.getTime()) && Date.now() > expDate.getTime()) {
+          alert(`❌ Coupon code "${code}" has expired.`);
+          return;
+        }
+      }
+
+      // Check Usage Limit if set
+      const limit = found.usage_limit || found.limit || 0;
+      const usedCount = found.used_count || found.used_times || 0;
+      if (limit > 0 && usedCount >= limit) {
+        alert(`❌ Coupon code "${code}" has reached its maximum usage limit (${limit}/${limit}).`);
+        return;
+      }
+
+      // Check Min Order Value
+      const minVal = found.min_order_value || found.min_order_amount || found.min_order || 0;
+      if (checkoutSubtotal < minVal) {
+        alert(`❌ Coupon "${code}" requires a minimum order value of ₹${minVal}.`);
+        return;
+      }
+
+      // Calculate Discount Amount
+      const type = found.discount_type || found.type || 'percent';
+      const val = found.discount_value || found.value || 0;
+
+      if (type === 'percent') {
+        checkoutDiscount = Math.round(checkoutSubtotal * (val / 100));
+      } else if (type === 'free_shipping') {
+        checkoutShipping = 0;
+        checkoutDiscount = 0;
+      } else {
+        // Flat discount
+        checkoutDiscount = Math.min(checkoutSubtotal, val);
+      }
+
+      window.appliedCouponObj = found;
+      try { localStorage.setItem('tabby_applied_coupon', JSON.stringify(found)); } catch(e) {}
+
+      const discountRow = document.getElementById('summaryDiscountRow');
+      const discountLabel = document.getElementById('summaryDiscountLabel');
+      const discountVal = document.getElementById('summaryDiscount');
+
+      if (discountRow) discountRow.style.display = 'flex';
+      if (discountLabel) {
+        discountLabel.textContent = type === 'percent' ? `${code} (${val}% OFF)` : `${code} (Flat ₹${val} OFF)`;
+      }
+      if (discountVal) discountVal.textContent = `-₹${checkoutDiscount}`;
+
+      updateTotalsDisplay();
+      alert(`✅ Coupon "${code}" applied successfully! You saved ₹${checkoutDiscount}! 🎉`);
     };
 
     function renderCheckoutSummary(cart) {

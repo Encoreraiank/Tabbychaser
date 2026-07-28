@@ -1361,31 +1361,49 @@
     if (dbOrders.length === 0) {
       try {
         const res = await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/orders?select=*&order=created_at.desc', {
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI'
-          }
+          headers: window.getSupabaseHeaders()
         });
         const data = await res.json();
         if (data && Array.isArray(data)) dbOrders = data;
       } catch(e) {}
     }
 
+    let settingsCloudOrders = [];
+    try {
+      const settings = await window.fetchCloudSettings();
+      if (settings) {
+        Object.keys(settings).forEach(k => {
+          if (k.startsWith('order_')) {
+            try {
+              const item = typeof settings[k] === 'string' ? JSON.parse(settings[k]) : settings[k];
+              if (item && (item.order_reference || item.id)) settingsCloudOrders.push(item);
+            } catch(e) {}
+          }
+        });
+      }
+    } catch(e) {}
+
     let localOrders = [];
     try {
       localOrders = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
     } catch(e) {}
 
-    const rawCombined = [...dbOrders, ...(Array.isArray(localOrders) ? localOrders : [])].filter(o => o && (o.order_reference || o.id));
-    const seenRefs = new Set();
-    allOrders = [];
+    const rawCombined = [...dbOrders, ...settingsCloudOrders, ...(Array.isArray(localOrders) ? localOrders : [])].filter(o => o && (o.order_reference || o.id));
+    const combinedMap = new Map();
     rawCombined.forEach(o => {
       const refKey = (o.order_reference || o.id || '').toString();
-      if (refKey && !seenRefs.has(refKey)) {
-        seenRefs.add(refKey);
-        allOrders.push(o);
+      if (refKey) {
+        const existing = combinedMap.get(refKey);
+        if (!existing) {
+          combinedMap.set(refKey, o);
+        } else {
+          const mergedCoupon = o.coupon_code || existing.coupon_code || o.coupon || existing.coupon || null;
+          combinedMap.set(refKey, { ...existing, ...o, coupon_code: mergedCoupon });
+        }
       }
     });
+
+    allOrders = Array.from(combinedMap.values());
 
     renderOrders();
     loadReviews();

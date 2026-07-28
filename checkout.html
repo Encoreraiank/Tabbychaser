@@ -1613,8 +1613,8 @@
         const shipping = details.shipping !== undefined ? details.shipping : checkoutShipping;
         const total = details.total || checkoutTotal || 0;
 
-        const appliedCoupon = window.appliedCouponObj || JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
-        const couponCodeUsed = (appliedCoupon && appliedCoupon.code) ? appliedCoupon.code.toUpperCase() : null;
+        const appliedCoupon = details.appliedCoupon || window.appliedCouponObj || JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+        const couponCodeUsed = (appliedCoupon && appliedCoupon.code) ? String(appliedCoupon.code).toUpperCase() : null;
 
         const orderRecord = {
           id: 'ord_' + Date.now(),
@@ -1653,7 +1653,7 @@
           localStorage.setItem(`tabby_user_orders_${userEmailKey}`, JSON.stringify(userOrders));
         } catch(e) {}
 
-        // 2. Save order record to Supabase orders table & Cloud Settings
+        // 2. Save order record & update coupon count in Cloud Settings & Supabase DB
         const cleanDbOrder = {
           order_reference: orderRecord.order_reference,
           name: orderRecord.name,
@@ -1673,6 +1673,11 @@
         };
 
         (async () => {
+          // Save order to Cloud Settings for 100% guaranteed multi-device admin sync
+          try {
+            await window.saveCloudSetting('order_' + orderId, orderRecord);
+          } catch(e) {}
+
           try {
             if (window.supabaseClient) {
               await window.supabaseClient.from('orders').insert(cleanDbOrder);
@@ -1712,6 +1717,16 @@
               if (window.supabaseClient) {
                 await window.supabaseClient.from('coupons').update({ used_count: couponObj.used_count }).eq('code', couponCodeUsed);
               }
+
+              // Also update local coupons array
+              try {
+                const local = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
+                const idx = local.findIndex(c => String(c.code).toUpperCase() === couponCodeUsed);
+                if (idx >= 0) {
+                  local[idx].used_count = couponObj.used_count;
+                  localStorage.setItem('tabby_coupons_local', JSON.stringify(local));
+                }
+              } catch(e) {}
             } catch(err) {}
           }
         })();

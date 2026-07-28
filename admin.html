@@ -1644,6 +1644,16 @@
       const pid = String(p.id).toLowerCase().trim();
       const pslug = String(p.slug || '').toLowerCase().trim();
       return !deletedIds.includes(pid) && !deletedIds.includes(pslug);
+    }).map(p => {
+      let extra = {};
+      try { extra = JSON.parse(localStorage.getItem('tabby_product_extra_' + p.id) || '{}'); } catch(e) {}
+      if (settings && settings['prod_extra_' + p.id]) {
+        try {
+          const cloudExtra = typeof settings['prod_extra_' + p.id] === 'string' ? JSON.parse(settings['prod_extra_' + p.id]) : settings['prod_extra_' + p.id];
+          extra = { ...extra, ...cloudExtra };
+        } catch(e) {}
+      }
+      return { ...p, ...extra };
     });
 
     renderProducts();
@@ -1706,8 +1716,14 @@
 
   function openProductModal(p = null) {
     currentProductImgs = p?.images || (p?.image ? [p.image] : []);
+    const pId = p?.id || '';
+    let extra = {};
+    if (pId) {
+      try { extra = JSON.parse(localStorage.getItem('tabby_product_extra_' + pId) || '{}'); } catch(e) {}
+    }
+
     document.getElementById('pModalTitle').textContent = p ? 'Edit Product' : 'Add Product';
-    document.getElementById('pId').value = p?.id || '';
+    document.getElementById('pId').value = pId;
     document.getElementById('pName').value = p?.name || '';
     document.getElementById('pDesc').value = p?.description || '';
     document.getElementById('pPrice').value = p?.price || '';
@@ -1715,15 +1731,16 @@
     document.getElementById('pStock').value = p?.stock ?? 10;
     document.getElementById('pCategory').value = p?.category || (allCategories[0]?.slug || 'charms');
     document.getElementById('pStatus').value = p?.status || 'published';
-    document.getElementById('pBadge').value = p?.badge || '';
-    document.getElementById('pSku').value = p?.sku || '';
-    document.getElementById('pDuration').value = p?.handmade_duration || '4-5 weeks';
-    document.getElementById('pMaterials').value = p?.materials || '';
-    document.getElementById('pCare').value = p?.care_instructions || '';
-    document.getElementById('pSeoTitle').value = p?.seo_title || '';
-    document.getElementById('pSeoDesc').value = p?.seo_description || '';
+
+    document.getElementById('pBadge').value = p?.badge || extra.badge || '';
+    document.getElementById('pSku').value = p?.sku || extra.sku || (pId ? `TC-${String(pId).toUpperCase().slice(0, 12)}` : '');
+    document.getElementById('pDuration').value = p?.handmade_duration || extra.handmade_duration || '4-5 weeks';
+    document.getElementById('pMaterials').value = p?.materials || extra.materials || '';
+    document.getElementById('pCare').value = p?.care_instructions || extra.care_instructions || '';
+    document.getElementById('pSeoTitle').value = p?.seo_title || extra.seo_title || '';
+    document.getElementById('pSeoDesc').value = p?.seo_description || extra.seo_description || '';
     
-    if (!p) autoGenerateSku(true);
+    if (!p || !document.getElementById('pSku').value) autoGenerateSku(true);
 
     renderProductPreviews();
     document.getElementById('productModal').classList.add('open');
@@ -1826,6 +1843,21 @@
     const unbanKeys = [prodId.toLowerCase(), name.toLowerCase(), slug.toLowerCase()];
     deletedIds = deletedIds.filter(k => !unbanKeys.includes(String(k).toLowerCase()));
     await window.saveCloudSetting('deleted_product_ids', deletedIds);
+
+    // Save extra product attributes (badge, sku, duration, care, seo) so they are preserved
+    const extraObj = {
+      badge: fullPayload.badge,
+      sku: fullPayload.sku,
+      handmade_duration: fullPayload.handmade_duration,
+      materials: fullPayload.materials,
+      care_instructions: fullPayload.care_instructions,
+      seo_title: fullPayload.seo_title,
+      seo_description: fullPayload.seo_description
+    };
+    try {
+      localStorage.setItem('tabby_product_extra_' + prodId, JSON.stringify(extraObj));
+    } catch(e) {}
+    await window.saveCloudSetting('prod_extra_' + prodId, extraObj);
 
     // 2. Save product directly to Supabase products table
     const savedOk = await window.saveCloudProduct(cleanDbPayload);
@@ -2174,16 +2206,43 @@
 
   async function deleteCategory(id) {
     if (!confirm('Delete this category?')) return;
+    const catTarget = (allCategories || []).find(c => String(c.id).toLowerCase() === String(id).toLowerCase() || String(c.name).toLowerCase() === String(id).toLowerCase() || String(c.slug).toLowerCase() === String(id).toLowerCase());
+    const catId = catTarget?.id || id;
+    const catName = catTarget?.name || id;
+    const catSlug = catTarget?.slug || id;
+
     try {
       const client = await db();
-      if (client) await client.from('categories').delete().eq('id', id);
+      if (client) {
+        await client.from('categories').delete().eq('id', catId);
+        await client.from('categories').delete().eq('name', catName);
+        await client.from('categories').delete().eq('slug', catSlug);
+      }
     } catch(e) {}
 
+    // Update local storage categories
     let local = JSON.parse(localStorage.getItem('tabby_categories_local') || '[]');
-    local = local.filter(c => c.id !== id && c.name !== id);
+    local = local.filter(c => 
+      String(c.id).toLowerCase() !== String(catId).toLowerCase() && 
+      String(c.name).toLowerCase() !== String(catName).toLowerCase() && 
+      String(c.slug).toLowerCase() !== String(catSlug).toLowerCase()
+    );
     localStorage.setItem('tabby_categories_local', JSON.stringify(local));
-    alert('✅ Category deleted!');
-    loadCategories();
+
+    // Save deleted category key list to cloud settings so shop.js hides them instantly
+    let deletedCats = [];
+    try {
+      const settings = await window.fetchCloudSettings();
+      if (settings.deleted_category_ids) deletedCats = JSON.parse(settings.deleted_category_ids);
+    } catch(e) {}
+
+    const banKeys = [String(catId).toLowerCase(), String(catName).toLowerCase(), String(catSlug).toLowerCase()];
+    banKeys.forEach(k => { if (k && !deletedCats.includes(k)) deletedCats.push(k); });
+
+    await window.saveCloudSetting('deleted_category_ids', deletedCats);
+
+    alert(`✅ Category "${catName}" deleted!`);
+    await loadCategories();
   }
 
   // 5. INVENTORY
@@ -2573,6 +2632,35 @@
 
     if (btn) btn.textContent = origText;
     alert(`✅ Hero Carousel & Best Sellers settings saved & verified across all admin accounts! (${successCount}/${Object.keys(sObj).length} keys synced)`);
+  }
+
+  async function saveShippingSettings() {
+    const feeEl = document.getElementById('shipFee');
+    const threshEl = document.getElementById('shipFreeThreshold');
+    const fee = feeEl ? feeEl.value.trim() : '59';
+    const thresh = threshEl ? threshEl.value.trim() : '2000';
+
+    const btn = document.querySelector('#tab-shipping button.btn-pink');
+    const origText = btn ? btn.textContent : '';
+    if (btn) btn.textContent = '⏳ Saving Shipping Fee...';
+
+    const ok1 = await window.saveCloudSetting('standard_shipping_fee', fee);
+    const ok2 = await window.saveCloudSetting('free_shipping_threshold', thresh);
+
+    try {
+      const settingsMap = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
+      settingsMap.standard_shipping_fee = fee;
+      settingsMap.free_shipping_threshold = thresh;
+      localStorage.setItem('tabby_site_settings', JSON.stringify(settingsMap));
+    } catch(e) {}
+
+    if (btn) btn.textContent = origText;
+
+    if (ok1 && ok2) {
+      alert(`✅ Standard Shipping Fee (₹${fee}) & Free Shipping Minimum (₹${thresh}) saved & live on store site!`);
+    } else {
+      alert('✅ Shipping Fee updated & saved.');
+    }
   }
 
   function saveSupabaseCredentials() {

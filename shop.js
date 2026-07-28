@@ -155,7 +155,13 @@ async function loadLiveStorefrontData() {
     try { remoteDeletedIds = JSON.parse(settings.deleted_product_ids); } catch(e) {}
   }
 
+  let remoteDeletedCatIds = [];
+  if (settings.deleted_category_ids) {
+    try { remoteDeletedCatIds = JSON.parse(settings.deleted_category_ids); } catch(e) {}
+  }
+
   const deletedIds = remoteDeletedIds.map(s => String(s).toLowerCase().trim());
+  const deletedCatKeys = remoteDeletedCatIds.map(s => String(s).toLowerCase().trim());
 
   const liveProducts = (dbProducts || []).filter(p => {
     if (!p || p.status === 'draft') return false;
@@ -166,11 +172,11 @@ async function loadLiveStorefrontData() {
     return !deletedIds.includes(pid) && !deletedIds.includes(pslug) && !deletedIds.includes(pname) && !deletedIds.includes(pclean);
   });
 
-  renderDynamicCategoryPills(liveProducts);
+  renderDynamicCategoryPills(liveProducts, deletedCatKeys);
   renderDynamicProducts(liveProducts);
 }
 
-function renderDynamicCategoryPills(liveProducts = []) {
+function renderDynamicCategoryPills(liveProducts = [], deletedCatKeys = []) {
   const container = document.getElementById('categoryFilter') || document.querySelector('.filter-scroll-track');
   if (!container) return;
 
@@ -180,9 +186,7 @@ function renderDynamicCategoryPills(liveProducts = []) {
     { name: 'Charms', slug: 'charms' },
     { name: 'Keychains', slug: 'keychains' },
     { name: 'Desk Pals', slug: 'desk-pals' },
-    { name: 'Sticker Sheets', slug: 'stickers' },
-    { name: 'Worry Stones', slug: 'worry-stones' },
-    { name: 'Phone Charms', slug: 'phone-charms' }
+    { name: 'Sticker Sheets', slug: 'stickers' }
   ];
 
   const merged = [...defaultCats];
@@ -194,7 +198,15 @@ function renderDynamicCategoryPills(liveProducts = []) {
     }
   });
 
-  container.innerHTML = merged.map((c, i) => {
+  // Filter out any categories deleted in Admin Panel
+  const activeCategories = merged.filter(c => {
+    if (c.slug === 'all') return true;
+    const cSlug = String(c.slug).toLowerCase().trim();
+    const cName = String(c.name).toLowerCase().trim();
+    return !deletedCatKeys.includes(cSlug) && !deletedCatKeys.includes(cName);
+  });
+
+  container.innerHTML = activeCategories.map((c, i) => {
     const cleanDisplayName = cleanCategoryName(c.name);
     const count = (c.slug === 'all') 
       ? liveProducts.length 

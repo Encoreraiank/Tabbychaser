@@ -2232,21 +2232,35 @@
     let rawDigits = (phoneStr || '').replace(/[^0-9]/g, '');
     if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
 
-    const cartItems = o.items || o.cart || [];
-    const firstItem = (cartItems && cartItems.length > 0) ? cartItems[0] : { name: 'Handmade Clay Charm', id: 'charm-general' };
-    const prodName = firstItem.name || 'Handmade Clay Charm';
-    const prodId = (firstItem.id || firstItem.slug || prodName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    // Parse all items in the order
+    let rawItems = [];
+    if (Array.isArray(o.items)) rawItems = o.items;
+    else if (typeof o.items === 'string') { try { rawItems = JSON.parse(o.items); } catch(e) {} }
+    if (!rawItems.length) {
+      if (Array.isArray(o.cart)) rawItems = o.cart;
+      else if (typeof o.cart === 'string') { try { rawItems = JSON.parse(o.cart); } catch(e) {} }
+    }
+
+    if (!rawItems.length) {
+      rawItems = [{ id: 'charm-general', name: o.product_name || 'Handmade Clay Charm', image: '' }];
+    }
+
+    const itemsList = rawItems.map(item => {
+      const pName = item.name || item.title || 'Handmade Clay Charm';
+      const pId = (item.id || item.slug || pName).toString().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const pImg = (item.images && item.images[0]) || item.image || item.img || '';
+      return { id: pId, name: pName, image: pImg };
+    });
 
     const token = `tok_${(o.order_reference || o.id || 'ORD').replace(/[^a-z0-9]/gi, '')}_${Date.now().toString().slice(-6)}`;
 
     const tokenObj = {
       token: token,
       order_id: o.order_reference || o.id || 'ORD-100',
-      product_id: prodId,
-      product_name: prodName,
       customer_name: nameStr,
       customer_phone: rawDigits,
       customer_email: o.email || '',
+      items: itemsList,
       used: false,
       created_at: new Date().toISOString()
     };
@@ -2259,16 +2273,22 @@
     } catch(e) {}
 
     const reviewLink = `https://tabbychaser.store/review?token=${token}`;
+    const itemsSummary = itemsList.map(i => i.name).join(', ');
     const waMsg = encodeURIComponent(
       `Hi ${nameStr} 👋\n\n` +
-      `Thank you for shopping with Tabby Chaser! Your order #${o.order_reference || o.id} (${prodName}) has been delivered. 🎉\n\n` +
-      `We would love to hear your feedback! Please take 1 minute to leave a review and unlock a 15% OFF coupon code for your next purchase:\n👇\n${reviewLink}`
+      `Thank you for shopping with Tabby Chaser! Your order #${o.order_reference || o.id} (${itemsSummary}) has been delivered. 🎉\n\n` +
+      `We would love to hear your feedback! Please take 1 minute to leave a review and unlock an exclusive 15% OFF coupon code for your next purchase:\n👇\n${reviewLink}`
     );
 
     if (rawDigits) {
       window.open(`https://api.whatsapp.com/send?phone=${rawDigits}&text=${waMsg}`, '_blank');
     } else {
-      prompt('Customer Review Link Generated:', `https://tabbychaser.store/review?token=${token}`);
+      const inputPhone = prompt(`Customer Phone missing. Enter WhatsApp Phone Number to send Review Link (e.g. 917996545772):\n\nReview Link: ${reviewLink}`);
+      if (inputPhone) {
+        let clean = inputPhone.replace(/[^0-9]/g, '');
+        if (clean.length === 10) clean = '91' + clean;
+        window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${waMsg}`, '_blank');
+      }
     }
   }
 
@@ -2333,7 +2353,8 @@
           </td>
           <td>
             <div style="display:flex;gap:6px;flex-wrap:wrap;">
-              ${(r.status !== 'approved') ? `<button class="btn btn-pink btn-sm" style="font-size:0.72rem;padding:4px 8px;" onclick="approveReviewAndSendCoupon('${r.id}')">✅ Approve & Send Coupon</button>` : ''}
+              ${(r.status !== 'approved') ? `<button class="btn btn-pink btn-sm" style="font-size:0.72rem;padding:4px 8px;" onclick="approveReviewAndSendCoupon('${r.id}')">✅ Approve &amp; Send Coupon</button>` : ''}
+              ${(r.status === 'approved') ? `<button class="btn btn-outline btn-sm" style="font-size:0.72rem;padding:4px 8px;color:#25D366;border-color:#25D366;" onclick="resendCouponWhatsApp('${r.id}')">📲 Resend Coupon</button>` : ''}
               ${(r.status !== 'rejected') ? `<button class="btn btn-outline btn-sm" style="font-size:0.72rem;padding:4px 8px;color:#d32f2f;" onclick="rejectReview('${r.id}')">❌ Reject</button>` : ''}
               <button class="btn btn-red btn-sm" style="font-size:0.72rem;padding:4px 8px;" onclick="deleteReview('${r.id}')">🗑️</button>
             </div>
@@ -2348,6 +2369,19 @@
     if (!r) return;
     r.status = 'approved';
     r.verified_purchase = true;
+
+    // Look up customer phone from order if missing in review
+    let rawDigits = (r.customer_phone || '').replace(/[^0-9]/g, '');
+    if (!rawDigits) {
+      const orderMatch = (allOrders || []).find(o => 
+        String(o.order_reference || o.id).toLowerCase() === String(r.order_id || r.order_reference).toLowerCase()
+      );
+      if (orderMatch && orderMatch.phone) {
+        rawDigits = (orderMatch.phone || '').replace(/[^0-9]/g, '');
+      }
+    }
+    if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
+    r.customer_phone = rawDigits;
 
     try {
       await window.saveCloudReview(r);
@@ -2374,9 +2408,6 @@
       await window.saveCloudSetting('coupon_' + code, couponObj);
     } catch(e) {}
 
-    let rawDigits = (r.customer_phone || '').replace(/[^0-9]/g, '');
-    if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
-
     const waMsg = encodeURIComponent(
       `Hi ${r.customer_name || 'Valued Customer'} 👋\n\n` +
       `Your review for ${r.product_name || 'Handmade Charm'} has been approved and is now live on our website! ✨\n\n` +
@@ -2384,11 +2415,53 @@
       `Thank you for supporting our handmade business! ❤️\nhttps://tabbychaser.store`
     );
 
-    alert(`✅ Review approved! Generated 15% OFF coupon: ${code}`);
     renderReviewsManager();
 
     if (rawDigits) {
       window.open(`https://api.whatsapp.com/send?phone=${rawDigits}&text=${waMsg}`, '_blank');
+      alert(`✅ Review for "${r.product_name}" approved! Coupon code ${code} generated.`);
+    } else {
+      const inputPhone = prompt(`✅ Review approved! Generated 15% OFF Coupon: ${code}\n\nCustomer phone number missing. Enter WhatsApp Phone Number to send coupon (e.g. 917996545772):`);
+      if (inputPhone) {
+        let clean = inputPhone.replace(/[^0-9]/g, '');
+        if (clean.length === 10) clean = '91' + clean;
+        window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${waMsg}`, '_blank');
+      }
+    }
+  }
+
+  function resendCouponWhatsApp(reviewId) {
+    const r = allReviews.find(x => x.id === reviewId);
+    if (!r) return;
+
+    let rawDigits = (r.customer_phone || '').replace(/[^0-9]/g, '');
+    if (!rawDigits) {
+      const orderMatch = (allOrders || []).find(o => 
+        String(o.order_reference || o.id).toLowerCase() === String(r.order_id || r.order_reference).toLowerCase()
+      );
+      if (orderMatch && orderMatch.phone) {
+        rawDigits = (orderMatch.phone || '').replace(/[^0-9]/g, '');
+      }
+    }
+    if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
+
+    const code = `THANKYOU15-${Math.floor(1000 + Math.random() * 9000)}`;
+    const waMsg = encodeURIComponent(
+      `Hi ${r.customer_name || 'Valued Customer'} 👋\n\n` +
+      `Your review for ${r.product_name || 'Handmade Charm'} has been approved and is now live on our website! ✨\n\n` +
+      `Here is your exclusive 15% OFF coupon code for your next order: ${code}\n\n` +
+      `Thank you for supporting our handmade business! ❤️\nhttps://tabbychaser.store`
+    );
+
+    if (rawDigits) {
+      window.open(`https://api.whatsapp.com/send?phone=${rawDigits}&text=${waMsg}`, '_blank');
+    } else {
+      const inputPhone = prompt(`Enter customer WhatsApp Phone Number to send Coupon (e.g. 917996545772):`);
+      if (inputPhone) {
+        let clean = inputPhone.replace(/[^0-9]/g, '');
+        if (clean.length === 10) clean = '91' + clean;
+        window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${waMsg}`, '_blank');
+      }
     }
   }
 

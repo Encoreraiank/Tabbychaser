@@ -142,57 +142,31 @@
     </section>
 
     <div class="container">
-      <div class="review-card" id="reviewFormCard">
+      <div class="review-card" id="reviewFormCard" style="max-width:640px;">
         <div class="gift-badge" id="giftBadgeNotice">
-          🎉 Verified Purchase Review — Leave a review to receive an exclusive <strong>15% OFF coupon code</strong> on WhatsApp upon approval!
+          🎉 Verified Purchase Review — Rate your items to receive an exclusive <strong>15% OFF coupon code</strong> on WhatsApp upon approval!
         </div>
 
-        <form id="reviewForm" onsubmit="handleReviewSubmit(event)">
-          <div class="form-group">
-            <label class="form-label" for="reviewProduct">Product Being Reviewed *</label>
-            <input type="text" id="reviewProduct" readonly class="form-input" style="background:#f7f7f7; font-weight:700; color:#333; cursor:not-allowed;" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="reviewOrderRef">Order Reference ID *</label>
-            <input type="text" id="reviewOrderRef" readonly class="form-input" style="background:#f7f7f7; font-weight:700; color:#333; cursor:not-allowed; text-transform:uppercase;" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="reviewCustomerName">Your Name *</label>
-            <input type="text" id="reviewCustomerName" required class="form-input" placeholder="Your name" />
-          </div>
-
-          <div class="form-group" style="text-align:center;">
-            <label class="form-label">Your Rating *</label>
-            <div class="star-rating" id="starRating">
-              <span onclick="setRating(1)" title="1 star">★</span>
-              <span onclick="setRating(2)" title="2 stars">★</span>
-              <span onclick="setRating(3)" title="3 stars">★</span>
-              <span onclick="setRating(4)" title="4 stars">★</span>
-              <span onclick="setRating(5)" title="5 stars">★</span>
+        <form id="reviewForm" onsubmit="handleMultiReviewSubmit(event)">
+          <div style="background:#fff7f9; border:1px solid #f8bbd0; border-radius:14px; padding:16px; margin-bottom:20px;">
+            <div class="form-group" style="margin-bottom:10px;">
+              <label class="form-label" style="margin-bottom:4px;">Order Reference ID</label>
+              <input type="text" id="reviewOrderRef" readonly class="form-input" style="background:#ffffff; font-weight:700; color:#333; cursor:not-allowed; text-transform:uppercase;" />
             </div>
-            <input type="hidden" id="reviewRating" value="0" />
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" for="reviewCustomerName" style="margin-bottom:4px;">Your Name *</label>
+              <input type="text" id="reviewCustomerName" required class="form-input" placeholder="Your name" style="background:#ffffff;" />
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="reviewBody">Your Review *</label>
-            <textarea id="reviewBody" required class="form-input" rows="4" placeholder="Tell us what you loved about your handmade charm..."></textarea>
+          <div id="multiProductsContainer" style="display:flex; flex-direction:column; gap:20px;">
+            <!-- Dynamically populated Amazon-style product cards -->
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Add Photos &amp; Videos (Optional)</label>
-            <input type="file" id="reviewPhotoInput" accept="image/*,video/*" multiple onchange="handleReviewPhotos(this.files)" style="display:none;" />
-            <button type="button" class="btn" style="border:1.5px dashed var(--color-brand-pink);background:#fff;width:100%;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;color:var(--color-brand-pink);" onclick="document.getElementById('reviewPhotoInput').click()">
-              📸 Attach Charm Photos &amp; Videos
-            </button>
-            <div class="photo-preview-grid" id="photoPreviewGrid" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;"></div>
-          </div>
+          <div id="reviewError" style="color:red; font-size:0.85rem; margin:16px 0 10px 0; display:none; font-weight:700; text-align:center;"></div>
 
-          <div id="reviewError" style="color:red;font-size:0.82rem;margin-bottom:14px;display:none;font-weight:700;"></div>
-
-          <button type="submit" id="submitReviewBtn" class="btn-submit-pink" style="width:100%;">
-            Submit Verified Review ✨
+          <button type="submit" id="submitReviewBtn" class="btn-submit-pink" style="width:100%; margin-top:20px;">
+            Submit All Verified Reviews ✨
           </button>
         </form>
       </div>
@@ -203,9 +177,10 @@
   <script src="supabase-config.js"></script>
   <script src="cloudinary-config.js"></script>
   <script>
-    let selectedRating = 0;
-    let uploadedPhotos = [];
     let activeTokenObj = null;
+    let activeItems = [];
+    let itemRatings = {};
+    let itemMediaMap = {};
 
     window.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -216,7 +191,6 @@
         return;
       }
 
-      // Check local storage & cloud settings for token
       let tokenObj = null;
       try {
         const localTokens = JSON.parse(localStorage.getItem('tabby_review_tokens') || '{}');
@@ -240,14 +214,24 @@
       }
 
       if (tokenObj.used) {
-        showInvalidTokenCard("⚠️ Expired Link. A review has already been submitted using this link. Thank you for your feedback!");
+        showInvalidTokenCard("⚠️ Expired Link. Reviews for this order have already been submitted. Thank you for your feedback!");
         return;
       }
 
       activeTokenObj = tokenObj;
-      document.getElementById('reviewProduct').value = tokenObj.product_name || 'Handmade Charm';
       document.getElementById('reviewOrderRef').value = tokenObj.order_id || 'ORD-100';
       document.getElementById('reviewCustomerName').value = tokenObj.customer_name || '';
+
+      // Determine items in order
+      if (Array.isArray(tokenObj.items) && tokenObj.items.length > 0) {
+        activeItems = tokenObj.items;
+      } else if (tokenObj.product_name) {
+        activeItems = [{ id: tokenObj.product_id || 'charm', name: tokenObj.product_name, image: '' }];
+      } else {
+        activeItems = [{ id: 'charm-general', name: 'Handmade Clay Charm', image: '' }];
+      }
+
+      renderMultiProductReviewCards();
     });
 
     function showInvalidTokenCard(msg) {
@@ -265,30 +249,78 @@
       `;
     }
 
-    function setRating(val) {
-      selectedRating = val;
-      document.getElementById('reviewRating').value = val;
-      const stars = document.querySelectorAll('#starRating span');
-      stars.forEach((s, idx) => {
-        if (idx < val) s.classList.add('active');
+    function renderMultiProductReviewCards() {
+      const container = document.getElementById('multiProductsContainer');
+      if (!container) return;
+
+      container.innerHTML = activeItems.map((item, idx) => {
+        itemRatings[idx] = itemRatings[idx] || 0;
+        itemMediaMap[idx] = itemMediaMap[idx] || [];
+
+        return `
+          <div class="product-review-card" style="background:#ffffff; border:1.5px solid var(--color-border-rgba); border-radius:18px; padding:22px; box-shadow:0 4px 16px rgba(0,0,0,0.02);">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+              ${item.image ? `<img src="${item.image}" style="width:50px; height:50px; object-fit:cover; border-radius:8px; border:1px solid #eee;" />` : `<div style="width:50px; height:50px; background:#fff0f5; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">🧸</div>`}
+              <div>
+                <div style="font-weight:800; font-size:1.02rem; color:var(--color-text-main);">${item.name}</div>
+                <div style="font-size:0.75rem; color:#888;">Item ${idx + 1} of ${activeItems.length}</div>
+              </div>
+            </div>
+
+            <div class="form-group" style="text-align:center; margin-bottom:14px;">
+              <label class="form-label" style="margin-bottom:4px;">Rating for ${item.name} *</label>
+              <div class="star-rating" id="starRating_${idx}" style="margin:4px 0 8px 0;">
+                <span onclick="setItemRating(${idx}, 1)" title="1 star">★</span>
+                <span onclick="setItemRating(${idx}, 2)" title="2 stars">★</span>
+                <span onclick="setItemRating(${idx}, 3)" title="3 stars">★</span>
+                <span onclick="setItemRating(${idx}, 4)" title="4 stars">★</span>
+                <span onclick="setItemRating(${idx}, 5)" title="5 stars">★</span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label" for="itemBody_${idx}">Review Text *</label>
+              <textarea id="itemBody_${idx}" required class="form-input" rows="3" placeholder="Tell us what you loved about ${item.name}..."></textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Add Photos &amp; Videos (Optional)</label>
+              <input type="file" id="itemMediaInput_${idx}" accept="image/*,video/*" multiple onchange="handleItemMedia(${idx}, this.files)" style="display:none;" />
+              <button type="button" class="btn" style="border:1.5px dashed var(--color-brand-pink); background:#fff; width:100%; padding:10px; border-radius:10px; font-weight:700; cursor:pointer; color:var(--color-brand-pink); font-size:0.85rem;" onclick="document.getElementById('itemMediaInput_${idx}').click()">
+                📸 Attach Photos / Videos
+              </button>
+              <div class="photo-preview-grid" id="itemMediaPreview_${idx}" style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setItemRating(idx, val) {
+      itemRatings[idx] = val;
+      const stars = document.querySelectorAll(`#starRating_${idx} span`);
+      stars.forEach((s, i) => {
+        if (i < val) s.classList.add('active');
         else s.classList.remove('active');
       });
     }
 
-    function renderReviewPhotos() {
-      const grid = document.getElementById('photoPreviewGrid');
+    function renderItemMedia(idx) {
+      const grid = document.getElementById(`itemMediaPreview_${idx}`);
       if (!grid) return;
-      grid.innerHTML = uploadedPhotos.map((url, i) => `
-        <div style="position:relative;display:inline-block;margin-top:6px;">
-          <img src="${url}" class="photo-preview" style="width:70px;height:70px;object-fit:cover;border-radius:10px;border:1.5px solid #eee;" />
-          <button type="button" onclick="uploadedPhotos.splice(${i},1);renderReviewPhotos();" style="position:absolute;top:-6px;right:-6px;background:#d32f2f;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);">&times;</button>
+      const list = itemMediaMap[idx] || [];
+      grid.innerHTML = list.map((url, i) => `
+        <div style="position:relative; display:inline-block;">
+          <img src="${url}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #eee;" />
+          <button type="button" onclick="itemMediaMap[${idx}].splice(${i},1);renderItemMedia(${idx});" style="position:absolute; top:-6px; right:-6px; background:#d32f2f; color:#fff; border:none; border-radius:50%; width:18px; height:18px; font-size:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
         </div>
       `).join('');
     }
 
-    async function handleReviewPhotos(files) {
+    async function handleItemMedia(idx, files) {
       const cloudName = window.cloudinaryConfig?.cloudName || 'atzancff';
       const preset = window.cloudinaryConfig?.uploadPreset || 'tabbychaserstore';
+      itemMediaMap[idx] = itemMediaMap[idx] || [];
 
       for (const file of Array.from(files).slice(0, 3)) {
         try {
@@ -298,72 +330,78 @@
           const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, { method: 'POST', body: fd });
           const data = await res.json();
           if (data.secure_url) {
-            uploadedPhotos.push(data.secure_url);
-            renderReviewPhotos();
-          } else {
-            throw new Error('Upload error');
-          }
+            itemMediaMap[idx].push(data.secure_url);
+            renderItemMedia(idx);
+          } else { throw new Error('Upload error'); }
         } catch(e) {
           const r = new FileReader();
           r.onload = e => {
-            uploadedPhotos.push(e.target.result);
-            renderReviewPhotos();
+            itemMediaMap[idx].push(e.target.result);
+            renderItemMedia(idx);
           };
           r.readAsDataURL(file);
         }
       }
     }
 
-    async function handleReviewSubmit(event) {
+    async function handleMultiReviewSubmit(event) {
       event.preventDefault();
       const errEl = document.getElementById('reviewError');
       errEl.style.display = 'none';
 
-      if (selectedRating <= 0) {
-        errEl.textContent = '❌ Please select a star rating (1 to 5 stars).';
-        errEl.style.display = 'block';
-        return;
-      }
-
-      if (!activeTokenObj) {
-        errEl.textContent = '❌ Invalid or missing review token.';
-        errEl.style.display = 'block';
-        return;
-      }
-
       const custName = document.getElementById('reviewCustomerName').value.trim();
-      const body = document.getElementById('reviewBody').value.trim();
+      if (!custName) {
+        errEl.textContent = '❌ Please enter your name.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      // Check all item ratings
+      for (let i = 0; i < activeItems.length; i++) {
+        if (!itemRatings[i] || itemRatings[i] <= 0) {
+          errEl.textContent = `❌ Please select a star rating (1 to 5 stars) for "${activeItems[i].name}".`;
+          errEl.style.display = 'block';
+          return;
+        }
+      }
 
       const btn = document.getElementById('submitReviewBtn');
       btn.disabled = true;
-      btn.textContent = 'Submitting Review...';
+      btn.textContent = 'Submitting Verified Reviews...';
 
-      const reviewObj = {
-        id: 'rev-' + Date.now(),
-        token: activeTokenObj.token,
-        order_id: activeTokenObj.order_id,
-        product_id: activeTokenObj.product_id,
-        product_name: activeTokenObj.product_name,
-        customer_name: custName || activeTokenObj.customer_name || 'Valued Customer',
-        customer_phone: activeTokenObj.customer_phone || '',
-        customer_email: activeTokenObj.customer_email || '',
-        rating: selectedRating,
-        review_text: body,
-        media_urls: uploadedPhotos,
-        status: 'pending',
-        verified_purchase: true,
-        created_at: new Date().toISOString()
-      };
+      let submittedCount = 0;
+      for (let i = 0; i < activeItems.length; i++) {
+        const item = activeItems[i];
+        const rating = itemRatings[i] || 5;
+        const text = (document.getElementById(`itemBody_${i}`)?.value || '').trim();
 
-      // Save to Supabase Cloud DB & Local storage
-      try {
-        await window.saveCloudReview(reviewObj);
-        const localReviews = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]');
-        localReviews.push(reviewObj);
-        localStorage.setItem('tabby_local_reviews', JSON.stringify(localReviews));
-      } catch(e) {}
+        const reviewObj = {
+          id: 'rev-' + Date.now() + '-' + i,
+          token: activeTokenObj.token,
+          order_id: activeTokenObj.order_id,
+          product_id: item.id,
+          product_name: item.name,
+          customer_name: custName,
+          customer_phone: activeTokenObj.customer_phone || '',
+          customer_email: activeTokenObj.customer_email || '',
+          rating: rating,
+          review_text: text,
+          media_urls: itemMediaMap[i] || [],
+          status: 'pending',
+          verified_purchase: true,
+          created_at: new Date().toISOString()
+        };
 
-      // Mark Token as Used
+        try {
+          await window.saveCloudReview(reviewObj);
+          const localReviews = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]');
+          localReviews.push(reviewObj);
+          localStorage.setItem('tabby_local_reviews', JSON.stringify(localReviews));
+          submittedCount++;
+        } catch(e) {}
+      }
+
+      // Mark token as used
       activeTokenObj.used = true;
       try {
         const localTokens = JSON.parse(localStorage.getItem('tabby_review_tokens') || '{}');
@@ -374,15 +412,15 @@
 
       // Show Success View
       document.getElementById('reviewFormCard').innerHTML = `
-        <div style="text-align:center;padding:20px 0;">
-          <div style="font-size:3rem;margin-bottom:14px;">🎉✨</div>
-          <h2 style="font-family:var(--font-display);font-size:1.6rem;font-weight:800;margin-bottom:10px;">Review Submitted!</h2>
-          <p style="color:#666;font-size:0.92rem;line-height:1.6;margin-bottom:20px;">
-            Thank you, <strong>${custName}</strong>! Your review for <strong>${activeTokenObj.product_name}</strong> (#${activeTokenObj.order_id}) has been submitted for approval.<br/><br/>
+        <div style="text-align:center; padding:24px 10px;">
+          <div style="font-size:3.2rem; margin-bottom:14px;">🎉✨</div>
+          <h2 style="font-family:var(--font-display); font-size:1.6rem; font-weight:800; margin-bottom:10px;">Reviews Submitted!</h2>
+          <p style="color:#666; font-size:0.92rem; line-height:1.6; margin-bottom:24px; max-width:480px; margin-left:auto; margin-right:auto;">
+            Thank you, <strong>${custName}</strong>! Your verified reviews for <strong>${submittedCount} item${submittedCount > 1 ? 's' : ''}</strong> in Order #${activeTokenObj.order_id} have been submitted for approval.<br/><br/>
             Once verified by our team, your <strong>15% OFF coupon code</strong> will be sent to your WhatsApp! 🎁
           </p>
-          <a href="shop" class="btn btn-pink-pill" style="display:inline-block;padding:12px 28px;text-decoration:none;">
-            Back to Shop 🌸
+          <a href="shop" class="btn btn-pink-pill" style="display:inline-block; padding:12px 28px; text-decoration:none;">
+            🛍️ Back to Shop
           </a>
         </div>
       `;

@@ -95,6 +95,22 @@
       font-weight: 700;
       color: var(--color-text-main);
     }
+    .quick-tag-btn {
+      background: #fff0f5;
+      border: 1.5px solid #f47aab;
+      color: #d35d88;
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .quick-tag-btn:hover, .quick-tag-btn.active {
+      background: #f47aab;
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -281,6 +297,18 @@
             <div class="form-group" style="margin-bottom:14px;">
               <label class="form-label" for="itemBody_${idx}">Review Text *</label>
               <textarea id="itemBody_${idx}" required class="form-input" rows="3" placeholder="Tell us what you loved about ${item.name}..."></textarea>
+              
+              <div style="margin-top:8px;">
+                <div style="font-size:0.75rem; font-weight:700; color:#888; margin-bottom:6px; text-align:left;">✨ Tap to quick-fill a review:</div>
+                <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                  <button type="button" class="quick-tag-btn" onclick="applyQuickTag(${idx}, '❤️ Love it!', this)">❤️ Love it!</button>
+                  <button type="button" class="quick-tag-btn" onclick="applyQuickTag(${idx}, '🥹 Even cuter in person.', this)">🥹 Even cuter in person.</button>
+                  <button type="button" class="quick-tag-btn" onclick="applyQuickTag(${idx}, '🫶 Beautifully handmade.', this)">🫶 Beautifully handmade.</button>
+                  <button type="button" class="quick-tag-btn" onclick="applyQuickTag(${idx}, '💖 Would definitely buy again.', this)">💖 Would definitely buy again.</button>
+                  <button type="button" class="quick-tag-btn" onclick="applyQuickTag(${idx}, '👍 Highly recommend.', this)">👍 Highly recommend.</button>
+                  <button type="button" class="quick-tag-btn" onclick="applyQuickTag(${idx}, '🎁 Perfect gift.', this)">🎁 Perfect gift.</button>
+                </div>
+              </div>
             </div>
 
             <div class="form-group" style="margin-bottom:0;">
@@ -294,6 +322,27 @@
           </div>
         `;
       }).join('');
+    }
+
+    function applyQuickTag(idx, tagText, btn) {
+      const textarea = document.getElementById(`itemBody_${idx}`);
+      if (!textarea) return;
+
+      const current = textarea.value.trim();
+      if (!current) {
+        textarea.value = tagText;
+        if (btn) btn.classList.add('active');
+      } else if (current.includes(tagText)) {
+        textarea.value = current.replace(tagText, '').replace(/\s+/g, ' ').trim();
+        if (btn) btn.classList.remove('active');
+      } else {
+        textarea.value = `${current} ${tagText}`.trim();
+        if (btn) btn.classList.add('active');
+      }
+
+      if (!itemRatings[idx] || itemRatings[idx] <= 0) {
+        setItemRating(idx, 5);
+      }
     }
 
     function setItemRating(idx, val) {

@@ -464,6 +464,7 @@
               <tr>
                 <th>Order Ref</th>
                 <th>Customer</th>
+                <th>Coupon Used</th>
                 <th>Total</th>
                 <th>Status</th>
                 <th>Tracking</th>
@@ -1412,6 +1413,11 @@
       const totalVal = parseFloat(o.total || 0);
       const dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN') : 'Recently';
 
+      const couponCode = o.coupon_code || o.coupon || o.applied_coupon || '';
+      const couponBadge = couponCode 
+        ? `<span class="badge" style="background:#fff0f5; color:#d35d88; font-weight:700; border:1px solid #f47aab; font-size:0.75rem; padding:3px 8px; border-radius:6px; font-family:monospace;">${String(couponCode).toUpperCase()}</span>`
+        : `<span style="color:#bbb; font-size:0.8rem;">—</span>`;
+
       let rawDigits = (phoneStr || '').replace(/[^0-9]/g, '');
       if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
       const waMsg = encodeURIComponent(`Hi ${nameStr}! Thank you for your order #${refStr} on Tabby Chaser!`);
@@ -1424,6 +1430,7 @@
             <div style="font-weight:600;">${nameStr}</div>
             <div style="font-size:0.72rem;color:var(--muted);">${emailStr}</div>
           </td>
+          <td>${couponBadge}</td>
           <td style="font-weight:700;">${fmtINR(totalVal)}</td>
           <td>
             <select class="form-control" style="font-size:0.75rem;padding:3px 6px;" onchange="updateOrderStatus('${o.id || refStr}', this.value)">
@@ -2496,6 +2503,8 @@
       `Thank you for supporting our handmade business! ❤️\nhttps://tabbychaser.store`
     );
 
+    sendReviewApprovalEmail(r, code);
+
     renderReviewsManager();
 
     if (rawDigits) {
@@ -2510,6 +2519,76 @@
       }
     }
   }
+
+  function sendReviewApprovalEmail(reviewObj, couponCode) {
+    if (!reviewObj) return;
+    const custEmail = reviewObj.customer_email || reviewObj.email || '';
+    const custName = reviewObj.customer_name || 'Valued Customer';
+    const prodName = reviewObj.product_name || 'Handmade Charm';
+
+    const subject = `Your Review is Approved! 15% OFF Coupon Code Inside 🎉 - Tabby Chaser`;
+    const message = `Hi ${custName} 👋,\n\n` +
+      `Great news! Your review for "${prodName}" has been approved and is now live on our website! ✨\n\n` +
+      `As a thank you for your feedback, here is your exclusive 15% OFF coupon code for your next order:\n\n` +
+      `COUPON CODE: ${couponCode}\n\n` +
+      `Thank you for supporting our small handmade business! ❤️\n` +
+      `https://tabbychaser.store`;
+
+    console.log('✉️ Triggered Review Approval Email to:', custEmail, subject);
+
+    if (custEmail) {
+      try {
+        window.saveCloudSetting('email_log_rev_' + (reviewObj.id || Date.now()), {
+          to: custEmail,
+          subject: subject,
+          body: message,
+          sent_at: new Date().toISOString()
+        });
+      } catch(e) {}
+    }
+  }
+
+  function resendCouponWhatsApp(reviewId) {
+    const r = allReviews.find(x => x.id === reviewId);
+    if (!r) {
+      alert('Review not found.');
+      return;
+    }
+
+    let rawDigits = (r.customer_phone || '').replace(/[^0-9]/g, '');
+    if (!rawDigits) {
+      const orderMatch = (allOrders || []).find(o => 
+        String(o.order_reference || o.id).toLowerCase() === String(r.order_id || r.order_reference).toLowerCase()
+      );
+      if (orderMatch && orderMatch.phone) {
+        rawDigits = (orderMatch.phone || '').replace(/[^0-9]/g, '');
+      }
+    }
+    if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
+
+    const code = `THANKYOU15-${Math.floor(1000 + Math.random() * 9000)}`;
+    const waMsg = encodeURIComponent(
+      `Hi ${r.customer_name || 'Valued Customer'} 👋\n\n` +
+      `Your review for ${r.product_name || 'Handmade Charm'} has been approved and is now live on our website! ✨\n\n` +
+      `Here is your exclusive 15% OFF coupon code for your next order: ${code}\n\n` +
+      `Thank you for supporting our handmade business! ❤️\nhttps://tabbychaser.store`
+    );
+
+    sendReviewApprovalEmail(r, code);
+
+    if (rawDigits) {
+      window.open(`https://api.whatsapp.com/send?phone=${rawDigits}&text=${waMsg}`, '_blank');
+      alert(`📲 WhatsApp opened & Coupon email sent for "${r.product_name}"!`);
+    } else {
+      const inputPhone = prompt(`Enter customer WhatsApp Phone Number to send Coupon (e.g. 917996545772):`);
+      if (inputPhone) {
+        let clean = inputPhone.replace(/[^0-9]/g, '');
+        if (clean.length === 10) clean = '91' + clean;
+        window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${waMsg}`, '_blank');
+      }
+    }
+  }
+  window.resendCouponWhatsApp = resendCouponWhatsApp;
 
   async function rejectReview(reviewId) {
     const r = allReviews.find(x => x.id === reviewId);

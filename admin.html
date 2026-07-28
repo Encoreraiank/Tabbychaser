@@ -788,10 +788,24 @@
     <!-- ━━━━ REVIEWS TAB ━━━━ -->
     <div class="tab-pane" id="tab-reviews">
       <div class="card">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div class="card-title">⭐ Verified Purchase Customer Reviews Management</div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-outline rev-filter-btn active" style="font-size:0.8rem; padding:6px 14px;" onclick="setReviewFilter('pending', this)">
+              ⏳ Pending (<span id="revPendingCount">0</span>)
+            </button>
+            <button class="btn btn-outline rev-filter-btn" style="font-size:0.8rem; padding:6px 14px;" onclick="setReviewFilter('approved', this)">
+              ✅ Approved (<span id="revApprovedCount">0</span>)
+            </button>
+            <button class="btn btn-outline rev-filter-btn" style="font-size:0.8rem; padding:6px 14px;" onclick="setReviewFilter('rejected', this)">
+              ❌ Rejected (<span id="revRejectedCount">0</span>)
+            </button>
+          </div>
+        </div>
         <div style="overflow-x:auto;">
           <table>
             <thead>
-              <tr><th>Customer</th><th>Rating</th><th>Review</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>Customer</th><th>Product &amp; Rating</th><th>Review Content</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody id="reviewsTableBody">
               <tr><td colspan="5" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
@@ -1333,6 +1347,7 @@
     });
 
     renderOrders();
+    loadReviews();
     updateDashboardStats();
   }
 
@@ -1390,6 +1405,7 @@
           <td>
             <div style="display:flex; gap:6px; flex-wrap:nowrap;">
               <button class="btn btn-outline btn-sm" onclick="printInvoice('${o.id || refStr}')" style="padding:3px 8px; font-size:0.75rem;">🧾 Invoice</button>
+              ${(o.status === 'delivered') ? `<button class="btn btn-sm" style="background:#0288d1; color:#fff; padding:3px 8px; font-size:0.75rem; border-radius:6px; font-weight:700; border:none; cursor:pointer;" onclick="requestOrderReview('${o.id || refStr}')" title="Generate Token & Request Review via WhatsApp">⭐ Review Link</button>` : ''}
               ${rawDigits ? `<a href="${waUrl}" target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; padding:3px 8px; font-size:0.75rem; text-decoration:none; border-radius:6px; font-weight:700;">📲 WhatsApp</a>` : ''}
             </div>
           </td>
@@ -2204,6 +2220,202 @@
     loadCategories();
   }
 
+  // 6. VERIFIED REVIEWS MANAGEMENT & TOKEN GENERATOR
+  let currentReviewFilter = 'pending';
+
+  async function requestOrderReview(orderId) {
+    const o = allOrders.find(x => String(x.id) === String(orderId) || String(x.order_reference) === String(orderId));
+    if (!o) return;
+
+    const nameStr = o.name || 'Valued Customer';
+    const phoneStr = o.phone || '';
+    let rawDigits = (phoneStr || '').replace(/[^0-9]/g, '');
+    if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
+
+    const cartItems = o.items || o.cart || [];
+    const firstItem = (cartItems && cartItems.length > 0) ? cartItems[0] : { name: 'Handmade Clay Charm', id: 'charm-general' };
+    const prodName = firstItem.name || 'Handmade Clay Charm';
+    const prodId = (firstItem.id || firstItem.slug || prodName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    const token = `tok_${(o.order_reference || o.id || 'ORD').replace(/[^a-z0-9]/gi, '')}_${Date.now().toString().slice(-6)}`;
+
+    const tokenObj = {
+      token: token,
+      order_id: o.order_reference || o.id || 'ORD-100',
+      product_id: prodId,
+      product_name: prodName,
+      customer_name: nameStr,
+      customer_phone: rawDigits,
+      customer_email: o.email || '',
+      used: false,
+      created_at: new Date().toISOString()
+    };
+
+    try {
+      const tokensMap = JSON.parse(localStorage.getItem('tabby_review_tokens') || '{}');
+      tokensMap[token] = tokenObj;
+      localStorage.setItem('tabby_review_tokens', JSON.stringify(tokensMap));
+      await window.saveCloudSetting('rev_token_' + token, tokenObj);
+    } catch(e) {}
+
+    const reviewLink = `https://tabbychaser.store/review?token=${token}`;
+    const waMsg = encodeURIComponent(
+      `Hi ${nameStr} 👋\n\n` +
+      `Thank you for shopping with Tabby Chaser! Your order #${o.order_reference || o.id} (${prodName}) has been delivered. 🎉\n\n` +
+      `We would love to hear your feedback! Please take 1 minute to leave a review and unlock a 15% OFF coupon code for your next purchase:\n👇\n${reviewLink}`
+    );
+
+    if (rawDigits) {
+      window.open(`https://api.whatsapp.com/send?phone=${rawDigits}&text=${waMsg}`, '_blank');
+    } else {
+      prompt('Customer Review Link Generated:', `https://tabbychaser.store/review?token=${token}`);
+    }
+  }
+
+  async function loadReviews() {
+    let cloudData = [];
+    try { cloudData = await window.fetchCloudReviews(); } catch(e) {}
+    let localData = [];
+    try { localData = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]'); } catch(e) {}
+
+    const combinedMap = new Map();
+    [...cloudData, ...localData].forEach(r => {
+      if (r && r.id) combinedMap.set(r.id, r);
+    });
+
+    allReviews = Array.from(combinedMap.values());
+    renderReviewsManager();
+  }
+
+  function setReviewFilter(filter, btn) {
+    currentReviewFilter = filter;
+    document.querySelectorAll('.rev-filter-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderReviewsManager();
+  }
+
+  function renderReviewsManager() {
+    const tbody = document.getElementById('reviewsTableBody');
+    if (!tbody) return;
+
+    const pendingCount = allReviews.filter(r => (r.status || 'pending') === 'pending').length;
+    const approvedCount = allReviews.filter(r => r.status === 'approved').length;
+    const rejectedCount = allReviews.filter(r => r.status === 'rejected').length;
+
+    if (document.getElementById('revPendingCount')) document.getElementById('revPendingCount').textContent = pendingCount;
+    if (document.getElementById('revApprovedCount')) document.getElementById('revApprovedCount').textContent = approvedCount;
+    if (document.getElementById('revRejectedCount')) document.getElementById('revRejectedCount').textContent = rejectedCount;
+
+    const filtered = allReviews.filter(r => (r.status || 'pending') === currentReviewFilter);
+
+    tbody.innerHTML = filtered.length ? filtered.map(r => {
+      const ratingStars = '⭐'.repeat(r.rating || 5);
+      const photos = r.photos || r.media_urls || [];
+      const photosHtml = photos.map(url => `<img src="${url}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;margin-right:4px;" />`).join('');
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight:700;">${r.customer_name || 'Customer'}</div>
+            <div style="font-size:0.75rem;color:#888;">Order #${r.order_id || r.order_reference || 'N/A'}</div>
+            <span style="background:#e8f5e9;color:#2e7d32;font-size:0.68rem;padding:2px 6px;border-radius:4px;font-weight:700;">✅ Verified Purchase</span>
+          </td>
+          <td>
+            <div style="font-weight:600;font-size:0.85rem;">${r.product_name || 'Handmade Charm'}</div>
+            <div style="color:#ffb703;font-size:0.85rem;">${ratingStars} (${r.rating}/5)</div>
+          </td>
+          <td style="max-width:260px;font-size:0.82rem;">
+            <div>${r.review_text || r.body || '—'}</div>
+            <div style="margin-top:4px;">${photosHtml}</div>
+          </td>
+          <td>
+            <span class="badge-status st-${r.status || 'pending'}">${(r.status || 'pending').toUpperCase()}</span>
+          </td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${(r.status !== 'approved') ? `<button class="btn btn-pink btn-sm" style="font-size:0.72rem;padding:4px 8px;" onclick="approveReviewAndSendCoupon('${r.id}')">✅ Approve & Send Coupon</button>` : ''}
+              ${(r.status !== 'rejected') ? `<button class="btn btn-outline btn-sm" style="font-size:0.72rem;padding:4px 8px;color:#d32f2f;" onclick="rejectReview('${r.id}')">❌ Reject</button>` : ''}
+              <button class="btn btn-red btn-sm" style="font-size:0.72rem;padding:4px 8px;" onclick="deleteReview('${r.id}')">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('') : `<tr><td colspan="5" style="text-align:center;padding:30px;color:#888;">No ${currentReviewFilter} reviews found.</td></tr>`;
+  }
+
+  async function approveReviewAndSendCoupon(reviewId) {
+    const r = allReviews.find(x => x.id === reviewId);
+    if (!r) return;
+    r.status = 'approved';
+    r.verified_purchase = true;
+
+    try {
+      await window.saveCloudReview(r);
+      const local = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]');
+      const idx = local.findIndex(x => x.id === reviewId);
+      if (idx >= 0) local[idx] = r; else local.push(r);
+      localStorage.setItem('tabby_local_reviews', JSON.stringify(local));
+    } catch(e) {}
+
+    const code = `THANKYOU15-${Math.floor(1000 + Math.random() * 9000)}`;
+    const couponObj = {
+      code: code,
+      discount_type: 'percent',
+      discount_value: 15,
+      min_order_amount: 0,
+      usage_limit: 1,
+      active: true,
+      created_at: new Date().toISOString()
+    };
+    try {
+      const existingCoupons = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
+      existingCoupons.push(couponObj);
+      localStorage.setItem('tabby_coupons_local', JSON.stringify(existingCoupons));
+      await window.saveCloudSetting('coupon_' + code, couponObj);
+    } catch(e) {}
+
+    let rawDigits = (r.customer_phone || '').replace(/[^0-9]/g, '');
+    if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
+
+    const waMsg = encodeURIComponent(
+      `Hi ${r.customer_name || 'Valued Customer'} 👋\n\n` +
+      `Your review for ${r.product_name || 'Handmade Charm'} has been approved and is now live on our website! ✨\n\n` +
+      `Here is your exclusive 15% OFF coupon code for your next order: ${code}\n\n` +
+      `Thank you for supporting our handmade business! ❤️\nhttps://tabbychaser.store`
+    );
+
+    alert(`✅ Review approved! Generated 15% OFF coupon: ${code}`);
+    renderReviewsManager();
+
+    if (rawDigits) {
+      window.open(`https://api.whatsapp.com/send?phone=${rawDigits}&text=${waMsg}`, '_blank');
+    }
+  }
+
+  async function rejectReview(reviewId) {
+    const r = allReviews.find(x => x.id === reviewId);
+    if (!r) return;
+    r.status = 'rejected';
+    try {
+      await window.saveCloudReview(r);
+      const local = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]');
+      const idx = local.findIndex(x => x.id === reviewId);
+      if (idx >= 0) local[idx] = r;
+      localStorage.setItem('tabby_local_reviews', JSON.stringify(local));
+    } catch(e) {}
+    renderReviewsManager();
+  }
+
+  async function deleteReview(reviewId) {
+    if (!confirm('Delete this review?')) return;
+    allReviews = allReviews.filter(x => x.id !== reviewId);
+    try {
+      const local = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]');
+      localStorage.setItem('tabby_local_reviews', JSON.stringify(local.filter(x => x.id !== reviewId)));
+    } catch(e) {}
+    renderReviewsManager();
+  }
+
   async function deleteCategory(id) {
     if (!confirm('Delete this category?')) return;
     const catTarget = (allCategories || []).find(c => String(c.id).toLowerCase() === String(id).toLowerCase() || String(c.name).toLowerCase() === String(id).toLowerCase() || String(c.slug).toLowerCase() === String(id).toLowerCase());
@@ -2478,73 +2690,6 @@
     } catch(e) {}
 
     loadCoupons();
-  }
-
-  // 8. REVIEWS
-  async function loadReviews() {
-    let data = [];
-    try {
-      const client = await db();
-      if (client) {
-        const res = await client.from('reviews').select('*');
-        if (res?.data) data = res.data;
-      }
-    } catch(e) {}
-
-    allReviews = data;
-    renderReviews();
-  }
-
-  function renderReviews() {
-    document.getElementById('reviewsTableBody').innerHTML = allReviews.length ? allReviews.map(r => `
-      <tr>
-        <td style="font-weight:700;">${r.customer_name}<br/><small style="color:var(--muted);">${r.email||''}</small></td>
-        <td>${'⭐'.repeat(r.rating || 5)}</td>
-        <td><strong>${r.title||''}</strong><br/>${r.body}</td>
-        <td><span class="badge-status st-${r.status}">${r.status}</span></td>
-        <td>
-          <button class="btn btn-green btn-sm" onclick="approveReview('${r.id}')">Approve (+Coupon)</button>
-          <button class="btn btn-red btn-sm" onclick="updateReviewStatus('${r.id}','hidden')">Hide</button>
-        </td>
-      </tr>
-    `).join('') : `<tr><td colspan="5" style="text-align:center;padding:20px;">No customer reviews yet</td></tr>`;
-  }
-
-  async function approveReview(id) {
-    const rev = allReviews.find(r => r.id === id);
-    if (rev) rev.status = 'approved';
-    
-    // Save review approval status
-    try {
-      const client = await db();
-      if (client) await client.from('reviews').update({ status: 'approved' }).eq('id', id);
-    } catch(e) {}
-
-    // Generate unique 15% coupon for review
-    const couponCode = 'PAWS15-' + Math.random().toString(36).substr(2, 4).toUpperCase();
-    const expiry = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
-
-    saveCoupon({
-      id: 'coup-' + Date.now(),
-      code: couponCode,
-      type: 'percent',
-      value: 15,
-      min_order_value: 0,
-      expiry: expiry,
-      active: true
-    });
-
-    alert(`✅ Review Approved!\n🎁 Generated 15% OFF Coupon Code for ${rev?.email || 'customer'}: ${couponCode}`);
-    loadReviews();
-  }
-
-  async function updateReviewStatus(id, status) {
-    try {
-      const client = await db();
-      if (client) await client.from('reviews').update({ status }).eq('id', id);
-    } catch(e) {}
-
-    loadReviews();
   }
 
   // 9. SITE SETTINGS & HERO & INTEGRATIONS

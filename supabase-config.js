@@ -137,3 +137,39 @@ window.saveCloudProduct = async function(product) {
     return false;
   }
 };
+
+// 8. Fetch Reviews from Supabase Cloud DB
+window.fetchCloudReviews = async function() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews?select=*`, {
+      cache: 'no-store',
+      headers: window.getSupabaseHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    window.logAppError('fetchCloudReviews', err);
+    return [];
+  }
+};
+
+// 9. Save Review to Supabase Cloud DB
+window.saveCloudReview = async function(reviewObj) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
+      method: 'POST',
+      cache: 'no-store',
+      headers: window.getSupabaseHeaders({ 'Prefer': 'resolution=merge-duplicates' }),
+      body: JSON.stringify(reviewObj)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return true;
+  } catch (err) {
+    window.logAppError('saveCloudReview', err);
+    return false;
+  }
+};

@@ -1437,7 +1437,10 @@
       const totalVal = parseFloat(o.total || 0);
       const dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString('en-IN') : 'Recently';
 
-      const couponCode = o.coupon_code || o.coupon || o.applied_coupon || '';
+      let couponCode = o.coupon_code || o.coupon || o.applied_coupon || '';
+      if (!couponCode && parseFloat(o.discount || 0) > 0) {
+        couponCode = `DISCOUNT (₹${o.discount} OFF)`;
+      }
       const couponBadge = couponCode 
         ? `<span class="badge" style="background:#fff0f5; color:#d35d88; font-weight:700; border:1px solid #f47aab; font-size:0.75rem; padding:3px 8px; border-radius:6px; font-family:monospace;">${String(couponCode).toUpperCase()}</span>`
         : `<span style="color:#bbb; font-size:0.8rem;">—</span>`;

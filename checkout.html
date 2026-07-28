@@ -1459,7 +1459,9 @@
         subtotal: checkoutSubtotal,
         discount: checkoutDiscount,
         shipping: checkoutShipping,
-        total: checkoutTotal
+        total: checkoutTotal,
+        appliedCoupon: window.appliedCouponObj || JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null'),
+        coupon_code: (window.appliedCouponObj && window.appliedCouponObj.code) ? String(window.appliedCouponObj.code).toUpperCase() : (JSON.parse(localStorage.getItem('tabby_applied_coupon') || '{}').code || null)
       };
       try {
         localStorage.setItem('tabby_pending_checkout', JSON.stringify(window.currentCheckoutDetails));

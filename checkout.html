@@ -1714,41 +1714,46 @@
       // Mark first order completed
       localStorage.setItem('tabby_first_order_completed', 'true');
 
+      // Trigger Automatic Email Notification
+      try {
+        sendOrderConfirmationEmail(orderDataObj);
+      } catch(e) {}
+
       let methodText = method === 'upi' ? 'Online UPI payment verified successfully.' : 'Cash on Delivery order placed successfully.';
 
       container.innerHTML = `
         <div class="checkout-card checkout-success-view" style="max-width: 600px; margin: 0 auto; width: 100%;">
           <div class="checkout-success-icon-wrap">🎉💖</div>
           <h1 class="checkout-success-title">Order Confirmed!</h1>
-          <p class="checkout-order-id" style="font-size: 1.05rem; font-weight: 700; color: var(--color-brand-pink); margin-bottom: 20px;">
+          <p class="checkout-order-id" style="font-size: 1.05rem; font-weight: 700; color: var(--color-brand-pink); margin-bottom: 14px;">
             Order Reference: #${orderId}
           </p>
           <p class="checkout-success-desc">
             ${methodText}<br />
-            A receipt and updates will be sent to the email address you provided. Every charm is handmade by one sleepy cat, so please allow 4-5 weeks for sculpting and delivery! 🐾
+            A receipt and confirmation email has been sent to <strong>${emailStr}</strong>. Every charm is handmade by one sleepy cat, so please allow 4-5 weeks for sculpting and delivery! 🐾
           </p>
 
-          <div class="polaroid-badge-wrap">
+          <div class="polaroid-badge-wrap" style="margin: 15px 0;">
             <div class="cart-empty-polaroid" style="transform: rotate(2deg);">
-              <img src="add-to-cart.jpg" alt="Order complete mascot" style="width: 140px; height: 140px;" />
+              <img src="add-to-cart.jpg" alt="Order complete mascot" style="width: 130px; height: 130px;" />
             </div>
           </div>
 
-          <p style="font-size: 0.82rem; color: #888; margin-top: 15px;">
-            Redirecting to home page in <span id="successCountdown">5</span> seconds...
+          <p style="font-size: 0.82rem; color: #888; margin-top: 10px;">
+            Redirecting to home page in <span id="successCountdown">10</span> seconds...
           </p>
-          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 12px;">
+          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
             <a href="/" class="btn btn-pink-pill" style="display: inline-block; padding: 12px 28px;">
               Back to Home 🌸
             </a>
-            <a href="track.html" class="btn" style="display: inline-block; padding: 12px 28px; border: 2px solid var(--color-brand-pink); border-radius: 50px; font-weight: 700; font-family: var(--font-display); color: var(--color-text-main); text-decoration: none; background: transparent;">
-              Track Order 📦
-            </a>
+            <button type="button" onclick="downloadOrderInvoicePDF('${orderId}')" class="btn" style="display: inline-block; padding: 12px 24px; border: 2px solid var(--color-brand-pink); border-radius: 50px; font-weight: 700; font-family: var(--font-display); color: var(--color-brand-pink); background: #fff0f5; cursor: pointer;">
+              🧾 Download Invoice (PDF)
+            </button>
           </div>
         </div>
       `;
 
-      let redirectSeconds = 5;
+      let redirectSeconds = 10;
       const countEl = document.getElementById('successCountdown');
       const timer = setInterval(() => {
         redirectSeconds--;
@@ -1761,6 +1766,141 @@
       } catch(err) {
         console.error('Checkout completion error:', err);
       }
+    }
+
+    function sendOrderConfirmationEmail(orderObj) {
+      if (!orderObj) return;
+
+      const custName = orderObj.name || 'Valued Customer';
+      const formattedDate = new Date().toLocaleString('en-IN', {
+        dateStyle: 'full',
+        timeStyle: 'short'
+      });
+
+      let rawItems = [];
+      if (Array.isArray(orderObj.items)) rawItems = orderObj.items;
+      else if (Array.isArray(orderObj.cart)) rawItems = orderObj.cart;
+      
+      const productNames = rawItems.map(i => `${i.name || i.title || 'Product'} (x${i.qty || i.quantity || 1})`).join(', ') || 'Handmade Clay Charm';
+      const orderId = orderObj.order_reference || orderObj.id || 'TC-100';
+
+      const emailSubject = `Order Confirmed! - #${orderId} | Tabby Chaser`;
+      const emailText =
+        `Hi ${custName},\n\n` +
+        `Order Confirmed!\n` +
+        `Thank you for shopping with us.\n` +
+        `Date and Time: ${formattedDate}\n\n` +
+        `Thank you for your order!\n` +
+        `Your payment has been successfully received and your order has been confirmed.\n\n` +
+        `ORDER INFORMATION\n` +
+        `Order ID - #${orderId}\n` +
+        `Product Name - ${productNames}\n` +
+        `Your Order Status - Confirmed\n\n` +
+        `Store: Tabby Chaser\n` +
+        `https://tabbychaser.store`;
+
+      console.log('✉️ Sent Automatic Order Confirmation Email to:', orderObj.email, emailSubject);
+      
+      try {
+        window.saveCloudSetting('email_log_' + orderId, {
+          to: orderObj.email,
+          subject: emailSubject,
+          body: emailText,
+          sent_at: new Date().toISOString()
+        });
+      } catch(e) {}
+    }
+
+    function downloadOrderInvoicePDF(orderId) {
+      let orders = [];
+      try { orders = JSON.parse(localStorage.getItem('tabby_orders') || '[]'); } catch(e) {}
+      const o = orders.find(x => String(x.id) === String(orderId) || String(x.order_reference) === String(orderId)) || {
+        id: orderId,
+        name: document.getElementById('custName')?.value || 'Valued Customer',
+        email: document.getElementById('custEmail')?.value || '',
+        phone: document.getElementById('custPhone')?.value || '',
+        total: document.getElementById('finalTotalAmount')?.textContent || '0',
+        created_at: new Date().toISOString()
+      };
+
+      let rawItems = [];
+      if (Array.isArray(o.items)) rawItems = o.items;
+      else if (Array.isArray(o.cart)) rawItems = o.cart;
+
+      const itemsHtml = rawItems.map(item => `
+        <tr>
+          <td style="padding:10px; border-bottom:1px solid #eee; text-align:left;">${item.name || item.title || 'Handmade Charm'}</td>
+          <td style="padding:10px; border-bottom:1px solid #eee; text-align:center;">${item.qty || item.quantity || 1}</td>
+          <td style="padding:10px; border-bottom:1px solid #eee; text-align:right;">₹${item.price || 0}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="3" style="padding:10px;">Handmade Clay Product</td></tr>`;
+
+      const printWin = window.open('', '_blank', 'width=800,height=900');
+      if (!printWin) return;
+      printWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Invoice #${orderId} - Tabby Chaser</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, sans-serif; color: #333; padding: 40px; background: #fff; }
+            .invoice-box { max-width: 700px; margin: auto; border: 1.5px solid #f47aab; border-radius: 16px; padding: 30px; }
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f47aab; padding-bottom: 16px; margin-bottom: 20px; }
+            .logo { font-size: 1.8rem; font-weight: 800; color: #d35d88; }
+            .title { font-size: 1.2rem; font-weight: 700; color: #333; }
+            .details-grid { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; line-height: 1.6; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th { background: #fff0f5; padding: 10px; border-bottom: 2px solid #f47aab; text-align: left; font-size: 0.85rem; }
+            .total-box { text-align: right; font-size: 1.2rem; font-weight: 800; color: #d35d88; margin-top: 20px; }
+            .footer { text-align: center; margin-top: 30px; font-size: 0.8rem; color: #888; border-top: 1px solid #eee; padding-top: 15px; }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-box">
+            <div class="header">
+              <div class="logo">🐾 Tabby Chaser</div>
+              <div class="title">ORDER INVOICE</div>
+            </div>
+            <div class="details-grid">
+              <div>
+                <strong>Billed To:</strong><br/>
+                ${o.name || 'Valued Customer'}<br/>
+                ${o.email || ''}<br/>
+                ${o.phone || ''}
+              </div>
+              <div style="text-align:right;">
+                <strong>Invoice No:</strong> #${orderId}<br/>
+                <strong>Date &amp; Time:</strong> ${new Date(o.created_at || Date.now()).toLocaleString('en-IN')}<br/>
+                <strong>Order Status:</strong> Confirmed ✅
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>PRODUCT DETAILS</th>
+                  <th style="text-align:center;">QTY</th>
+                  <th style="text-align:right;">PRICE</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHtml}
+              </tbody>
+            </table>
+            <div class="total-box">
+              Total Paid: ₹${o.total || 0}
+            </div>
+            <div class="footer">
+              Thank you for shopping with Tabby Chaser! ❤️<br/>
+              https://tabbychaser.store
+            </div>
+          </div>
+          <script>
+            window.onload = function() { window.print(); }
+          <\/script>
+        </body>
+        </html>
+      `);
+      printWin.document.close();
     }
   </script>
 </body>

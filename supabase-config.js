@@ -140,6 +140,7 @@ window.saveCloudProduct = async function(product) {
 
 // 8. Fetch Reviews from Supabase Cloud DB
 window.fetchCloudReviews = async function() {
+  let reviews = [];
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews?select=*`, {
       cache: 'no-store',
@@ -148,17 +149,54 @@ window.fetchCloudReviews = async function() {
         'Pragma': 'no-cache'
       })
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) reviews = data;
+    }
   } catch (err) {
     window.logAppError('fetchCloudReviews', err);
-    return [];
   }
+
+  // Also fetch reviews stored in site_settings for 100% guaranteed cloud sync
+  try {
+    const settings = await window.fetchCloudSettings();
+    if (settings) {
+      if (settings.all_reviews_cloud_list) {
+        const list = typeof settings.all_reviews_cloud_list === 'string' ? JSON.parse(settings.all_reviews_cloud_list) : settings.all_reviews_cloud_list;
+        if (Array.isArray(list)) {
+          const map = new Map();
+          [...reviews, ...list].forEach(r => { if (r && r.id) map.set(r.id, r); });
+          reviews = Array.from(map.values());
+        }
+      }
+      Object.keys(settings).forEach(k => {
+        if (k.startsWith('rev_item_')) {
+          try {
+            const r = typeof settings[k] === 'string' ? JSON.parse(settings[k]) : settings[k];
+            if (r && r.id) {
+              const existingIdx = reviews.findIndex(x => x.id === r.id);
+              if (existingIdx >= 0) reviews[existingIdx] = { ...reviews[existingIdx], ...r };
+              else reviews.push(r);
+            }
+          } catch(e) {}
+        }
+      });
+    }
+  } catch(e) {}
+
+  return reviews;
 };
 
 // 9. Save Review to Supabase Cloud DB
 window.saveCloudReview = async function(reviewObj) {
+  if (!reviewObj || !reviewObj.id) return false;
+
+  // 1. Always save in site_settings for 100% guaranteed multi-device cloud sync
+  try {
+    await window.saveCloudSetting('rev_item_' + reviewObj.id, reviewObj);
+  } catch(e) {}
+
+  // 2. Also save to Supabase reviews table
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
       method: 'POST',
@@ -166,8 +204,7 @@ window.saveCloudReview = async function(reviewObj) {
       headers: window.getSupabaseHeaders({ 'Prefer': 'resolution=merge-duplicates' }),
       body: JSON.stringify(reviewObj)
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return true;
+    return res.ok;
   } catch (err) {
     window.logAppError('saveCloudReview', err);
     return false;

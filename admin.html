@@ -794,9 +794,6 @@
         <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div class="card-title">⭐ Verified Purchase Customer Reviews Management</div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-outline" style="font-size:0.8rem; padding:6px 14px; color:var(--pink); border-color:var(--pink);" onclick="loadReviews(true)" title="Force sync latest reviews from cloud DB">
-              🔄 Sync Live Reviews
-            </button>
             <button class="btn btn-outline rev-filter-btn active" style="font-size:0.8rem; padding:6px 14px;" onclick="setReviewFilter('pending', this)">
               ⏳ Pending (<span id="revPendingCount">0</span>)
             </button>
@@ -1300,6 +1297,13 @@
     loadReviews();
     loadSiteSettings();
     loadLimitedEditionConfig();
+
+    // Automatic real-time background sync for reviews across all admin screens
+    if (!window._reviewsSyncInterval) {
+      window._reviewsSyncInterval = setInterval(() => {
+        loadReviews();
+      }, 8000);
+    }
   }
 
   // NAVIGATION
@@ -2371,7 +2375,13 @@
   async function syncMasterReviews() {
     try {
       localStorage.setItem('tabby_local_reviews', JSON.stringify(allReviews));
+      await window.saveCloudSetting('all_reviews_cloud_list', allReviews);
       await window.saveCloudSetting('rev_master_list', allReviews);
+      for (const r of allReviews) {
+        if (r && r.id) {
+          await window.saveCloudSetting('rev_item_' + r.id, r);
+        }
+      }
     } catch(e) {}
   }
 

@@ -1885,6 +1885,24 @@
       `;
 
       console.log('✉️ Rendered Email with Top Header & Thank You Card for:', custEmail);
+
+      if (custEmail) {
+        try {
+          fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+              access_key: '5561a0b3-90d1-447a-8b1e-7b70ff9989a6',
+              subject: emailSubject,
+              from_name: 'Tabby Chaser Store',
+              to: custEmail,
+              email: custEmail,
+              name: custName,
+              message: `Hi ${custName},\n\nOrder Confirmed! 💖\nThank you for shopping with us.\n\nORDER DETAILS:\n- Order ID: #${orderId}\n- Date & Time: ${formattedDate}\n- Products: ${productNames}\n- Total Paid: ₹${totalAmt}\n\nTHANK YOU!\nThank you for supporting my small handmade business. Each order means the world to me.\nHappy shopping!\n- Tabby Chaser\n\nDownload Invoice (PDF): https://tabbychaser.store/checkout?action=invoice&id=${orderId}`
+            })
+          }).catch(err => console.warn('Email dispatch warning:', err));
+        } catch(e) {}
+      }
       
       try {
         window.saveCloudSetting('email_log_' + orderId, {

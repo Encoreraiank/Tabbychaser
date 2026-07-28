@@ -196,6 +196,60 @@ window.fetchCloudReviews = async function() {
   return reviews;
 };
 
+// 9. Fetch Orders from Supabase Cloud DB & Cloud Settings
+window.fetchCloudOrders = async function() {
+  let orders = [];
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/orders?select=*&order=created_at.desc`, {
+      cache: 'no-store',
+      headers: window.getSupabaseHeaders({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) orders = data;
+    }
+  } catch (err) {
+    window.logAppError('fetchCloudOrders', err);
+  }
+
+  // Also fetch orders stored in site_settings for 100% cross-device cloud sync
+  try {
+    const settings = await window.fetchCloudSettings();
+    if (settings) {
+      const settingsOrders = [];
+      Object.keys(settings).forEach(k => {
+        if (k.startsWith('order_')) {
+          try {
+            const item = typeof settings[k] === 'string' ? JSON.parse(settings[k]) : settings[k];
+            if (item && (item.order_reference || item.id)) settingsOrders.push(item);
+          } catch(e) {}
+        }
+      });
+
+      const map = new Map();
+      [...orders, ...settingsOrders].forEach(o => {
+        if (o && (o.order_reference || o.id)) {
+          const key = (o.order_reference || o.id).toString();
+          const existing = map.get(key);
+          if (!existing) {
+            map.set(key, o);
+          } else {
+            const mergedCoupon = o.coupon_code || existing.coupon_code || o.coupon || existing.coupon || null;
+            map.set(key, { ...existing, ...o, coupon_code: mergedCoupon });
+          }
+        }
+      });
+      orders = Array.from(map.values());
+    }
+  } catch(e) {}
+
+  orders.sort((a, b) => new Date(b.created_at || Date.now()) - new Date(a.created_at || Date.now()));
+  return orders;
+};
+
 // 9. Save Review to Supabase Cloud DB
 window.saveCloudReview = async function(reviewObj) {
   if (!reviewObj || !reviewObj.id) return false;

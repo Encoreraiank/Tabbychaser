@@ -279,7 +279,10 @@
   <div class="login-card">
     <div class="login-title">🐾 Tabby Chaser</div>
     <div class="login-sub">Admin Panel Access</div>
-    <input type="password" id="adminPassInput" class="input" placeholder="Password" onkeydown="if(event.key==='Enter') window.adminLogin()" />
+    <div style="position:relative; margin-bottom:14px;">
+      <input type="password" id="adminPassInput" class="input" placeholder="Password" style="width:100%; padding-right:42px;" onkeydown="if(event.key==='Enter') window.adminLogin()" />
+      <button type="button" onclick="togglePassVisibility('adminPassInput', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; padding:4px; color:#888;" title="Show/Hide Password">👁️</button>
+    </div>
     <button class="btn-submit" onclick="window.adminLogin()">Login to Dashboard</button>
     <div class="login-err" id="loginError"></div>
   </div>
@@ -1024,7 +1027,10 @@
 
           <div class="form-group" style="margin-top:20px;border-top:1px solid var(--border);padding-top:20px;">
             <label class="form-label">Admin Password Change</label>
-            <input type="password" id="newAdminPass" class="form-control" placeholder="New Password" style="max-width:300px;margin-bottom:8px;" />
+            <div style="position:relative; max-width:300px; margin-bottom:8px;">
+              <input type="password" id="newAdminPass" class="form-control" placeholder="New Password" style="width:100%; padding-right:40px;" />
+              <button type="button" onclick="togglePassVisibility('newAdminPass', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; color:#888;" title="Show/Hide Password">👁️</button>
+            </div>
             <button class="btn btn-outline" onclick="changeAdminPass()">Update Password</button>
           </div>
         </div>
@@ -2292,19 +2298,57 @@
     }
   }
 
+  function togglePassVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      if (btn) btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      if (btn) btn.textContent = '👁️';
+    }
+  }
+
   async function loadReviews() {
     let cloudData = [];
     try { cloudData = await window.fetchCloudReviews(); } catch(e) {}
+    
+    let settingsData = [];
+    try {
+      const settings = await window.fetchCloudSettings();
+      if (settings && settings.rev_master_list) {
+        settingsData = typeof settings.rev_master_list === 'string' ? JSON.parse(settings.rev_master_list) : settings.rev_master_list;
+      }
+    } catch(e) {}
+
     let localData = [];
     try { localData = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]'); } catch(e) {}
 
     const combinedMap = new Map();
-    [...cloudData, ...localData].forEach(r => {
-      if (r && r.id) combinedMap.set(r.id, r);
+    [...cloudData, ...settingsData, ...localData].forEach(r => {
+      if (r && r.id) {
+        const existing = combinedMap.get(r.id);
+        if (!existing || (r.status && r.status !== 'pending' && existing.status === 'pending')) {
+          combinedMap.set(r.id, r);
+        } else if (!existing) {
+          combinedMap.set(r.id, r);
+        }
+      }
     });
 
     allReviews = Array.from(combinedMap.values());
+    try {
+      localStorage.setItem('tabby_local_reviews', JSON.stringify(allReviews));
+    } catch(e) {}
     renderReviewsManager();
+  }
+
+  async function syncMasterReviews() {
+    try {
+      localStorage.setItem('tabby_local_reviews', JSON.stringify(allReviews));
+      await window.saveCloudSetting('rev_master_list', allReviews);
+    } catch(e) {}
   }
 
   function setReviewFilter(filter, btn) {
@@ -2385,10 +2429,7 @@
 
     try {
       await window.saveCloudReview(r);
-      const local = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]');
-      const idx = local.findIndex(x => x.id === reviewId);
-      if (idx >= 0) local[idx] = r; else local.push(r);
-      localStorage.setItem('tabby_local_reviews', JSON.stringify(local));
+      await syncMasterReviews();
     } catch(e) {}
 
     const code = `THANKYOU15-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -2430,51 +2471,13 @@
     }
   }
 
-  function resendCouponWhatsApp(reviewId) {
-    const r = allReviews.find(x => x.id === reviewId);
-    if (!r) return;
-
-    let rawDigits = (r.customer_phone || '').replace(/[^0-9]/g, '');
-    if (!rawDigits) {
-      const orderMatch = (allOrders || []).find(o => 
-        String(o.order_reference || o.id).toLowerCase() === String(r.order_id || r.order_reference).toLowerCase()
-      );
-      if (orderMatch && orderMatch.phone) {
-        rawDigits = (orderMatch.phone || '').replace(/[^0-9]/g, '');
-      }
-    }
-    if (rawDigits.length === 10) rawDigits = '91' + rawDigits;
-
-    const code = `THANKYOU15-${Math.floor(1000 + Math.random() * 9000)}`;
-    const waMsg = encodeURIComponent(
-      `Hi ${r.customer_name || 'Valued Customer'} 👋\n\n` +
-      `Your review for ${r.product_name || 'Handmade Charm'} has been approved and is now live on our website! ✨\n\n` +
-      `Here is your exclusive 15% OFF coupon code for your next order: ${code}\n\n` +
-      `Thank you for supporting our handmade business! ❤️\nhttps://tabbychaser.store`
-    );
-
-    if (rawDigits) {
-      window.open(`https://api.whatsapp.com/send?phone=${rawDigits}&text=${waMsg}`, '_blank');
-    } else {
-      const inputPhone = prompt(`Enter customer WhatsApp Phone Number to send Coupon (e.g. 917996545772):`);
-      if (inputPhone) {
-        let clean = inputPhone.replace(/[^0-9]/g, '');
-        if (clean.length === 10) clean = '91' + clean;
-        window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${waMsg}`, '_blank');
-      }
-    }
-  }
-
   async function rejectReview(reviewId) {
     const r = allReviews.find(x => x.id === reviewId);
     if (!r) return;
     r.status = 'rejected';
     try {
       await window.saveCloudReview(r);
-      const local = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]');
-      const idx = local.findIndex(x => x.id === reviewId);
-      if (idx >= 0) local[idx] = r;
-      localStorage.setItem('tabby_local_reviews', JSON.stringify(local));
+      await syncMasterReviews();
     } catch(e) {}
     renderReviewsManager();
   }
@@ -2483,8 +2486,7 @@
     if (!confirm('Delete this review?')) return;
     allReviews = allReviews.filter(x => x.id !== reviewId);
     try {
-      const local = JSON.parse(localStorage.getItem('tabby_local_reviews') || '[]');
-      localStorage.setItem('tabby_local_reviews', JSON.stringify(local.filter(x => x.id !== reviewId)));
+      await syncMasterReviews();
     } catch(e) {}
     renderReviewsManager();
   }

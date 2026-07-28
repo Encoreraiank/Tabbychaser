@@ -1613,6 +1613,9 @@
         const shipping = details.shipping !== undefined ? details.shipping : checkoutShipping;
         const total = details.total || checkoutTotal || 0;
 
+        const appliedCoupon = window.appliedCouponObj || JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
+        const couponCodeUsed = (appliedCoupon && appliedCoupon.code) ? appliedCoupon.code.toUpperCase() : null;
+
         const orderRecord = {
           id: 'ord_' + Date.now(),
           order_reference: orderId,
@@ -1627,6 +1630,7 @@
           discount: discount,
           shipping: shipping,
           total: total,
+          coupon_code: couponCodeUsed,
           payment_method: method || 'razorpay',
           payment_id: paymentId || null,
           status: 'paid',
@@ -1649,36 +1653,7 @@
           localStorage.setItem(`tabby_user_orders_${userEmailKey}`, JSON.stringify(userOrders));
         } catch(e) {}
 
-        // Send instant order alert email to store owner (tabbychaser2@gmail.com)
-        try {
-          const itemSummary = cart.map(i => `• ${i.name} (Qty: ${i.qty || i.quantity || 1} × ₹${i.price})`).join('\n');
-          fetch('https://formsubmit.co/ajax/tabbychaser2@gmail.com', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-              _subject: `🎀 NEW STORE ORDER #${orderId} Received! (₹${total})`,
-              _captcha: 'false',
-              'Order Reference': '#' + orderId,
-              'Customer Name': name,
-              'Customer Email': email,
-              'Customer Phone': phone,
-              'Instagram Handle': instagram || 'None',
-              'Shipping Address': address,
-              'Items Ordered': itemSummary || 'Handmade Products',
-              'Subtotal': `₹${subtotal}`,
-              'Discount': `₹${discount}`,
-              'Shipping Fee': `₹${shipping}`,
-              'Total Paid': `₹${total}`,
-              'Payment Method': method === 'cod' ? 'Cash on Delivery' : 'Paid via Razorpay',
-              'Order Notes': notes || 'None'
-            })
-          }).catch(err => console.warn('Order email notification error:', err));
-        } catch(e) {}
-
-        // 2. Save order record to Supabase orders table via SDK & Direct REST API
+        // 2. Save order record to Supabase orders table & Cloud Settings
         const cleanDbOrder = {
           order_reference: orderRecord.order_reference,
           name: orderRecord.name,
@@ -1691,6 +1666,7 @@
           discount: orderRecord.discount,
           shipping: orderRecord.shipping,
           total: orderRecord.total,
+          coupon_code: orderRecord.coupon_code,
           payment_method: orderRecord.payment_method,
           status: orderRecord.status,
           created_at: orderRecord.created_at
@@ -1704,7 +1680,7 @@
           } catch(e) {}
 
           try {
-            const apiRes = await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/orders', {
+            await fetch('https://bdwfwutvqvmyujwgrtwu.supabase.co/rest/v1/orders', {
               method: 'POST',
               headers: {
                 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkd2Z3dXR2cXZteXVqd2dydHd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2Mjc5MzYsImV4cCI6MjEwMDIwMzkzNn0.XkVmSEkjYY-JH_jyQ1IdhTin-EH1AH5t20mllR5iCbI',
@@ -1714,36 +1690,41 @@
               },
               body: JSON.stringify(cleanDbOrder)
             });
-            console.log('✅ Order synced to cloud database! Status:', apiRes.status);
-          } catch(err) {
-            console.error('Cloud DB insert error:', err);
+          } catch(err) {}
+
+          // Increment Cloud Coupon Usage count
+          if (couponCodeUsed) {
+            try {
+              const cloudSettings = await window.fetchCloudSettings();
+              let couponObj = null;
+              if (cloudSettings && cloudSettings['coupon_' + couponCodeUsed]) {
+                couponObj = typeof cloudSettings['coupon_' + couponCodeUsed] === 'string'
+                  ? JSON.parse(cloudSettings['coupon_' + couponCodeUsed])
+                  : cloudSettings['coupon_' + couponCodeUsed];
+              }
+              if (!couponObj) couponObj = appliedCoupon || { code: couponCodeUsed };
+
+              couponObj.used_count = (couponObj.used_count || 0) + 1;
+              couponObj.used_times = couponObj.used_count;
+
+              await window.saveCloudSetting('coupon_' + couponCodeUsed, couponObj);
+
+              if (window.supabaseClient) {
+                await window.supabaseClient.from('coupons').update({ used_count: couponObj.used_count }).eq('code', couponCodeUsed);
+              }
+            } catch(err) {}
           }
         })();
 
-      // Save applied coupon as used for this user & clear applied coupon
-      const applied = JSON.parse(localStorage.getItem('tabby_applied_coupon') || 'null');
-      if (applied && applied.code) {
-        const used = JSON.parse(localStorage.getItem('tabby_used_coupons') || '[]');
-        const codeUpper = applied.code.toUpperCase();
-        if (!used.includes(codeUpper)) used.push(codeUpper);
-        localStorage.setItem('tabby_used_coupons', JSON.stringify(used));
-      }
+      // Clear applied coupon & cart
       localStorage.removeItem('tabby_applied_coupon');
+      if (window.saveCart) window.saveCart([]);
+      else localStorage.removeItem('tabby_cart_items');
 
-      // Clear shopping bag
-      if (window.saveCart) {
-        window.saveCart([]);
-      } else {
-        localStorage.removeItem('tabby_cart_items');
-      }
-
-      // Mark first order completed
       localStorage.setItem('tabby_first_order_completed', 'true');
 
-      // Trigger Automatic Email Notification
-      try {
-        sendOrderConfirmationEmail(orderRecord);
-      } catch(e) {}
+      // Trigger Automatic Email Log
+      try { sendOrderConfirmationEmail(orderRecord); } catch(e) {}
 
       let methodText = method === 'upi' ? 'Online UPI payment verified successfully.' : 'Cash on Delivery order placed successfully.';
 
@@ -1756,7 +1737,7 @@
           </p>
           <p class="checkout-success-desc">
             ${methodText}<br />
-            A receipt and confirmation email has been sent to <strong>${emailStr}</strong>. Every charm is handmade by one sleepy cat, so please allow 4-5 weeks for sculpting and delivery! 🐾
+            A receipt has been generated for <strong>${email || name}</strong>. Every charm is handmade by one sleepy cat, so please allow 4-5 weeks for sculpting and delivery! 🐾
           </p>
 
           <div class="polaroid-badge-wrap" style="margin: 15px 0;">
@@ -1827,26 +1808,6 @@
         `https://tabbychaser.store`;
 
       console.log('✉️ Sent Automatic Order Confirmation Email to:', custEmail, emailSubject);
-
-      if (custEmail) {
-        try {
-          fetch(`https://formsubmit.co/ajax/${encodeURIComponent(custEmail)}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({
-              _subject: emailSubject,
-              _captcha: 'false',
-              'Customer Name': custName,
-              'Order Reference': '#' + orderId,
-              'Products Purchased': productNames,
-              'Total Paid': `₹${orderObj.total || 0}`,
-              'Order Status': 'Confirmed',
-              'Date & Time': formattedDate,
-              'Message': emailText
-            })
-          }).catch(err => console.warn('Customer confirmation email send error:', err));
-        } catch(e) {}
-      }
       
       try {
         window.saveCloudSetting('email_log_' + orderId, {

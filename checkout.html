@@ -1171,13 +1171,13 @@
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('action') === 'invoice' && urlParams.get('id')) {
         const invId = urlParams.get('id');
-        console.log('🧾 Direct PDF Invoice Download Requested for order:', invId);
+        console.log('🧾 On-Page PDF Invoice Requested for order:', invId);
         setTimeout(() => {
-          if (window.downloadOrderInvoicePDF) {
-            window.downloadOrderInvoicePDF(invId);
+          if (window.renderInvoiceOnPage) {
+            window.renderInvoiceOnPage(invId);
           }
-        }, 400);
-        return; // DO NOT REDIRECT TO SHOP!
+        }, 200);
+        return; // DO NOT LOAD CHECKOUT OR REDIRECT TO SHOP!
       }
 
       // Check if cart is empty, if so redirect to shop

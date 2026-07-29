@@ -7,7 +7,7 @@
 
   const STORE_NAME = 'Tabby Chaser';
   const STORE_URL = 'https://tabbychaser.store';
-  const MASCOT_IMG_URL = 'https://tabbychaser.store/09-9-.jpg';
+  const MASCOT_IMG_URL = 'https://tabbychaser.store/09-10-.png';
   const SUPPORT_EMAIL = 'tabbychaser2@gmail.com';
   const SUPPORT_PHONE = '+91 7996 545 772';
 

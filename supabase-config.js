@@ -411,7 +411,7 @@ window.downloadOrderInvoicePDF = async function(orderId) {
 <body>
   <div class="invoice-box">
     <div class="mascot-header">
-      <img src="https://tabbychaser.store/09-9-.jpg" alt="Tabby Chaser Mascot" class="mascot-img" />
+      <img src="https://tabbychaser.store/09-10-.png" alt="Tabby Chaser Mascot" class="mascot-img" />
     </div>
 
     <div class="header-flex">
@@ -476,4 +476,167 @@ window.downloadOrderInvoicePDF = async function(orderId) {
 </html>`);
   printWin.document.close();
   console.log(`[Invoice Engine] PDF Invoice generated successfully for order #${cleanRef}`);
+};
+
+// 11. On-Page Invoice Renderer (Bypasses popup blockers completely)
+window.renderInvoiceOnPage = async function(orderId, targetContainerId = null) {
+  if (!orderId) return;
+
+  const cleanRef = String(orderId).replace('#', '').trim();
+  console.log(`[Invoice Engine] Rendering Invoice on page for Order ID: ${cleanRef}`);
+
+  let orderRecord = null;
+
+  try {
+    if (window.fetchCloudOrders) {
+      const allOrders = await window.fetchCloudOrders();
+      orderRecord = allOrders.find(o => 
+        String(o.order_reference || '').toUpperCase() === cleanRef.toUpperCase() ||
+        String(o.id || '').toUpperCase() === cleanRef.toUpperCase() ||
+        String(o.order_reference || '').toUpperCase() === ('TC-' + cleanRef).toUpperCase()
+      );
+    }
+  } catch(e) {}
+
+  if (!orderRecord) {
+    try {
+      const dbRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=eq.order_${encodeURIComponent(cleanRef)}`, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      });
+      if (dbRes.ok) {
+        const dbData = await dbRes.json();
+        if (Array.isArray(dbData) && dbData[0] && dbData[0].value) {
+          orderRecord = typeof dbData[0].value === 'string' ? JSON.parse(dbData[0].value) : dbData[0].value;
+        }
+      }
+    } catch(e) {}
+  }
+
+  if (!orderRecord) {
+    try {
+      const local = JSON.parse(localStorage.getItem('tabby_orders_local') || localStorage.getItem('tabby_orders') || '[]');
+      orderRecord = local.find(x => 
+        String(x.order_reference || '').toUpperCase() === cleanRef.toUpperCase() ||
+        String(x.id || '').toUpperCase() === cleanRef.toUpperCase()
+      );
+    } catch(e) {}
+  }
+
+  if (!orderRecord) {
+    alert(`Order #${cleanRef} details loading from cloud. Please refresh in a moment.`);
+    return;
+  }
+
+  const name = orderRecord.name || 'Valued Customer';
+  const email = orderRecord.email || '';
+  const phone = orderRecord.phone || '';
+  const address = orderRecord.address || orderRecord.shipping_address || 'Address provided at checkout';
+  const displayRef = orderRecord.order_reference || orderRecord.id || cleanRef;
+  const createdDate = new Date(orderRecord.created_at || Date.now()).toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short' });
+  const paymentMethod = (orderRecord.payment_method === 'cod') ? 'Cash on Delivery' : 'Paid via Razorpay (Online)';
+  const couponUsed = orderRecord.coupon_code || orderRecord.appliedCoupon?.code || null;
+  const totalAmount = orderRecord.total || 0;
+  const subtotal = orderRecord.subtotal || totalAmount;
+  const discount = orderRecord.discount || 0;
+  const shipping = orderRecord.shipping || 0;
+
+  let items = [];
+  if (Array.isArray(orderRecord.items)) items = orderRecord.items;
+  else if (Array.isArray(orderRecord.cart)) items = orderRecord.cart;
+
+  const itemsHtml = items.map(item => `
+    <tr>
+      <td style="padding:12px 10px; border-bottom:1px solid #fce4ec; text-align:left;">
+        <strong style="color:#333; font-size:0.92rem;">${item.name || item.title || 'Handmade Charm'}</strong>
+      </td>
+      <td style="padding:12px 10px; border-bottom:1px solid #fce4ec; text-align:center; font-weight:600; color:#666;">
+        ${item.qty || item.quantity || 1}
+      </td>
+      <td style="padding:12px 10px; border-bottom:1px solid #fce4ec; text-align:right; font-weight:700; color:#d35d88;">
+        ₹${(item.price || 0) * (item.qty || item.quantity || 1)}
+      </td>
+    </tr>
+  `).join('') || `<tr><td colspan="3" style="padding:12px; text-align:center; color:#666;">Handmade Clay Product</td></tr>`;
+
+  const invoiceContainerHtml = `
+    <div style="min-height:100vh; background:#fff9fa; padding:30px 15px; font-family:'Segoe UI',Roboto,Arial,sans-serif;">
+      <div style="max-width:680px; margin:0 auto; background:#ffffff; border:2.5px solid #f47aab; border-radius:24px; padding:30px; box-shadow:0 12px 40px rgba(244,122,171,0.18);">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <a href="shop" style="display:inline-flex; align-items:center; gap:6px; color:#d35d88; font-weight:700; text-decoration:none; font-size:0.9rem;">← Back to Shop</a>
+          <button onclick="window.print()" style="background:#f47aab; color:#fff; border:none; padding:10px 22px; border-radius:50px; font-weight:700; cursor:pointer; font-size:0.88rem; box-shadow:0 4px 15px rgba(244,122,171,0.35);">🖨️ Save as PDF / Print</button>
+        </div>
+
+        <div style="text-align:center; margin-bottom:20px;">
+          <img src="https://tabbychaser.store/09-10-.png" alt="Tabby Chaser Mascot" style="width:120px; height:120px; border-radius:20px; object-fit:contain;" />
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #f47aab; padding-bottom:16px; margin-bottom:20px;">
+          <div>
+            <h1 style="font-size:1.7rem; font-weight:800; color:#d35d88; margin:0;">🐾 Tabby Chaser</h1>
+            <div style="font-size:0.82rem; color:#777; margin-top:4px;">Handcrafted Cold Porcelain Clay Charms &amp; Desk Pals<br/>tabbychaser2@gmail.com • +91 7996 545 772</div>
+          </div>
+          <div style="text-align:right;">
+            <h2 style="font-size:1.35rem; font-weight:800; color:#333; margin:0;">TAX INVOICE</h2>
+            <div style="font-size:0.95rem; font-weight:700; color:#d35d88; margin-top:4px;">#${displayRef}</div>
+            <div style="font-size:0.8rem; color:#666; margin-top:4px;">Date: ${createdDate}</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; gap:20px; margin-bottom:24px; font-size:0.88rem; line-height:1.6; background:#fff0f5; padding:18px; border-radius:16px; border:1px solid #fce4ec;">
+          <div>
+            <strong style="color:#d35d88;">BILLED / SHIPPED TO:</strong><br/>
+            <span style="font-size:1rem; font-weight:700; color:#333;">${name}</span><br/>
+            ${email ? `${email}<br/>` : ''}
+            ${phone ? `${phone}<br/>` : ''}
+            ${address}
+            ${couponUsed ? `<br/><span style="color:#d35d88; font-weight:700;">Coupon Applied: ${couponUsed}</span>` : ''}
+          </div>
+          <div style="text-align:right;">
+            <strong style="color:#d35d88;">PAYMENT INFORMATION:</strong><br/>
+            Status: <span style="color:#2e7d32; font-weight:700;">Paid ✅</span><br/>
+            Method: ${paymentMethod}<br/>
+            Order Ref: #${displayRef}
+          </div>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:0.88rem;">
+          <thead>
+            <tr>
+              <th style="background:#fff0f5; color:#d35d88; padding:10px; text-align:left; border-bottom:2px solid #f47aab; text-transform:uppercase; font-size:0.8rem;">ITEM DESCRIPTION</th>
+              <th style="background:#fff0f5; color:#d35d88; padding:10px; text-align:center; border-bottom:2px solid #f47aab; text-transform:uppercase; font-size:0.8rem;">QTY</th>
+              <th style="background:#fff0f5; color:#d35d88; padding:10px; text-align:right; border-bottom:2px solid #f47aab; text-transform:uppercase; font-size:0.8rem;">AMOUNT</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+
+        <div style="text-align:right; margin-top:15px; font-size:0.9rem; line-height:1.8;">
+          <div style="display:flex; justify-content:flex-end; gap:40px; color:#555;"><span>Subtotal:</span><span>₹${subtotal}</span></div>
+          ${discount > 0 ? `<div style="display:flex; justify-content:flex-end; gap:40px; color:#d35d88;"><span>Discount:</span><span>-₹${discount}</span></div>` : ''}
+          <div style="display:flex; justify-content:flex-end; gap:40px; color:#555;"><span>Shipping:</span><span>${shipping > 0 ? `₹${shipping}` : 'FREE 🚚'}</span></div>
+          <div style="display:flex; justify-content:flex-end; gap:40px; font-size:1.2rem; font-weight:800; color:#d35d88; border-top:1.5px dashed #f47aab; padding-top:8px; margin-top:8px;"><span>Total Paid:</span><span>₹${totalAmount}</span></div>
+        </div>
+
+        <div style="background:#fff0f5; border:1.5px dashed #f47aab; border-radius:18px; padding:20px; text-align:center; margin-top:25px;">
+          <h3 style="margin:0 0 6px 0; color:#d35d88; font-size:1.25rem; font-weight:800;">thank you! 💕</h3>
+          <p style="margin:4px 0; font-size:0.88rem; color:#555;">Thank you for supporting my small handmade business.</p>
+          <p style="margin:4px 0; font-size:0.88rem; color:#555;">Each order means the world to me.</p>
+          <p style="font-weight:700; color:#d35d88; margin-top:8px;">Happy shopping!<br/>- Tabby Chaser</p>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  if (targetContainerId && document.getElementById(targetContainerId)) {
+    document.getElementById(targetContainerId).innerHTML = invoiceContainerHtml;
+  } else {
+    document.body.innerHTML = invoiceContainerHtml;
+  }
 };

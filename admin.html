@@ -3426,16 +3426,11 @@
   }
 
   function printInvoice(id) {
-    const order = allOrders.find(o => o.id === id || o.order_reference === id);
-    if (!order) {
+    if (window.downloadOrderInvoicePDF) {
+      window.downloadOrderInvoicePDF(id);
+    } else {
       alert("Order details not found for printing invoice.");
-      return;
     }
-    const win = window.open('', '_blank');
-    win.document.write(generateOrderInvoiceHTML(order));
-    win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); }, 500);
   }
 </script>
 

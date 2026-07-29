@@ -546,6 +546,7 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="email-service.js"></script>
 
   <script src="app.js"></script>
   
@@ -709,9 +710,14 @@
         orders = [...localAll, ...userLocal];
       } catch(e) {}
 
-      // 2. Fetch from Supabase orders table
+      // 2. Fetch from Supabase Cloud DB & Cloud Settings
       try {
-        if (window.supabaseClient && userEmail) {
+        if (window.fetchCloudOrders) {
+          const cloudOrders = await window.fetchCloudOrders();
+          if (Array.isArray(cloudOrders) && cloudOrders.length > 0) {
+            orders = [...cloudOrders, ...orders];
+          }
+        } else if (window.supabaseClient && userEmail) {
           const { data } = await window.supabaseClient
             .from('orders')
             .select('*')

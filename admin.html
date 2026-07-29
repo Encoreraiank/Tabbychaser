@@ -780,10 +780,10 @@
         <div style="overflow-x:auto;">
           <table>
             <thead>
-              <tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Expiry</th><th>Active</th><th>Actions</th></tr>
+              <tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Expiry</th><th>Usage</th><th>Created Date</th><th>Active</th><th>Actions</th></tr>
             </thead>
             <tbody id="couponsTableBody">
-              <tr><td colspan="7" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
+              <tr><td colspan="9" style="text-align:center;padding:30px;"><div class="spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -1381,17 +1381,23 @@
       localOrders = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
     } catch(e) {}
 
-    const rawCombined = [...cloudOrders, ...dbOrders, ...(Array.isArray(localOrders) ? localOrders : [])].filter(o => o && (o.order_reference || o.id));
+    // Order of precedence: local storage first, then dbOrders, then cloudOrders (cloud data wins!)
+    const rawCombined = [...(Array.isArray(localOrders) ? localOrders : []), ...dbOrders, ...cloudOrders].filter(o => o && (o.order_reference || o.id));
     const combinedMap = new Map();
     rawCombined.forEach(o => {
-      const refKey = (o.order_reference || o.id || '').toString();
+      // Normalize key by stripping non-alphanumeric except hyphens so ord_123 and TC-123 map accurately
+      const refKey = (o.order_reference || o.id || '').toString().trim();
       if (refKey) {
         const existing = combinedMap.get(refKey);
         if (!existing) {
           combinedMap.set(refKey, o);
         } else {
+          // Cloud data (later in array) overwrites older local status unless local object has explicit newer updated_at
+          const exTime = new Date(existing.updated_at || existing.created_at || 0).getTime();
+          const curTime = new Date(o.updated_at || o.created_at || 0).getTime();
+          const winner = (curTime >= exTime) ? { ...existing, ...o } : { ...o, ...existing };
           const mergedCoupon = o.coupon_code || existing.coupon_code || o.coupon || existing.coupon || null;
-          combinedMap.set(refKey, { ...existing, ...o, coupon_code: mergedCoupon });
+          combinedMap.set(refKey, { ...winner, coupon_code: mergedCoupon });
         }
       }
     });
@@ -1418,12 +1424,12 @@
       const name = (o.name || '').toString().toLowerCase();
       const email = (o.email || '').toString().toLowerCase();
       const matchesQuery = !query || ref.includes(query) || name.includes(query) || email.includes(query);
-      const matchesStatus = !statusFilter || (o.status || 'pending') === statusFilter;
+      const matchesStatus = !statusFilter || (o.status || 'pending').toLowerCase() === statusFilter.toLowerCase();
       return matchesQuery && matchesStatus;
     });
 
     const badgeEl = document.getElementById('badgeOrders');
-    if (badgeEl) badgeEl.textContent = allOrders.filter(o => o && o.status === 'pending').length;
+    if (badgeEl) badgeEl.textContent = allOrders.filter(o => o && (o.status === 'pending' || o.status === 'paid')).length;
 
     const tbody = document.getElementById('ordersTableBody');
     if (!tbody) return;
@@ -1461,7 +1467,8 @@
           <td>
             <select class="form-control" style="font-size:0.75rem;padding:3px 6px;" onchange="updateOrderStatus('${refStr}', this.value)">
               ${['pending','paid','confirmed','making','packed','shipped','delivered','cancelled'].map(s => {
-                const isSel = (o.status || 'pending').toLowerCase() === s.toLowerCase() || (s === 'confirmed' && o.status === 'paid');
+                const currentStatus = (o.status || 'pending').toLowerCase();
+                const isSel = currentStatus === s.toLowerCase() || (s === 'confirmed' && currentStatus === 'paid');
                 return `<option value="${s}" ${isSel ? 'selected' : ''}>${s === 'paid' ? 'Paid / Confirmed' : s.charAt(0).toUpperCase() + s.slice(1)}</option>`;
               }).join('')}
             </select>
@@ -1494,6 +1501,15 @@
       if (o.order_reference) keysToSave.push('order_' + o.order_reference.replace('#', ''));
       if (o.id) keysToSave.push('order_' + o.id.replace('#', ''));
       keysToSave.push('order_' + String(id).replace('#', ''));
+
+      // Update local storage first so fast polling doesn't overwrite
+      try {
+        const local = JSON.parse(localStorage.getItem('tabby_orders_local') || '[]');
+        const locIdx = local.findIndex(x => String(x.id) === String(id) || String(x.order_reference) === String(id));
+        if (locIdx >= 0) local[locIdx] = o;
+        else local.push(o);
+        localStorage.setItem('tabby_orders_local', JSON.stringify(local));
+      } catch(e) {}
 
       // 1. Save to Cloud Settings across all key aliases
       try {
@@ -2561,26 +2577,54 @@
     } catch(e) {}
 
     const code = `THANKYOU15-${Math.floor(1000 + Math.random() * 9000)}`;
+    const expiryDate = new Date(Date.now() + 45 * 24 * 60 * 60 * 1000); // 45 days from today
+    const expiryIso = expiryDate.toISOString();
+    const expiryDateStr = expiryDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
     const couponObj = {
       code: code,
+      type: 'percent',
       discount_type: 'percent',
+      value: 15,
       discount_value: 15,
+      min_order_value: 0,
       min_order_amount: 0,
       usage_limit: 1,
+      limit: 1,
+      used_count: 0,
+      expiry: expiryIso,
       active: true,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
+
     try {
-      const existingCoupons = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
-      existingCoupons.push(couponObj);
-      localStorage.setItem('tabby_coupons_local', JSON.stringify(existingCoupons));
+      const client = await db();
+      if (client) {
+        await client.from('coupons').upsert(couponObj);
+      }
+    } catch(e) {}
+
+    try {
       await window.saveCloudSetting('coupon_' + code, couponObj);
     } catch(e) {}
+
+    try {
+      const existingCoupons = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
+      const idx = existingCoupons.findIndex(x => String(x.code).toUpperCase() === code);
+      if (idx >= 0) existingCoupons[idx] = couponObj;
+      else existingCoupons.push(couponObj);
+      localStorage.setItem('tabby_coupons_local', JSON.stringify(existingCoupons));
+    } catch(e) {}
+
+    // Reload coupons table so it instantly shows up on Coupons tab!
+    loadCoupons();
 
     const waMsg = encodeURIComponent(
       `Hi ${r.customer_name || 'Valued Customer'} 👋\n\n` +
       `Your review for ${r.product_name || 'Handmade Charm'} has been approved and is now live on our website! ✨\n\n` +
-      `Here is your exclusive 15% OFF coupon code for your next order: ${code}\n\n` +
+      `Here is your exclusive 15% OFF coupon code for your next order: ${code}\n` +
+      `📌 Valid for single use only • Expires in 45 days (${expiryDateStr}).\n\n` +
       `Thank you for supporting our handmade business! ❤️\nhttps://tabbychaser.store`
     );
 
@@ -2977,6 +3021,18 @@
         } catch(e) { expiryFormatted = c.expiry; }
       }
 
+      let createdFormatted = '—';
+      if (c.created_at) {
+        try {
+          const cd = new Date(c.created_at);
+          if (!isNaN(cd.getTime())) {
+            createdFormatted = cd.toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });
+          } else {
+            createdFormatted = c.created_at;
+          }
+        } catch(e) { createdFormatted = c.created_at; }
+      }
+
       const valStr = (c.discount_type === 'percent' || c.type === 'percent')
         ? `${c.discount_value || c.value || 0}%` 
         : fmtINR(c.discount_value || c.value || 0);
@@ -2994,6 +3050,7 @@
           <td>${fmtINR(minVal)}</td>
           <td style="font-size:0.8rem;color:#555;">${expiryFormatted}</td>
           <td style="font-weight:700;color:var(--pink);">${usageStr}</td>
+          <td style="font-size:0.8rem;color:#666;">${createdFormatted}</td>
           <td>${c.active !== false ? '✅' : '❌'}</td>
           <td>
             <div style="display:flex;gap:6px;">
@@ -3003,7 +3060,7 @@
           </td>
         </tr>
       `;
-    }).join('') : `<tr><td colspan="8" style="text-align:center;padding:20px;color:#888;">No coupons created yet</td></tr>`;
+    }).join('') : `<tr><td colspan="9" style="text-align:center;padding:20px;color:#888;">No coupons created yet</td></tr>`;
   }
 
   function openCouponModal(code = null) {
@@ -3068,6 +3125,7 @@
       used_count: existing?.used_count || 0,
       expiry: expiryVal,
       active: true,
+      created_at: existing?.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 

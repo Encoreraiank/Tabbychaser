@@ -1098,6 +1098,7 @@
   <!-- scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="email-service.js"></script>
 
   <script src="app.js"></script>
   <script>
@@ -1795,124 +1796,15 @@
     function sendOrderConfirmationEmail(orderObj) {
       if (!orderObj) return;
 
-      const custName = orderObj.name || 'Valued Customer';
-      const custEmail = orderObj.email || '';
-      const orderId = orderObj.order_reference || orderObj.id || 'TC-100';
-      const formattedDate = new Date(orderObj.created_at || Date.now()).toLocaleString('en-IN', {
-        dateStyle: 'full',
-        timeStyle: 'short'
-      });
+      console.log('✉️ Triggering Production Resend Email Dispatcher for order:', orderObj.order_reference || orderObj.id);
 
-      let rawItems = [];
-      if (Array.isArray(orderObj.items)) rawItems = orderObj.items;
-      else if (Array.isArray(orderObj.cart)) rawItems = orderObj.cart;
-      
-      const productNames = rawItems.map(i => `${i.name || i.title || 'Product'} (x${i.qty || i.quantity || 1})`).join(', ') || 'Handmade Clay Charm';
-      const totalAmt = orderObj.total || 0;
-
-      const emailSubject = `Order Confirmed! - #${orderId} | Tabby Chaser`;
-      
-      const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #fff9fa; margin: 0; padding: 20px; color: #333; }
-            .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 20px; border: 1.5px solid #f47aab; padding: 24px; box-shadow: 0 10px 30px rgba(244,122,171,0.15); }
-            .header-img { width: 100%; max-width: 220px; display: block; margin: 0 auto 16px auto; border-radius: 12px; }
-            .title { font-size: 1.5rem; font-weight: 800; color: #d35d88; text-align: center; margin-bottom: 6px; }
-            .subtitle { font-size: 0.9rem; color: #666; text-align: center; margin-bottom: 20px; }
-            .info-box { background: #fff0f5; border-radius: 14px; padding: 16px; margin-bottom: 20px; font-size: 0.88rem; line-height: 1.6; }
-            .info-box strong { color: #d35d88; }
-            .order-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.88rem; }
-            .order-table th { background: #fff0f5; padding: 10px; text-align: left; color: #d35d88; border-bottom: 2px solid #f47aab; }
-            .order-table td { padding: 10px; border-bottom: 1px solid #eee; }
-            .total-row { font-size: 1.1rem; font-weight: 800; color: #d35d88; text-align: right; margin-bottom: 24px; }
-            .thankyou-card { background: #fff0f5; border: 1.5px dashed #f47aab; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 24px; }
-            .thankyou-card h3 { margin: 0 0 10px 0; font-size: 1.3rem; color: #d35d88; }
-            .thankyou-card p { margin: 6px 0; font-size: 0.9rem; color: #555; line-height: 1.5; }
-            .btn-download { display: inline-block; background: #f47aab; color: #ffffff !important; padding: 12px 28px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.95rem; text-align: center; box-shadow: 0 4px 15px rgba(244,122,171,0.4); }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <img src="https://tabbychaser.store/add-to-cart.jpg" alt="Tabby Chaser Mascot" class="header-img" />
-            <div class="title">Order Confirmed! 💖</div>
-            <div class="subtitle">Thank you for shopping with us.</div>
-
-            <div class="info-box">
-              <strong>Hi ${custName},</strong><br/>
-              Your payment has been successfully received and your order has been confirmed!<br/>
-              <strong>Date &amp; Time:</strong> ${formattedDate}<br/>
-              <strong>Order Reference:</strong> #${orderId}
-            </div>
-
-            <table class="order-table">
-              <thead>
-                <tr>
-                  <th>Product Name</th>
-                  <th style="text-align:center;">Qty</th>
-                  <th style="text-align:right;">Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rawItems.map(i => `
-                  <tr>
-                    <td>${i.name || i.title || 'Handmade Charm'}</td>
-                    <td style="text-align:center;">${i.qty || i.quantity || 1}</td>
-                    <td style="text-align:right;">₹${i.price || 0}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-
-            <div class="total-row">Total Amount Paid: ₹${totalAmt}</div>
-
-            <div class="thankyou-card">
-              <h3>thank you! 💕</h3>
-              <p>Thank you for supporting my small handmade business.</p>
-              <p>Each order means the world to me.</p>
-              <p style="font-weight:700; color:#d35d88; margin-top:12px;">Happy shopping!<br/>- Tabby Chaser</p>
-            </div>
-
-            <div style="text-align: center;">
-              <a href="https://tabbychaser.store/checkout?action=invoice&id=${orderId}" class="btn-download">🧾 Download Invoice (PDF)</a>
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
-
-      console.log('✉️ Rendered Email with Top Header & Thank You Card for:', custEmail);
-
-      if (custEmail) {
-        try {
-          fetch('https://api.web3forms.com/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({
-              access_key: '5561a0b3-90d1-447a-8b1e-7b70ff9989a6',
-              subject: emailSubject,
-              from_name: 'Tabby Chaser Store',
-              to: custEmail,
-              email: custEmail,
-              name: custName,
-              message: `Hi ${custName},\n\nOrder Confirmed! 💖\nThank you for shopping with us.\n\nORDER DETAILS:\n- Order ID: #${orderId}\n- Date & Time: ${formattedDate}\n- Products: ${productNames}\n- Total Paid: ₹${totalAmt}\n\nTHANK YOU!\nThank you for supporting my small handmade business. Each order means the world to me.\nHappy shopping!\n- Tabby Chaser\n\nDownload Invoice (PDF): https://tabbychaser.store/checkout?action=invoice&id=${orderId}`
-            })
-          }).catch(err => console.warn('Email dispatch warning:', err));
-        } catch(e) {}
-      }
-      
-      try {
-        window.saveCloudSetting('email_log_' + orderId, {
-          to: custEmail,
-          subject: emailSubject,
-          body_html: emailHtml,
-          body_text: `Hi ${custName}, Order #${orderId} Confirmed! Total: ₹${totalAmt}. Thank you for shopping with Tabby Chaser!`,
-          sent_at: new Date().toISOString()
+      if (window.TabbyEmailService && window.TabbyEmailService.sendOrderConfirmation) {
+        window.TabbyEmailService.sendOrderConfirmation(orderObj).then(res => {
+          console.log('✉️ TabbyEmailService result:', res);
+        }).catch(err => {
+          console.warn('✉️ TabbyEmailService error:', err);
         });
-      } catch(e) {}
+      }
     }
 
     function downloadOrderInvoicePDF(orderId) {

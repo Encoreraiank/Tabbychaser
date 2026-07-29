@@ -1167,6 +1167,19 @@
         }
       }
 
+      // Check if action=invoice is requested from email link
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('action') === 'invoice' && urlParams.get('id')) {
+        const invId = urlParams.get('id');
+        console.log('🧾 Direct PDF Invoice Download Requested for order:', invId);
+        setTimeout(() => {
+          if (window.downloadOrderInvoicePDF) {
+            window.downloadOrderInvoicePDF(invId);
+          }
+        }, 400);
+        return; // DO NOT REDIRECT TO SHOP!
+      }
+
       // Check if cart is empty, if so redirect to shop
       const cart = window.getCart ? window.getCart() : [];
       if (cart.length === 0) {

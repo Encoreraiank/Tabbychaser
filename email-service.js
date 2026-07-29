@@ -7,7 +7,7 @@
 
   const STORE_NAME = 'Tabby Chaser';
   const STORE_URL = 'https://tabbychaser.store';
-  const MASCOT_IMG_URL = 'https://tabbychaser.store/add-to-cart.jpg';
+  const MASCOT_IMG_URL = 'https://tabbychaser.store/09-9-.jpg';
   const SUPPORT_EMAIL = 'tabbychaser2@gmail.com';
   const SUPPORT_PHONE = '+91 7996 545 772';
 
@@ -180,6 +180,61 @@
 </html>`;
     },
 
+    generateAdminOrderAlertHtml: function (orderData) {
+      const name = orderData.name || 'Customer';
+      const orderId = orderData.order_reference || orderData.id || 'TC-100000';
+      const email = orderData.email || '';
+      const phone = orderData.phone || '';
+      const address = orderData.address || 'N/A';
+      const insta = orderData.instagram || orderData.insta_handle || 'N/A';
+      const notes = orderData.notes || 'No extra notes';
+      const couponUsed = orderData.coupon_code || orderData.appliedCoupon?.code || 'None';
+      const createdDate = new Date(orderData.created_at || Date.now()).toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short' });
+      const totalAmount = orderData.total || 0;
+
+      let items = [];
+      if (Array.isArray(orderData.items)) items = orderData.items;
+      else if (Array.isArray(orderData.cart)) items = orderData.cart;
+
+      return `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:'Segoe UI',Arial,sans-serif;background:#fff9fa;padding:20px;color:#333;">
+  <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:20px;border:2px solid #f47aab;padding:24px;box-shadow:0 10px 30px rgba(244,122,171,0.15);">
+    <div style="text-align:center;margin-bottom:16px;">
+      <img src="https://tabbychaser.store/09-9-.jpg" style="width:120px;height:120px;border-radius:16px;object-fit:cover;" />
+      <h2 style="color:#d35d88;margin:10px 0 4px 0;">🎉 NEW STORE ORDER RECEIVED!</h2>
+      <div style="font-weight:700;font-size:1.1rem;color:#333;">Order #${orderId} — ₹${totalAmount}</div>
+    </div>
+
+    <div style="background:#fff0f5;border-radius:14px;padding:16px;margin-bottom:20px;line-height:1.7;font-size:0.9rem;">
+      <strong style="color:#d35d88;">👤 CUSTOMER DETAILS:</strong><br/>
+      • <strong>Name:</strong> ${name}<br/>
+      • <strong>Email:</strong> ${email}<br/>
+      • <strong>Phone:</strong> ${phone}<br/>
+      • <strong>Instagram:</strong> ${insta}<br/>
+      • <strong>Shipping Address:</strong> ${address}<br/>
+      • <strong>Coupon Code Used:</strong> ${couponUsed}<br/>
+      • <strong>Order Notes:</strong> ${notes}<br/>
+      • <strong>Date &amp; Time:</strong> ${createdDate}
+    </div>
+
+    <div style="background:#fff;border:1px solid #fce4ec;border-radius:14px;padding:16px;margin-bottom:20px;">
+      <strong style="color:#d35d88;">🛍️ ITEMS PURCHASED:</strong>
+      <ul style="margin:10px 0;padding-left:20px;line-height:1.6;font-size:0.9rem;">
+        ${items.map(i => `<li><strong>${i.name || i.title}</strong> (x${i.qty || i.quantity || 1}) - ₹${(i.price || 0) * (i.qty || i.quantity || 1)}</li>`).join('')}
+      </ul>
+      <div style="font-weight:800;font-size:1.1rem;color:#d35d88;text-align:right;margin-top:10px;border-top:1.5px dashed #f47aab;padding-top:8px;">Total Paid: ₹${totalAmount}</div>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="https://tabbychaser.store/admin" style="display:inline-block;background:#f47aab;color:#fff;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;">⚙️ View Order in Admin Panel</a>
+    </div>
+  </div>
+</body>
+</html>`;
+    },
+
     // 2. Transactional Email Dispatcher with Idempotency & Fail-Safe Logging
     sendOrderConfirmation: async function (orderData) {
       if (!orderData) return { success: false, reason: 'No order data provided' };
@@ -243,6 +298,24 @@
       } catch (err) {
         logError = err.message || 'Network error';
       }
+
+      // 2. Dispatch Store Owner Order Notification Email to tabbychaser2@gmail.com
+      try {
+        const adminSubject = `🎉 NEW STORE ORDER RECEIVED! - #${orderId} (₹${orderData.total || 0})`;
+        const adminHtml = this.generateAdminOrderAlertHtml(orderData);
+        fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'admin_order_notification',
+            orderId: `admin_${orderId}_${Date.now()}`,
+            to: SUPPORT_EMAIL,
+            subject: adminSubject,
+            html: adminHtml,
+            orderData: orderData
+          })
+        }).catch(err => console.warn('[Admin Alert Email Dispatch Warning]', err));
+      } catch(e) {}
 
       // Requirement 5 & 6: Log status to Cloud Settings & mark Idempotency
       if (sentSuccess) {

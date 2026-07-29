@@ -2990,12 +2990,19 @@
     });
 
     const local = JSON.parse(localStorage.getItem('tabby_coupons_local') || '[]');
-    const combined = [...data, ...settingsCoupons, ...local];
+    // Order: local storage first, then Postgres data, then Cloud Settings (fresh cloud data wins!)
+    const combined = [...local, ...data, ...settingsCoupons];
     const map = new Map();
     combined.forEach(c => {
       if (c && (c.code || c.id)) {
         const key = (c.code || c.id).toString().toUpperCase();
-        map.set(key, c);
+        const existing = map.get(key);
+        if (!existing) {
+          map.set(key, c);
+        } else {
+          // Cloud data (later in array) overwrites older local status
+          map.set(key, { ...existing, ...c });
+        }
       }
     });
 

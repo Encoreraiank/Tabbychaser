@@ -1482,14 +1482,53 @@
   }
 
   async function updateOrderStatus(id, status) {
-    const client = await db();
-    await client.from('orders').update({ status }).eq('id', id);
-    loadOrders();
+    console.log(`[Admin] Updating status for order ${id} to ${status}`);
+    
+    const o = allOrders.find(x => x.id === id || x.order_reference === id);
+    if (o) {
+      o.status = status;
+      o.updated_at = new Date().toISOString();
+      const refStr = (o.order_reference || o.id || id).toString().replace('#', '');
+      
+      try {
+        if (window.saveCloudSetting) {
+          await window.saveCloudSetting('order_' + refStr, o);
+        }
+      } catch(e) {}
+
+      try {
+        const client = await db();
+        if (client) {
+          await client.from('orders').upsert(o);
+        }
+      } catch(e) {}
+    }
+
+    renderOrders();
   }
 
   async function updateTracking(id, tracking_id) {
-    const client = await db();
-    await client.from('orders').update({ tracking_id }).eq('id', id);
+    console.log(`[Admin] Updating tracking for order ${id} to ${tracking_id}`);
+    
+    const o = allOrders.find(x => x.id === id || x.order_reference === id);
+    if (o) {
+      o.tracking_id = tracking_id;
+      o.updated_at = new Date().toISOString();
+      const refStr = (o.order_reference || o.id || id).toString().replace('#', '');
+      
+      try {
+        if (window.saveCloudSetting) {
+          await window.saveCloudSetting('order_' + refStr, o);
+        }
+      } catch(e) {}
+
+      try {
+        const client = await db();
+        if (client) {
+          await client.from('orders').upsert(o);
+        }
+      } catch(e) {}
+    }
   }
 
   function openAddOrderModal() {

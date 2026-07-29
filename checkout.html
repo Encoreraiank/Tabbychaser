@@ -1152,12 +1152,33 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Check if action=invoice is requested from email link
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      const invId = urlParams.get('id');
+
+      if (action === 'invoice' || invId) {
+        console.log('🧾 On-Page PDF Invoice Requested for order:', invId);
+        // Hide checkout form wrapper immediately
+        const wrap = document.querySelector('.checkout-container') || document.querySelector('main');
+        if (wrap) wrap.style.display = 'none';
+
+        if (window.renderInvoiceOnPage) {
+          await window.renderInvoiceOnPage(invId);
+        } else {
+          setTimeout(async () => {
+            if (window.renderInvoiceOnPage) await window.renderInvoiceOnPage(invId);
+          }, 300);
+        }
+        return; // DO NOT EXECUTE ANY CHECKOUT OR EMPTY CART CHECKS!
+      }
+
       // Load user session details if logged in
       const session = JSON.parse(localStorage.getItem('tabby_user_session'));
       const noteEl = document.getElementById('checkoutSignedInNote');
       if (session && session.loggedIn) {
-        document.getElementById('checkoutName').value = session.name || '';
-        document.getElementById('checkoutEmail').value = session.email || '';
+        if (document.getElementById('checkoutName')) document.getElementById('checkoutName').value = session.name || '';
+        if (document.getElementById('checkoutEmail')) document.getElementById('checkoutEmail').value = session.email || '';
         if (noteEl) {
           noteEl.innerHTML = `Signed in as <strong>${session.name}</strong> (${session.email}). Order confirmation email will be sent to this address.`;
         }
@@ -1165,19 +1186,6 @@
         if (noteEl) {
           noteEl.textContent = 'Complete the form below to place your order.';
         }
-      }
-
-      // Check if action=invoice is requested from email link
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('action') === 'invoice' && urlParams.get('id')) {
-        const invId = urlParams.get('id');
-        console.log('🧾 On-Page PDF Invoice Requested for order:', invId);
-        setTimeout(() => {
-          if (window.renderInvoiceOnPage) {
-            window.renderInvoiceOnPage(invId);
-          }
-        }, 200);
-        return; // DO NOT LOAD CHECKOUT OR REDIRECT TO SHOP!
       }
 
       // Check if cart is empty, if so redirect to shop

@@ -482,25 +482,31 @@ window.downloadOrderInvoicePDF = async function(orderId) {
 window.renderInvoiceOnPage = async function(orderId, targetContainerId = null) {
   if (!orderId) return;
 
-  const cleanRef = String(orderId).replace('#', '').trim();
-  console.log(`[Invoice Engine] Rendering Invoice on page for Order ID: ${cleanRef}`);
+  const rawStr = String(orderId).trim();
+  const digitsOnly = rawStr.replace(/[^0-9]/g, '');
+  console.log(`[Invoice Engine] Rendering Invoice on page for Order ID: ${rawStr} (digits: ${digitsOnly})`);
 
   let orderRecord = null;
 
+  // 1. Fetch from Cloud DB & Cloud Settings via fetchCloudOrders
   try {
     if (window.fetchCloudOrders) {
       const allOrders = await window.fetchCloudOrders();
-      orderRecord = allOrders.find(o => 
-        String(o.order_reference || '').toUpperCase() === cleanRef.toUpperCase() ||
-        String(o.id || '').toUpperCase() === cleanRef.toUpperCase() ||
-        String(o.order_reference || '').toUpperCase() === ('TC-' + cleanRef).toUpperCase()
-      );
+      orderRecord = allOrders.find(o => {
+        if (!o) return false;
+        const refStr = String(o.order_reference || o.id || '');
+        const refDigits = refStr.replace(/[^0-9]/g, '');
+        return (digitsOnly && refDigits === digitsOnly) ||
+               refStr.toUpperCase() === rawStr.toUpperCase() ||
+               refStr.toUpperCase() === ('TC-' + rawStr).toUpperCase();
+      });
     }
   } catch(e) {}
 
-  if (!orderRecord) {
+  // 2. Fallback to direct DB setting query for order_TC-XXXXXX
+  if (!orderRecord && digitsOnly) {
     try {
-      const dbRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=eq.order_${encodeURIComponent(cleanRef)}`, {
+      const dbRes = await fetch(`${SUPABASE_URL}/rest/v1/site_settings?key=ilike.order_%${encodeURIComponent(digitsOnly)}%`, {
         headers: {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`

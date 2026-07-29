@@ -1459,20 +1459,21 @@
           <td>${couponBadge}</td>
           <td style="font-weight:700;">${fmtINR(totalVal)}</td>
           <td>
-            <select class="form-control" style="font-size:0.75rem;padding:3px 6px;" onchange="updateOrderStatus('${o.id || refStr}', this.value)">
-              ${['pending','confirmed','making','packed','shipped','delivered','cancelled'].map(s =>
-                `<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`
-              ).join('')}
+            <select class="form-control" style="font-size:0.75rem;padding:3px 6px;" onchange="updateOrderStatus('${refStr}', this.value)">
+              ${['pending','paid','confirmed','making','packed','shipped','delivered','cancelled'].map(s => {
+                const isSel = (o.status || 'pending').toLowerCase() === s.toLowerCase() || (s === 'confirmed' && o.status === 'paid');
+                return `<option value="${s}" ${isSel ? 'selected' : ''}>${s === 'paid' ? 'Paid / Confirmed' : s.charAt(0).toUpperCase() + s.slice(1)}</option>`;
+              }).join('')}
             </select>
           </td>
           <td>
-            <input type="text" class="form-control" placeholder="Tracking #" value="${o.tracking_id || ''}" style="font-size:0.75rem;padding:3px 6px;" onchange="updateTracking('${o.id || refStr}', this.value)" />
+            <input type="text" class="form-control" placeholder="Tracking #" value="${o.tracking_id || ''}" style="font-size:0.75rem;padding:3px 6px;" onchange="updateTracking('${refStr}', this.value)" />
           </td>
           <td style="font-size:0.75rem;">${dateStr}</td>
           <td>
             <div style="display:flex; gap:6px; flex-wrap:nowrap;">
-              <button class="btn btn-outline btn-sm" onclick="printInvoice('${o.id || refStr}')" style="padding:3px 8px; font-size:0.75rem;">🧾 Invoice</button>
-              ${(o.status === 'delivered') ? `<button class="btn btn-sm" style="background:#0288d1; color:#fff; padding:3px 8px; font-size:0.75rem; border-radius:6px; font-weight:700; border:none; cursor:pointer;" onclick="requestOrderReview('${o.id || refStr}')" title="Generate Token & Request Review via WhatsApp">⭐ Review Link</button>` : ''}
+              <button class="btn btn-outline btn-sm" onclick="printInvoice('${refStr}')" style="padding:3px 8px; font-size:0.75rem;">🧾 Invoice</button>
+              ${(o.status === 'delivered') ? `<button class="btn btn-sm" style="background:#0288d1; color:#fff; padding:3px 8px; font-size:0.75rem; border-radius:6px; font-weight:700; border:none; cursor:pointer;" onclick="requestOrderReview('${refStr}')" title="Generate Token & Request Review via WhatsApp">⭐ Review Link</button>` : ''}
               ${rawDigits ? `<a href="${waUrl}" target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff; padding:3px 8px; font-size:0.75rem; text-decoration:none; border-radius:6px; font-weight:700;">📲 WhatsApp</a>` : ''}
             </div>
           </td>
@@ -1484,18 +1485,26 @@
   async function updateOrderStatus(id, status) {
     console.log(`[Admin] Updating status for order ${id} to ${status}`);
     
-    const o = allOrders.find(x => x.id === id || x.order_reference === id);
+    const o = allOrders.find(x => String(x.id) === String(id) || String(x.order_reference) === String(id) || String(x.orderRef) === String(id));
     if (o) {
       o.status = status;
       o.updated_at = new Date().toISOString();
-      const refStr = (o.order_reference || o.id || id).toString().replace('#', '');
-      
+
+      const keysToSave = [];
+      if (o.order_reference) keysToSave.push('order_' + o.order_reference.replace('#', ''));
+      if (o.id) keysToSave.push('order_' + o.id.replace('#', ''));
+      keysToSave.push('order_' + String(id).replace('#', ''));
+
+      // 1. Save to Cloud Settings across all key aliases
       try {
         if (window.saveCloudSetting) {
-          await window.saveCloudSetting('order_' + refStr, o);
+          for (const k of [...new Set(keysToSave)]) {
+            await window.saveCloudSetting(k, o);
+          }
         }
       } catch(e) {}
 
+      // 2. Save to Supabase orders table
       try {
         const client = await db();
         if (client) {
@@ -1510,15 +1519,21 @@
   async function updateTracking(id, tracking_id) {
     console.log(`[Admin] Updating tracking for order ${id} to ${tracking_id}`);
     
-    const o = allOrders.find(x => x.id === id || x.order_reference === id);
+    const o = allOrders.find(x => String(x.id) === String(id) || String(x.order_reference) === String(id) || String(x.orderRef) === String(id));
     if (o) {
       o.tracking_id = tracking_id;
       o.updated_at = new Date().toISOString();
-      const refStr = (o.order_reference || o.id || id).toString().replace('#', '');
-      
+
+      const keysToSave = [];
+      if (o.order_reference) keysToSave.push('order_' + o.order_reference.replace('#', ''));
+      if (o.id) keysToSave.push('order_' + o.id.replace('#', ''));
+      keysToSave.push('order_' + String(id).replace('#', ''));
+
       try {
         if (window.saveCloudSetting) {
-          await window.saveCloudSetting('order_' + refStr, o);
+          for (const k of [...new Set(keysToSave)]) {
+            await window.saveCloudSetting(k, o);
+          }
         }
       } catch(e) {}
 

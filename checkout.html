@@ -1819,15 +1819,6 @@
         });
       }
     }
-
-    function downloadOrderInvoicePDF(orderId) {
-      if (window.downloadOrderInvoicePDF && window.downloadOrderInvoicePDF !== downloadOrderInvoicePDF) {
-        window.downloadOrderInvoicePDF(orderId);
-      } else {
-        alert('Generating PDF Invoice...');
-        window.print();
-      }
-    }
   </script>
 </body>
 </html>

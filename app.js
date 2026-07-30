@@ -323,15 +323,22 @@ window.renderCartItems = function () {
   // Shipping calculation for Cart Drawer
   const siteSettings = JSON.parse(localStorage.getItem('tabby_site_settings') || '{}');
   let stdFee = 59;
-  if (siteSettings.standard_shipping_fee !== undefined && siteSettings.standard_shipping_fee !== null && siteSettings.standard_shipping_fee !== '') {
+  let freeThreshold = 2000;
+
+  if (window.cloudShippingFee !== undefined && window.cloudShippingFee !== null) {
+    stdFee = parseInt(window.cloudShippingFee);
+  } else if (siteSettings.standard_shipping_fee !== undefined && siteSettings.standard_shipping_fee !== null && siteSettings.standard_shipping_fee !== '') {
     stdFee = parseInt(siteSettings.standard_shipping_fee);
   } else if (siteSettings.shipping_fees !== undefined && siteSettings.shipping_fees !== null && siteSettings.shipping_fees !== '') {
     stdFee = parseInt(siteSettings.shipping_fees);
-  } else if (window.cloudShippingFee !== undefined && window.cloudShippingFee !== null && window.cloudShippingFee > 0) {
-    stdFee = parseInt(window.cloudShippingFee);
   }
 
-  const freeThreshold = parseInt(siteSettings.free_shipping_threshold || '2000');
+  if (window.cloudFreeThreshold !== undefined && window.cloudFreeThreshold !== null) {
+    freeThreshold = parseInt(window.cloudFreeThreshold);
+  } else if (siteSettings.free_shipping_threshold !== undefined && siteSettings.free_shipping_threshold !== null && siteSettings.free_shipping_threshold !== '') {
+    freeThreshold = parseInt(siteSettings.free_shipping_threshold);
+  }
+
   const shipping = (subtotal >= freeThreshold || (appliedCoupon && appliedCoupon.type === 'free_shipping')) ? 0 : stdFee;
 
   const total = Math.max(0, subtotal - discount + shipping);

@@ -60,8 +60,18 @@ window.fetchCloudSettings = async function() {
       window.cloudShippingFee = parseInt(settingsMap.standard_shipping_fee);
     } else if (settingsMap.shipping_fees !== undefined) {
       window.cloudShippingFee = parseInt(settingsMap.shipping_fees);
-    } else {
-      window.cloudShippingFee = 0;
+    }
+
+    if (settingsMap.free_shipping_threshold !== undefined) {
+      window.cloudFreeThreshold = parseInt(settingsMap.free_shipping_threshold);
+    }
+
+    try {
+      localStorage.setItem('tabby_site_settings', JSON.stringify(settingsMap));
+    } catch(e) {}
+
+    if (window.renderCartItems) {
+      try { window.renderCartItems(); } catch(e) {}
     }
 
     return settingsMap;

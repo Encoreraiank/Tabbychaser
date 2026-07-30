@@ -1765,7 +1765,7 @@
       // Trigger Automatic Email Log
       try { sendOrderConfirmationEmail(orderRecord); } catch(e) {}
 
-      let methodText = method === 'upi' ? 'Online UPI payment verified successfully.' : 'Cash on Delivery order placed successfully.';
+      let methodText = 'Your order has been placed!';
 
       container.innerHTML = `
         <div class="checkout-card checkout-success-view" style="max-width: 600px; margin: 0 auto; width: 100%;">

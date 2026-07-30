@@ -692,6 +692,18 @@
 
         try {
           if (window.fbq) fbq('track', 'ViewContent', { content_ids: [loadedProduct.id], content_name: loadedProduct.name, value: loadedProduct.price, currency: 'INR' });
+          if (typeof window.gtag === 'function') {
+            window.gtag('event', 'view_item', {
+              currency: 'INR',
+              value: parseFloat(loadedProduct.price),
+              items: [{
+                item_id: loadedProduct.id || loadedProduct.name,
+                item_name: loadedProduct.name,
+                price: parseFloat(loadedProduct.price),
+                quantity: 1
+              }]
+            });
+          }
         } catch(e) {}
       })();
     });

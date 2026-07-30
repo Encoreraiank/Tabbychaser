@@ -155,6 +155,18 @@ window.addGlobalCartItem = function (name, price, img, quantity = 1) {
   window.saveCart(cart);
   try {
     if (window.fbq) fbq('track', 'AddToCart', { content_name: name, value: parseInt(price) * addQty, currency: 'INR' });
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'add_to_cart', {
+        currency: 'INR',
+        value: parseInt(price) * addQty,
+        items: [{
+          item_id: name,
+          item_name: name,
+          price: parseInt(price),
+          quantity: addQty
+        }]
+      });
+    }
   } catch(e) {}
   window.toggleCartDrawer(true);
 };

@@ -1201,6 +1201,19 @@
 
       try {
         if (window.fbq) fbq('track', 'InitiateCheckout', { value: checkoutTotal, currency: 'INR', num_items: cart.length });
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', 'begin_checkout', {
+            currency: 'INR',
+            value: parseFloat(checkoutTotal),
+            items: cart.map((i, idx) => ({
+              item_id: i.id || i.name,
+              item_name: i.name,
+              price: parseFloat(i.price),
+              quantity: parseInt(i.quantity) || 1,
+              index: idx
+            }))
+          });
+        }
       } catch(e) {}
     });
 
@@ -1663,6 +1676,22 @@
 
         try {
           if (window.fbq) fbq('track', 'Purchase', { value: total, currency: 'INR', content_ids: cart.map(i => i.id || i.name) });
+          if (typeof window.gtag === 'function') {
+            window.gtag('event', 'purchase', {
+              transaction_id: orderId,
+              value: parseFloat(total),
+              currency: 'INR',
+              tax: 0,
+              shipping: parseFloat(shipping),
+              items: cart.map((item, idx) => ({
+                item_id: item.id || item.name,
+                item_name: item.name,
+                price: parseFloat(item.price),
+                quantity: parseInt(item.quantity) || 1,
+                index: idx
+              }))
+            });
+          }
         } catch(e) {}
 
         // 1. Save order locally for instant rendering on My Account & Admin

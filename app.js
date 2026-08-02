@@ -83,6 +83,8 @@ function injectCartDrawer() {
 // ==========================================================================
 
 window.getUserStorageKey = function (baseKey) {
+  // Cart always uses a single global key - prevents ₹0 bug when email is typed on checkout
+  if (baseKey === 'tabby_cart_items') return 'tabby_cart_items';
   try {
     const session = JSON.parse(localStorage.getItem('tabby_user_session') || 'null');
     if (session && session.email && session.loggedIn) {

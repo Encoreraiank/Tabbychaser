@@ -133,9 +133,17 @@ window.fetchCloudProducts = async function() {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      try { localStorage.setItem('tabby_cloud_products', JSON.stringify(data)); } catch(e) {}
+      return data;
+    }
     return Array.isArray(data) ? data : [];
   } catch (err) {
     window.logAppError('fetchCloudProducts', err);
+    try {
+      const cached = JSON.parse(localStorage.getItem('tabby_cloud_products') || '[]');
+      if (cached && cached.length) return cached;
+    } catch(e) {}
     return [];
   }
 };

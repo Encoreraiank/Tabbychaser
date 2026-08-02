@@ -101,20 +101,63 @@ window.parseCleanPrice = function (val) {
   return isNaN(num) ? 0 : num;
 };
 
+window.MASTER_PRODUCT_PRICES = {
+  'star cat charm': 639,
+  'sleepy frogabert charm': 339,
+  'bowtie kitty': 299,
+  'sir frogabert': 299,
+  'little capy charm': 299,
+  'matcha star charm': 345,
+  'woof & wiggles sticker pack': 179,
+  'cat chaos sticker pack': 169,
+  'ghost kitty charm': 299,
+  'tiny devil charm': 229,
+  'midnight bloom heart charm': 459,
+  'devil kitty charm': 229,
+  'star-cat-charm': 639,
+  'sleepy-frog-charm': 339,
+  'dapper-tabby-cat-charm': 299,
+  'bow-tie-frog-charm': 299,
+  'bloom-capybara-charm': 299,
+  'marbled-star-keychain': 345,
+  'woof-gang-sticker-collection': 179,
+  'chaos-cats-sticker-collection': 169,
+  'ghost-kitty-charm': 299,
+  'little-devil-charm': 229,
+  'midnight-bloom-heart-charm': 459,
+  'mischief-cat-charm': 229
+};
+
+window.resolveProductPrice = function (nameOrId, givenPrice) {
+  let p = window.parseCleanPrice(givenPrice);
+  if (p > 0) return p;
+
+  const key = String(nameOrId || '').toLowerCase().trim();
+  if (key && window.MASTER_PRODUCT_PRICES[key]) {
+    return window.MASTER_PRODUCT_PRICES[key];
+  }
+
+  try {
+    const cloudProds = JSON.parse(localStorage.getItem('tabby_cloud_products') || '[]');
+    const found = cloudProds.find(cp => 
+      (cp.name && cp.name.toLowerCase().trim() === key) ||
+      (cp.id && String(cp.id).toLowerCase().trim() === key)
+    );
+    if (found && found.price) {
+      const cpPrice = window.parseCleanPrice(found.price);
+      if (cpPrice > 0) return cpPrice;
+    }
+  } catch(e) {}
+
+  return p > 0 ? p : 0;
+};
+
 window.getCart = function () {
   try {
     const key = window.getUserStorageKey('tabby_cart_items');
     let items = JSON.parse(localStorage.getItem(key)) || [];
-    let cloudProds = [];
-    try { cloudProds = JSON.parse(localStorage.getItem('tabby_cloud_products') || '[]'); } catch(e) {}
-
     items.forEach(item => {
-      let p = window.parseCleanPrice(item.price);
-      if (p <= 0 && item.name && cloudProds.length) {
-        const found = cloudProds.find(cp => cp.name === item.name || (cp.id && String(cp.id).toLowerCase() === String(item.name).toLowerCase()));
-        if (found && found.price) p = window.parseCleanPrice(found.price);
-      }
-      item.price = p;
+      item.price = window.resolveProductPrice(item.name || item.id, item.price);
     });
     return items;
   } catch (e) { return []; }
@@ -132,7 +175,7 @@ window.toggleWishlist = function (id, name, price, img) {
   let list = window.getWishlist();
   const idx = list.findIndex(item => item.name === name);
   let isSaved;
-  const cleanPrice = window.parseCleanPrice(price);
+  const cleanPrice = window.resolveProductPrice(name, price);
   if (idx >= 0) {
     list.splice(idx, 1);
     isSaved = false;
@@ -167,15 +210,7 @@ window.saveCart = function (cart) {
 window.addGlobalCartItem = function (name, price, img, quantity = 1) {
   let cart = window.getCart();
   const addQty = Math.max(1, parseInt(quantity) || 1);
-  let cleanPrice = window.parseCleanPrice(price);
-
-  if (cleanPrice <= 0) {
-    try {
-      const cloudProds = JSON.parse(localStorage.getItem('tabby_cloud_products') || '[]');
-      const found = cloudProds.find(cp => cp.name === name || (cp.id && String(cp.id).toLowerCase() === String(name).toLowerCase()));
-      if (found && found.price) cleanPrice = window.parseCleanPrice(found.price);
-    } catch(e) {}
-  }
+  const cleanPrice = window.resolveProductPrice(name, price);
 
   const existing = cart.find(item => item.name === name);
   if (existing) {

@@ -93,10 +93,30 @@ window.getUserStorageKey = function (baseKey) {
   return `${baseKey}_guest`;
 };
 
+window.parseCleanPrice = function (val) {
+  if (typeof val === 'number') return isNaN(val) ? 0 : val;
+  if (!val) return 0;
+  const clean = String(val).replace(/[^0-9.]/g, '');
+  const num = parseFloat(clean);
+  return isNaN(num) ? 0 : num;
+};
+
 window.getCart = function () {
   try {
     const key = window.getUserStorageKey('tabby_cart_items');
-    return JSON.parse(localStorage.getItem(key)) || [];
+    let items = JSON.parse(localStorage.getItem(key)) || [];
+    let cloudProds = [];
+    try { cloudProds = JSON.parse(localStorage.getItem('tabby_cloud_products') || '[]'); } catch(e) {}
+
+    items.forEach(item => {
+      let p = window.parseCleanPrice(item.price);
+      if (p <= 0 && item.name && cloudProds.length) {
+        const found = cloudProds.find(cp => cp.name === item.name || (cp.id && String(cp.id).toLowerCase() === String(item.name).toLowerCase()));
+        if (found && found.price) p = window.parseCleanPrice(found.price);
+      }
+      item.price = p;
+    });
+    return items;
   } catch (e) { return []; }
 };
 
@@ -112,11 +132,12 @@ window.toggleWishlist = function (id, name, price, img) {
   let list = window.getWishlist();
   const idx = list.findIndex(item => item.name === name);
   let isSaved;
+  const cleanPrice = window.parseCleanPrice(price);
   if (idx >= 0) {
     list.splice(idx, 1);
     isSaved = false;
   } else {
-    list.push({ id: id || Date.now(), name, price: parseInt(price) || 0, img: img || '' });
+    list.push({ id: id || Date.now(), name, price: cleanPrice, img: img || '' });
     isSaved = true;
   }
   const key = window.getUserStorageKey('tabby_wishlist_items');
@@ -146,23 +167,34 @@ window.saveCart = function (cart) {
 window.addGlobalCartItem = function (name, price, img, quantity = 1) {
   let cart = window.getCart();
   const addQty = Math.max(1, parseInt(quantity) || 1);
+  let cleanPrice = window.parseCleanPrice(price);
+
+  if (cleanPrice <= 0) {
+    try {
+      const cloudProds = JSON.parse(localStorage.getItem('tabby_cloud_products') || '[]');
+      const found = cloudProds.find(cp => cp.name === name || (cp.id && String(cp.id).toLowerCase() === String(name).toLowerCase()));
+      if (found && found.price) cleanPrice = window.parseCleanPrice(found.price);
+    } catch(e) {}
+  }
+
   const existing = cart.find(item => item.name === name);
   if (existing) {
     existing.quantity += addQty;
+    if (cleanPrice > 0) existing.price = cleanPrice;
   } else {
-    cart.push({ name, price: parseInt(price), img, quantity: addQty });
+    cart.push({ name, price: cleanPrice, img, quantity: addQty });
   }
   window.saveCart(cart);
   try {
-    if (window.fbq) fbq('track', 'AddToCart', { content_name: name, value: parseInt(price) * addQty, currency: 'INR' });
+    if (window.fbq) fbq('track', 'AddToCart', { content_name: name, value: cleanPrice * addQty, currency: 'INR' });
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'add_to_cart', {
         currency: 'INR',
-        value: parseInt(price) * addQty,
+        value: cleanPrice * addQty,
         items: [{
           item_id: name,
           item_name: name,
-          price: parseInt(price),
+          price: cleanPrice,
           quantity: addQty
         }]
       });

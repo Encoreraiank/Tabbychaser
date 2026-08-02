@@ -1340,9 +1340,18 @@
 
       checkoutSubtotal = 0;
       let html = '';
+      let cloudProds = [];
+      try { cloudProds = JSON.parse(localStorage.getItem('tabby_cloud_products') || '[]'); } catch(e) {}
 
       cart.forEach(item => {
-        checkoutSubtotal += item.price * item.quantity;
+        let p = typeof window.parseCleanPrice === 'function' ? window.parseCleanPrice(item.price) : (parseFloat(String(item.price || 0).replace(/[^0-9.]/g, '')) || 0);
+        if (p <= 0 && item.name && cloudProds.length) {
+          const found = cloudProds.find(cp => cp.name === item.name || (cp.id && String(cp.id).toLowerCase() === String(item.name).toLowerCase()));
+          if (found && found.price) p = typeof window.parseCleanPrice === 'function' ? window.parseCleanPrice(found.price) : (parseFloat(String(found.price).replace(/[^0-9.]/g, '')) || 0);
+        }
+        item.price = p;
+
+        checkoutSubtotal += p * item.quantity;
         const displayImg = item.img || 'store-logo-c471e30d.webp';
         html += `
           <div class="summary-item-row">
@@ -1351,7 +1360,7 @@
               <span class="summary-item-name">${item.name}</span>
               <span class="summary-item-qty">Qty: ${item.quantity}</span>
             </div>
-            <span class="summary-item-price">₹${item.price * item.quantity}</span>
+            <span class="summary-item-price">₹${p * item.quantity}</span>
           </div>
         `;
       });

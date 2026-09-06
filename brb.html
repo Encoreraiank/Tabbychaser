@@ -13,81 +13,78 @@
       padding: 0;
     }
     html, body {
-      width: 100%;
-      height: 100%;
-      min-height: 100vh;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
       background-color: #FAF4EB;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     
     .brb-viewport {
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
       background-color: #FAF4EB;
     }
 
-    .brb-gif {
+    .brb-media {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      min-width: 100vw;
-      min-height: 100vh;
-      width: 100%;
-      height: 100%;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
       object-position: center;
       z-index: 1;
     }
 
-    .brb-mobile-gif {
+    .brb-mobile-media {
       display: block;
     }
-    .brb-pc-gif {
+    .brb-pc-media {
       display: none;
     }
 
     @media (min-width: 768px) {
-      .brb-mobile-gif {
+      .brb-mobile-media {
         display: none;
       }
-      .brb-pc-gif {
+      .brb-pc-media {
         display: block;
       }
     }
 
-    /* 100% Clickable Overlay over drawn Instagram button */
+    /* 100% Clickable Instagram Button Overlay (Proportionately Positioned) */
     .ig-click-area {
       position: absolute;
       z-index: 20;
       cursor: pointer;
       text-decoration: none;
       border-radius: 40px;
-      transition: all 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
     .ig-click-area:hover {
-      transform: translateX(-50%) scale(1.04);
-      box-shadow: 0 8px 25px rgba(45, 37, 34, 0.15);
+      transform: translateX(-50%) scale(1.05);
+      box-shadow: 0 8px 25px rgba(45, 37, 34, 0.2);
     }
 
     /* Mobile Position over drawn Instagram pill */
     @media (max-width: 767px) {
       .ig-click-area {
         left: 50%;
-        bottom: 12.5%;
+        bottom: 12%;
         transform: translateX(-50%);
-        width: 78%;
+        width: 76%;
         max-width: 320px;
-        height: 52px;
+        height: 54px;
       }
     }
 
@@ -95,10 +92,10 @@
     @media (min-width: 768px) {
       .ig-click-area {
         left: 50%;
-        bottom: 14%;
+        bottom: 13.5%;
         transform: translateX(-50%);
-        width: 280px;
-        height: 54px;
+        width: 290px;
+        height: 56px;
       }
     }
   </style>
@@ -106,9 +103,9 @@
 <body>
 
   <div class="brb-viewport">
-    <!-- User Animated GIFs -->
-    <img src="brb/edfwsfrw.gif" alt="Tabby Chaser Taking a Nap" class="brb-gif brb-mobile-gif" />
-    <img src="brb/tabyyywsed.gif" alt="Tabby Chaser Taking a Nap" class="brb-gif brb-pc-gif" />
+    <!-- Animated Media (Supports both GIF and MP4 Video seamlessly) -->
+    <img src="brb/edfwsfrw.gif" alt="Tabby Chaser Taking a Nap Mobile" class="brb-media brb-mobile-media" />
+    <img src="brb/tabyyywsed.gif" alt="Tabby Chaser Taking a Nap PC" class="brb-media brb-pc-media" />
 
     <!-- 100% Clickable Overlay over drawn Instagram button -->
     <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-click-area" title="Follow @tabbychaser on Instagram"></a>

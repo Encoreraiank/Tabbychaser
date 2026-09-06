@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabby Chaser – Taking a Little Nap 🐾</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #FAF4EB;
+      font-family: 'Fredoka', cursive, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+    .brb-container {
+      position: relative;
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .brb-img-wrapper {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .brb-img {
+      width: 100%;
+      height: auto;
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    }
+    .brb-img-mobile {
+      display: block;
+      max-width: 440px;
+    }
+    .brb-img-pc {
+      display: none;
+      max-width: 1000px;
+    }
+    @media (min-width: 768px) {
+      .brb-img-mobile {
+        display: none;
+      }
+      .brb-img-pc {
+        display: block;
+      }
+    }
+    /* Overlay for Instagram button on mobile image */
+    .ig-overlay-mobile {
+      position: absolute;
+      bottom: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 320px;
+      height: 54px;
+      border-radius: 30px;
+      display: block;
+      z-index: 10;
+      cursor: pointer;
+    }
+    /* Overlay for Instagram button on PC image */
+    .ig-overlay-pc {
+      position: absolute;
+      bottom: 9%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 320px;
+      height: 56px;
+      border-radius: 30px;
+      display: none;
+      z-index: 10;
+      cursor: pointer;
+    }
+    @media (min-width: 768px) {
+      .ig-overlay-mobile {
+        display: none;
+      }
+      .ig-overlay-pc {
+        display: block;
+      }
+    }
+    /* Explicit Backup Button Below Graphic */
+    .ig-button-fallback {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #2D2522;
+      color: #FAF4EB;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: 30px;
+      box-shadow: 0 4px 14px rgba(45, 37, 34, 0.15);
+      transition: all 0.2s ease;
+    }
+    .ig-button-fallback:hover {
+      transform: translateY(-2px);
+      background-color: #423632;
+      box-shadow: 0 6px 18px rgba(45, 37, 34, 0.25);
+    }
+    .ig-button-fallback svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+  </style>
+</head>
+<body>
+  <div class="brb-container">
+    <div class="brb-img-wrapper">
+      <img src="brb-mobile.png" alt="Tabby Chaser Taking a Nap" class="brb-img brb-img-mobile" />
+      <img src="brb-pc.jpg" alt="Tabby Chaser Taking a Nap" class="brb-img brb-img-pc" />
+      
+      <!-- Clickable Overlay over Instagram Button on the graphic -->
+      <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-overlay-mobile" title="Follow us on Instagram"></a>
+      <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-overlay-pc" title="Follow us on Instagram"></a>
+    </div>
+
+    <!-- Additional Clean Action Button below for 100% clickability on all devices -->
+    <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-button-fallback">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+      </svg>
+      Follow @tabbychaser on Instagram
+    </a>
+  </div>
+</body>
+</html>

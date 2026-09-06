@@ -3,6 +3,24 @@
 // Supabase is loaded via static <script> tags in each page's <head>.
 // ==========================================================================
 
+// ==========================================================================
+// HIBERNATION / BRB MODE TOGGLE
+// Set window.TABBY_HIBERNATION_MODE to true to activate BRB nap page across website.
+// Set window.TABBY_HIBERNATION_MODE to false to bring website back live instantly!
+// ==========================================================================
+window.TABBY_HIBERNATION_MODE = true;
+
+(function() {
+  try {
+    if (window.TABBY_HIBERNATION_MODE) {
+      const path = (window.location.pathname || '').toLowerCase();
+      if (!path.endsWith('brb.html') && !path.endsWith('admin.html') && !path.includes('/admin.html')) {
+        window.location.replace('brb.html');
+      }
+    }
+  } catch(e) {}
+})();
+
 
 // ==========================================================================
 // SLIDESHOW

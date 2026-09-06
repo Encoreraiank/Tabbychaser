@@ -13,8 +13,8 @@
       padding: 0;
     }
     html, body {
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
       background-color: #FAF4EB;
@@ -25,23 +25,25 @@
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background-color: #FAF4EB;
     }
 
     .brb-media {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       width: 100vw;
       height: 100vh;
-      object-fit: cover;
-      object-position: center;
+      min-width: 100vw;
+      min-height: 100vh;
+      object-fit: cover !important;
+      object-position: center !important;
       z-index: 1;
     }
 
@@ -54,10 +56,10 @@
 
     @media (min-width: 768px) {
       .brb-mobile-media {
-        display: none;
+        display: none !important;
       }
       .brb-pc-media {
-        display: block;
+        display: block !important;
       }
     }
 
@@ -103,9 +105,9 @@
 <body>
 
   <div class="brb-viewport">
-    <!-- Animated Media (Supports both GIF and MP4 Video seamlessly) -->
-    <img src="brb/edfwsfrw.gif" alt="Tabby Chaser Taking a Nap Mobile" class="brb-media brb-mobile-media" />
-    <img src="brb/tabyyywsed.gif" alt="Tabby Chaser Taking a Nap PC" class="brb-media brb-pc-media" />
+    <!-- Animated Media (Cache Busted & Force Centered Full Bleed) -->
+    <img src="brb/edfwsfrw.gif?v=2" alt="Tabby Chaser Taking a Nap Mobile" class="brb-media brb-mobile-media" />
+    <img src="brb/tabyyywsed.gif?v=2" alt="Tabby Chaser Taking a Nap PC" class="brb-media brb-pc-media" />
 
     <!-- 100% Clickable Overlay over drawn Instagram button -->
     <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-click-area" title="Follow @tabbychaser on Instagram"></a>

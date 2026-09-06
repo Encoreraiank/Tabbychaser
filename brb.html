@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Tabby Chaser – Taking a Little Nap 🐾</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="48x48" href="favicon.png" />
@@ -15,139 +15,295 @@
       margin: 0;
       padding: 0;
     }
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
       background-color: #FAF4EB;
       font-family: 'Fredoka', cursive, sans-serif;
-      min-height: 100vh;
+      overflow: hidden;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-      overflow-x: hidden;
     }
-    .brb-container {
+    
+    /* Fullscreen Viewport Wrapper */
+    .brb-viewport {
       position: relative;
-      width: 100%;
-      max-width: 1080px;
-      margin: 0 auto;
+      width: 100vw;
+      height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+      background-color: #FAF4EB;
     }
-    .brb-img-wrapper {
-      position: relative;
+
+    /* Background Full Bleed Graphics */
+    .brb-bg-img {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: 1;
     }
-    .brb-img {
-      width: 100%;
-      height: auto;
-      max-height: 92vh;
-      object-fit: contain;
-      border-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-    }
-    .brb-img-mobile {
+
+    .brb-mobile-img {
       display: block;
-      max-width: 440px;
     }
-    .brb-img-pc {
+    .brb-pc-img {
       display: none;
-      max-width: 1000px;
     }
+
     @media (min-width: 768px) {
-      .brb-img-mobile {
+      .brb-mobile-img {
         display: none;
       }
-      .brb-img-pc {
+      .brb-pc-img {
         display: block;
       }
     }
-    /* Overlay for Instagram button on mobile image */
-    .ig-overlay-mobile {
+
+    /* Animation Layer Container (Scaled to graphic coordinates) */
+    .anim-layer {
       position: absolute;
-      bottom: 8%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      max-width: 320px;
-      height: 54px;
-      border-radius: 30px;
-      display: block;
-      z-index: 10;
-      cursor: pointer;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+      pointer-events: none;
     }
-    /* Overlay for Instagram button on PC image */
-    .ig-overlay-pc {
+
+    /* --- 1. COFFEE STEAM ANIMATION --- */
+    .steam-container {
       position: absolute;
-      bottom: 9%;
+      pointer-events: none;
+    }
+    /* Mobile Steam Position (Above Coffee Mug) */
+    @media (max-width: 767px) {
+      .steam-container {
+        left: 20%;
+        bottom: 30%;
+        width: 60px;
+        height: 80px;
+      }
+    }
+    /* PC Steam Position (Above Coffee Mug) */
+    @media (min-width: 768px) {
+      .steam-container {
+        left: 37.5%;
+        bottom: 27%;
+        width: 70px;
+        height: 90px;
+      }
+    }
+
+    .steam-line {
+      position: absolute;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to top, rgba(255,255,255,0.7), rgba(255,255,255,0));
+      border-radius: 50%;
+      filter: blur(2px);
+      animation: steamRising 3.5s infinite ease-out;
+    }
+    .steam-line:nth-child(1) {
+      left: 20%;
+      height: 45px;
+      animation-delay: 0s;
+    }
+    .steam-line:nth-child(2) {
       left: 50%;
-      transform: translateX(-50%);
-      width: 320px;
-      height: 56px;
-      border-radius: 30px;
-      display: none;
-      z-index: 10;
-      cursor: pointer;
+      height: 60px;
+      animation-delay: 1.2s;
+    }
+    .steam-line:nth-child(3) {
+      left: 75%;
+      height: 40px;
+      animation-delay: 2.3s;
+    }
+
+    @keyframes steamRising {
+      0% {
+        transform: translateY(0) scaleX(1);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.65;
+      }
+      50% {
+        transform: translateY(-25px) scaleX(1.8) rotate(5deg);
+        opacity: 0.4;
+      }
+      100% {
+        transform: translateY(-60px) scaleX(2.5) rotate(-8deg);
+        opacity: 0;
+      }
+    }
+
+    /* --- 2. SLEEPING CAT "z Z z" FLOATING ANIMATION --- */
+    .zzz-container {
+      position: absolute;
+      pointer-events: none;
+    }
+    @media (max-width: 767px) {
+      .zzz-container {
+        left: 58%;
+        bottom: 37%;
+      }
     }
     @media (min-width: 768px) {
-      .ig-overlay-mobile {
-        display: none;
-      }
-      .ig-overlay-pc {
-        display: block;
+      .zzz-container {
+        left: 52.5%;
+        bottom: 39%;
       }
     }
-    /* Explicit Backup Button Below Graphic */
-    .ig-button-fallback {
-      margin-top: 16px;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background-color: #2D2522;
-      color: #FAF4EB;
+
+    .zzz-char {
+      position: absolute;
+      font-weight: 700;
+      color: #5C4A42;
+      opacity: 0;
+      animation: floatZZZ 4s infinite ease-in-out;
+    }
+    .zzz-1 {
+      font-size: 1.1rem;
+      left: 0;
+      animation-delay: 0s;
+    }
+    .zzz-2 {
+      font-size: 1.4rem;
+      left: 14px;
+      animation-delay: 1.3s;
+    }
+    .zzz-3 {
+      font-size: 1.8rem;
+      left: 32px;
+      animation-delay: 2.6s;
+    }
+
+    @keyframes floatZZZ {
+      0% {
+        transform: translateY(0) scale(0.7) rotate(-5deg);
+        opacity: 0;
+      }
+      30% {
+        opacity: 0.85;
+      }
+      70% {
+        transform: translateY(-30px) scale(1.1) rotate(8deg);
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateY(-55px) scale(1.3) rotate(-3deg);
+        opacity: 0;
+      }
+    }
+
+    /* --- 3. FLOATING SPARKLES --- */
+    .sparkle {
+      position: absolute;
+      font-size: 1.2rem;
+      color: #EFA855;
+      pointer-events: none;
+      animation: sparkleGlow 3s infinite ease-in-out alternate;
+    }
+    .sparkle-1 {
+      top: 36%;
+      left: 64%;
+      animation-delay: 0.5s;
+    }
+    .sparkle-2 {
+      top: 26%;
+      left: 34%;
+      animation-delay: 1.8s;
+    }
+
+    @keyframes sparkleGlow {
+      0% { transform: scale(0.8) rotate(0deg); opacity: 0.3; }
+      100% { transform: scale(1.3) rotate(20deg); opacity: 1; filter: drop-shadow(0 0 4px #FBD38D); }
+    }
+
+    /* --- 4. INSTAGRAM BUTTON OVERLAY (EXACT POSITION OVER GRAPHIC) --- */
+    .ig-click-area {
+      position: absolute;
+      z-index: 20;
+      cursor: pointer;
       text-decoration: none;
-      font-size: 1rem;
-      font-weight: 600;
-      padding: 12px 28px;
-      border-radius: 30px;
-      box-shadow: 0 4px 14px rgba(45, 37, 34, 0.15);
-      transition: all 0.2s ease;
+      border-radius: 40px;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .ig-button-fallback:hover {
-      transform: translateY(-2px);
-      background-color: #423632;
-      box-shadow: 0 6px 18px rgba(45, 37, 34, 0.25);
+    
+    .ig-click-area:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(45, 37, 34, 0.15);
     }
-    .ig-button-fallback svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
+
+    /* Mobile Position (Exactly over drawn pill) */
+    @media (max-width: 767px) {
+      .ig-click-area {
+        left: 50%;
+        bottom: 12.5%;
+        transform: translateX(-50%);
+        width: 76%;
+        max-width: 320px;
+        height: 52px;
+      }
+      .ig-click-area:hover {
+        transform: translateX(-50%) scale(1.04);
+      }
+    }
+
+    /* PC Position (Exactly over drawn pill) */
+    @media (min-width: 768px) {
+      .ig-click-area {
+        left: 50%;
+        bottom: 14%;
+        transform: translateX(-50%);
+        width: 280px;
+        height: 54px;
+      }
+      .ig-click-area:hover {
+        transform: translateX(-50%) scale(1.05);
+      }
     }
   </style>
 </head>
 <body>
-  <div class="brb-container">
-    <div class="brb-img-wrapper">
-      <img src="brb-mobile.png" alt="Tabby Chaser Taking a Nap" class="brb-img brb-img-mobile" />
-      <img src="brb-pc.jpg" alt="Tabby Chaser Taking a Nap" class="brb-img brb-img-pc" />
-      
-      <!-- Clickable Overlay over Instagram Button on the graphic -->
-      <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-overlay-mobile" title="Follow us on Instagram"></a>
-      <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-overlay-pc" title="Follow us on Instagram"></a>
+
+  <div class="brb-viewport">
+    <!-- Full-Bleed Background Images -->
+    <img src="brb-mobile.png" alt="Tabby Chaser BRB Mobile" class="brb-bg-img brb-mobile-img" />
+    <img src="brb-pc.jpg" alt="Tabby Chaser BRB Desktop" class="brb-bg-img brb-pc-img" />
+
+    <!-- Animated Effects Layer -->
+    <div class="anim-layer">
+      <!-- 1. Rising Coffee Steam -->
+      <div class="steam-container">
+        <div class="steam-line"></div>
+        <div class="steam-line"></div>
+        <div class="steam-line"></div>
+      </div>
+
+      <!-- 2. Sleeping Cat Floating zZZ -->
+      <div class="zzz-container">
+        <span class="zzz-char zzz-1">z</span>
+        <span class="zzz-char zzz-2">Z</span>
+        <span class="zzz-char zzz-3">z</span>
+      </div>
+
+      <!-- 3. Cozy Sparkles -->
+      <span class="sparkle sparkle-1">✨</span>
+      <span class="sparkle sparkle-2">✨</span>
     </div>
 
-    <!-- Additional Clean Action Button below for 100% clickability on all devices -->
-    <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-button-fallback">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-      </svg>
-      Follow @tabbychaser on Instagram
-    </a>
+    <!-- 4. Interactive Clickable Instagram Button (Positioned exactly over the graphic's Instagram pill) -->
+    <a href="https://www.instagram.com/tabbychaser/" target="_blank" rel="noopener" class="ig-click-area" title="Follow @tabbychaser on Instagram"></a>
   </div>
+
 </body>
 </html>

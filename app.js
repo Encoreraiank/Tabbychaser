@@ -5,10 +5,10 @@
 
 // ==========================================================================
 // HIBERNATION / BRB MODE TOGGLE
-// Set window.TABBY_HIBERNATION_MODE to true to activate BRB nap page across website.
-// Set window.TABBY_HIBERNATION_MODE to false to bring website back live instantly!
+// Automatically shows BRB on live domain (tabbychaser.store), but shows full store on localhost for client demos!
 // ==========================================================================
-window.TABBY_HIBERNATION_MODE = true;
+const isLocalhostDemo = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+window.TABBY_HIBERNATION_MODE = !isLocalhostDemo;
 
 (function() {
   try {
